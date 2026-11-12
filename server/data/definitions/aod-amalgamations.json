@@ -1,0 +1,50 @@
+{
+ "id": "aod-amalgamations",
+ "targetCache": {
+  "name": "osrs-242_2026-11-03",
+  "game": "oldschool",
+  "revision": 242
+ },
+ "sourceCache": {
+  "name": "osrs-241_2026-10-20",
+  "game": "oldschool",
+  "revision": 241,
+  "environment": "live",
+  "timestamp": "2026-10-20T09:00:05.929Z",
+  "size": 0
+ },
+ "definitions": [
+  {
+   "kind": "npc",
+   "symbol": "aod_smoke_amalgamation",
+   "sourceId": 16779,
+   "id": 17007,
+   "dataBase64": "PQEAD0QCAlNtb2tlIGFtYWxnYW1hdGlvbgAMAmEA2mIA2h9BdHRhY2sAXQA=",
+   "crc": 677879995
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_shadow_amalgamation",
+   "sourceId": 16780,
+   "id": 17008,
+   "dataBase64": "PQEAD0QDAlNoYWRvdyBhbWFsZ2FtYXRpb24ADAJhANpiANofQXR0YWNrAF0A",
+   "crc": 559682202
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_blood_amalgamation",
+   "sourceId": 16781,
+   "id": 17009,
+   "dataBase64": "PQEAD0QEAkJsb29kIGFtYWxnYW1hdGlvbgAMAmEA2mIA2h9BdHRhY2sAXQA=",
+   "crc": 2271728656
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_ice_amalgamation",
+   "sourceId": 16782,
+   "id": 17010,
+   "dataBase64": "PQEAD0QFAkljZSBhbWFsZ2FtYXRpb24ADAJhANpiANofQXR0YWNrAF0A",
+   "crc": 3264904618
+  }
+ ]
+}

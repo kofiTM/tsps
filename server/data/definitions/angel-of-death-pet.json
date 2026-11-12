@@ -1,0 +1,34 @@
+{
+ "id": "angel-of-death-pet",
+ "targetCache": {
+  "name": "osrs-242_2026-11-03",
+  "game": "oldschool",
+  "revision": 242
+ },
+ "sourceCache": {
+  "name": "osrs-241_2026-10-20",
+  "game": "oldschool",
+  "revision": 241,
+  "environment": "live",
+  "timestamp": "2026-10-20T09:00:05.929Z",
+  "size": 0
+ },
+ "definitions": [
+  {
+   "kind": "npc",
+   "symbol": "lil_angel",
+   "sourceId": 16777,
+   "id": 17005,
+   "dataBase64": "DiPYDSPZYQAwYgAwXwAADAEeVGFsay10bwAgUGljay11cABdensCTmV4bGluZwA9AQAAqMk+AQAAqNkCTGlsJyBBbmdlbAA9AQAPRAEA",
+   "crc": 3902620817
+  },
+  {
+   "kind": "npc",
+   "symbol": "reeves",
+   "sourceId": 16778,
+   "id": 17006,
+   "dataBase64": "DAISBj8OI+kNI+tfAKFLAGRPAL5NAJYfQXR0YWNrAAJCbG9vZCBSZWF2ZXIAPQEAAKjR+QcAAAAaAAAABQAAAA4AAAAFAAAABQAAAAAAAAAGAAAAUAAAAAcAAAB4AAAACAAAASwAAAAu/////wJSZWV2ZXMADAFhAEhiAEgfSGlkZGVuAB5UYWxrLXRvACBQaWNrLXVwAF8AAF16ewA=",
+   "crc": 1264897896
+  }
+ ]
+}

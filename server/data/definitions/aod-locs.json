@@ -1,0 +1,402 @@
+{
+ "id": "aod-arena",
+ "targetCache": {
+  "name": "osrs-242_2026-11-03",
+  "game": "oldschool",
+  "revision": 242
+ },
+ "sourceCache": {
+  "name": "osrs-241_2026-10-20",
+  "game": "oldschool",
+  "revision": 241,
+  "environment": "live",
+  "timestamp": "2026-10-20T09:00:05.929Z",
+  "size": 0
+ },
+ "definitions": [
+  {
+   "kind": "npc",
+   "symbol": "aod_pillar_of_blood",
+   "sourceId": 16773,
+   "id": 17001,
+   "dataBase64": "PQEAD0PRAlBpbGxhciBvZiBCbG9vZAAMAx9BdHRhY2sAXQA=",
+   "crc": 10203421
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_pillar_of_ice",
+   "sourceId": 16774,
+   "id": 17002,
+   "dataBase64": "PQEAD0PTAlBpbGxhciBvZiBJY2UADAMfQXR0YWNrAF0A",
+   "crc": 2545979983
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_pillar_of_smoke",
+   "sourceId": 16775,
+   "id": 17003,
+   "dataBase64": "PQEAD0PUAlBpbGxhciBvZiBTbW9rZQAMAx9BdHRhY2sAXQA=",
+   "crc": 2623306650
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_pillar_of_shadow",
+   "sourceId": 16776,
+   "id": 17004,
+   "dataBase64": "PQEAD0PVAlBpbGxhciBvZiBTaGFkb3cADAMfQXR0YWNrAF0A",
+   "crc": 1334529822
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_100803_10",
+   "sourceId": 63307,
+   "id": 63600,
+   "dataBase64": "BgEAD0PQCg4DEQA=",
+   "crc": 704480045
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_100813_10",
+   "sourceId": 63309,
+   "id": 63602,
+   "dataBase64": "BgEAD0PSCg4HDwcRAA==",
+   "crc": 1152845811
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_100824_10",
+   "sourceId": 63313,
+   "id": 63606,
+   "dataBase64": "BgEAD0PWCg4CDwMRAA==",
+   "crc": 252980901
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_100825_10",
+   "sourceId": 63314,
+   "id": 63607,
+   "dataBase64": "BgEAD0PXCg4CDwMRAA==",
+   "crc": 3284020795
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_104749_10",
+   "sourceId": 63315,
+   "id": 63608,
+   "dataBase64": "BgEAD0PYCg4EDwQRAA==",
+   "crc": 2425479090
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_104750_10",
+   "sourceId": 63316,
+   "id": 63609,
+   "dataBase64": "BgEAD0PZCg4EDwQRAA==",
+   "crc": 1547427628
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_104751_10",
+   "sourceId": 63317,
+   "id": 63610,
+   "dataBase64": "BgEAD0PaCg4EDwQRAA==",
+   "crc": 3535067343
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_104752_10",
+   "sourceId": 63318,
+   "id": 63611,
+   "dataBase64": "BgEAD0PbCg4EDwQRAA==",
+   "crc": 505337937
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_104753_10",
+   "sourceId": 63319,
+   "id": 63612,
+   "dataBase64": "BgEAD0PcCg4EDwQRAA==",
+   "crc": 349950280
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106366_10",
+   "sourceId": 63320,
+   "id": 63613,
+   "dataBase64": "BgEAD0PdCg4EDwQRAA==",
+   "crc": 3631337942
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106367_10",
+   "sourceId": 63321,
+   "id": 63614,
+   "dataBase64": "BgEAD0PeCg4EDwQRAA==",
+   "crc": 1459541557
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106368_10",
+   "sourceId": 63322,
+   "id": 63615,
+   "dataBase64": "BgEAD0PfCg4EDwQRAA==",
+   "crc": 2589251243
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106369_10",
+   "sourceId": 63323,
+   "id": 63616,
+   "dataBase64": "BgEAD0PgCg4FDwQRAA==",
+   "crc": 4225351370
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106370_10",
+   "sourceId": 63324,
+   "id": 63617,
+   "dataBase64": "BgEAD0PhCg4FDwQRAA==",
+   "crc": 930332244
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106371_10",
+   "sourceId": 63325,
+   "id": 63618,
+   "dataBase64": "BgEAD0PiCg4FDwURAA==",
+   "crc": 3091125120
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106391_10",
+   "sourceId": 63326,
+   "id": 63619,
+   "dataBase64": "BgEAD0PjCg8FEQA=",
+   "crc": 388165113
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106415_10",
+   "sourceId": 63327,
+   "id": 63620,
+   "dataBase64": "BgEAD0PkChEA",
+   "crc": 2968489311
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106416_10",
+   "sourceId": 63328,
+   "id": 63621,
+   "dataBase64": "BgEAD0PlChEA",
+   "crc": 139717178
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_106420_10",
+   "sourceId": 63329,
+   "id": 63622,
+   "dataBase64": "BgEAD0PmChEA",
+   "crc": 451298772
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_15_15",
+   "sourceId": 63330,
+   "id": 63623,
+   "dataBase64": "BgEAD0PnFhEA",
+   "crc": 3076946085
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_15_23",
+   "sourceId": 63331,
+   "id": 63624,
+   "dataBase64": "BgEAD0PoFhEA",
+   "crc": 4010109171
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_15_31",
+   "sourceId": 63332,
+   "id": 63625,
+   "dataBase64": "BgEAD0PpFhEA",
+   "crc": 1471745942
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_15_39",
+   "sourceId": 63333,
+   "id": 63626,
+   "dataBase64": "BgEAD0PqFhEA",
+   "crc": 1158455416
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_15_47",
+   "sourceId": 63334,
+   "id": 63627,
+   "dataBase64": "BgEAD0PrFhEA",
+   "crc": 4256220957
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_23_15",
+   "sourceId": 63335,
+   "id": 63628,
+   "dataBase64": "BgEAD0PsFhEA",
+   "crc": 1617428388
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_23_23",
+   "sourceId": 63336,
+   "id": 63629,
+   "dataBase64": "BgEAD0PtFhEA",
+   "crc": 3638270145
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_23_31",
+   "sourceId": 63337,
+   "id": 63630,
+   "dataBase64": "BgEAD0PuFhEA",
+   "crc": 3396220719
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_23_39",
+   "sourceId": 63338,
+   "id": 63631,
+   "dataBase64": "BgEAD0PvFhEA",
+   "crc": 1926385738
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_23_47",
+   "sourceId": 63339,
+   "id": 63632,
+   "dataBase64": "BgEAD0PwFhEA",
+   "crc": 2057836419
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_31_15",
+   "sourceId": 63340,
+   "id": 63633,
+   "dataBase64": "BgEAD0PxFhEA",
+   "crc": 3256119526
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_31_23",
+   "sourceId": 63341,
+   "id": 63634,
+   "dataBase64": "BgEAD0PyFhEA",
+   "crc": 3500269320
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_31_31",
+   "sourceId": 63342,
+   "id": 63635,
+   "dataBase64": "BgEAD0PzFhEA",
+   "crc": 1746778221
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_31_39",
+   "sourceId": 63343,
+   "id": 63636,
+   "dataBase64": "BgEAD0P0FhEA",
+   "crc": 4123689172
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_31_47",
+   "sourceId": 63344,
+   "id": 63637,
+   "dataBase64": "BgEAD0P1FhEA",
+   "crc": 1299638193
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_39_15",
+   "sourceId": 63345,
+   "id": 63638,
+   "dataBase64": "BgEAD0P2FhEA",
+   "crc": 1606633567
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_39_23",
+   "sourceId": 63346,
+   "id": 63639,
+   "dataBase64": "BgEAD0P3FhEA",
+   "crc": 3883872058
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_39_31",
+   "sourceId": 63347,
+   "id": 63640,
+   "dataBase64": "BgEAD0P4FhEA",
+   "crc": 3206299500
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_39_39",
+   "sourceId": 63348,
+   "id": 63641,
+   "dataBase64": "BgEAD0P5FhEA",
+   "crc": 127948809
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_39_47",
+   "sourceId": 63349,
+   "id": 63642,
+   "dataBase64": "BgEAD0P6FhEA",
+   "crc": 353761255
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_47_15",
+   "sourceId": 63350,
+   "id": 63643,
+   "dataBase64": "BgEAD0P7FhEA",
+   "crc": 2913570946
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_47_23",
+   "sourceId": 63351,
+   "id": 63644,
+   "dataBase64": "BgEAD0P8FhEA",
+   "crc": 813606971
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_47_31",
+   "sourceId": 63352,
+   "id": 63645,
+   "dataBase64": "BgEAD0P9FhEA",
+   "crc": 2294468446
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_47_39",
+   "sourceId": 63353,
+   "id": 63646,
+   "dataBase64": "BgEAD0P+FhEA",
+   "crc": 2591514800
+  },
+  {
+   "kind": "loc",
+   "symbol": "aod_floor_47_47",
+   "sourceId": 63354,
+   "id": 63647,
+   "dataBase64": "BgEAD0P/FhEA",
+   "crc": 583731157
+  }
+ ]
+}

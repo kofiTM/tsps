@@ -1,0 +1,529 @@
+{
+  "hitpoints": 6000,
+  "phases": {
+    "_note": "kofi 2026-11-11: phase 1 until 5000 hp, 2 (Fumus, smoke) until 4000, 3 (Umbra, shadow) until 3000, 4 (Cruor, blood) until 2000, 5 (Glacies, ice); the last phase comes next. A phase starts once her hp is at or below `below` and the last phase's minion is gone; `minion` is the element whose minion she calls (aod.json minions). ::aodphase <n> (or ::phase <n>) sets her hp to that phase's `below`.",
+    "1": {
+      "until": 5000
+    },
+    "2": {
+      "below": 5000,
+      "minion": "smoke",
+      "until": 4000
+    },
+    "3": {
+      "below": 4000,
+      "minion": "shadow",
+      "until": 3000
+    },
+    "4": {
+      "below": 3000,
+      "minion": "blood",
+      "until": 2000
+    },
+    "5": {
+      "below": 2000,
+      "minion": "ice"
+    }
+  },
+  "intro": {
+    "say": "Who dares wake the Angel of Death?",
+    "landAnim": 60100,
+    "landSound": [
+      5303,
+      52,
+      10
+    ],
+    "pillars": [
+      {
+        "pillar": "smoke",
+        "name": "Fumus",
+        "say": "Smoke!",
+        "tick": 7,
+        "anim": 9189,
+        "sound": 5275,
+        "projectile": {
+          "id": 60010,
+          "start": 30,
+          "end": 120,
+          "startHeight": 90,
+          "endHeight": 48,
+          "angle": 3,
+          "progress": 0
+        }
+      },
+      {
+        "pillar": "shadow",
+        "name": "Umbra",
+        "say": "Shadow!",
+        "tick": 10,
+        "anim": 9188,
+        "sound": 5211,
+        "projectile": {
+          "id": 60011,
+          "start": 30,
+          "end": 120,
+          "startHeight": 90,
+          "endHeight": 48,
+          "angle": 3,
+          "progress": 0
+        }
+      },
+      {
+        "pillar": "blood",
+        "name": "Cruor",
+        "say": "Blood!",
+        "tick": 13,
+        "anim": 9189,
+        "sound": 5275,
+        "projectile": {
+          "id": 60012,
+          "start": 30,
+          "end": 120,
+          "startHeight": 90,
+          "endHeight": 48,
+          "angle": 3,
+          "progress": 0
+        }
+      },
+      {
+        "pillar": "ice",
+        "name": "Glacies",
+        "say": "Ice!",
+        "tick": 16,
+        "anim": 9188,
+        "sound": 5211,
+        "projectile": {
+          "id": 60013,
+          "start": 30,
+          "end": 120,
+          "startHeight": 90,
+          "endHeight": 48,
+          "angle": 3,
+          "progress": 0
+        }
+      }
+    ],
+    "powerSound": [
+      5286,
+      30
+    ],
+    "rise": {
+      "tick": 19,
+      "anim": 9187,
+      "radius": 3,
+      "graphic": 2014,
+      "sounds": [
+        [
+          5236,
+          0
+        ],
+        [
+          5241,
+          30
+        ]
+      ],
+      "enabled": true,
+      "_note": "kofi 2026-11-11: back as it was: after Ice! she rises, lands with her line, and the fight starts 3 ticks later. A 3-tick pause after 'Who dares wake...' (said at 2) before the first pillar, to read the chat."
+    },
+    "line": {
+      "tick": 22,
+      "say": "All of the elements' power is now mine to control!"
+    },
+    "activeTick": 25,
+    "music": 710,
+    "silence": 147,
+    "sayTick": 2,
+    "fallNote": "60100: custom-seqs.json (scripts/rs3-port/aod_fall.py); she touches down ~52 client cycles in"
+  },
+  "immune": "Nex: Angel of Death is immune to your attacks!",
+  "combat": {
+    "_note": "Her autos are Nex's (docs/nex.md, Attacks.Nex.js) on a 5x5 body; her element changes at random (kofi).",
+    "attackSpeed": 4,
+    "consumedSpeed": 2,
+    "_consumedSpeed": "kofi 2026-11-11: once she has consumed an element's minion (Fumus: smoke), her spell autos in that element come every consumedSpeed ticks (2x speed). Melee and her other elements stay at attackSpeed.",
+    "meleeMax": 27,
+    "magicMax": 33,
+    "shadowMax": 60,
+    "magicRange": 10,
+    "spellsHitEveryone": true,
+    "_spellsHitEveryone": "kofi 2026-11-11: her smoke, shadow and ice spells hit everyone in the arena, not only within magicRange (blood stays the 3x3 round her target). While a minion holds her in the middle she can also target anyone in the arena.",
+    "meleeChain": 3,
+    "retargetEvery": 4,
+    "elementEvery": [
+      3,
+      6
+    ],
+    "firstElement": "smoke",
+    "elements": {
+      "smoke": {
+        "line": "Fill my soul with smoke!",
+        "projectile": 60010
+      },
+      "shadow": {
+        "line": "Darken my shadow!",
+        "projectile": 60011
+      },
+      "blood": {
+        "line": "Flood my lungs with blood!",
+        "projectile": 60012
+      },
+      "ice": {
+        "line": "Infuse me with the power of ice!",
+        "projectile": 60013
+      },
+      "zaros": {
+        "line": "Fine! I'll use the full power of the elements myself!!",
+        "projectile": 2007
+      }
+    },
+    "freezeTicks": 15,
+    "freezeGap": 5,
+    "poisonSeverity": 40,
+    "prayerBlockSeconds": 5,
+    "soulSplit": {
+      "icon": 11,
+      "onAttacks": 4,
+      "offAttacks": [
+        4,
+        8
+      ],
+      "share": 0.2,
+      "projectile": {
+        "id": 2009,
+        "start": 0,
+        "end": 60,
+        "startHeight": 30,
+        "endHeight": 48
+      },
+      "sound": 5237,
+      "healSound": [
+        5281,
+        0
+      ],
+      "_note": "kofi 2026-11-11: only once Glacies is consumed (the last phase); never in phases 1-5."
+    },
+    "rush": {
+      "_note": "kofi 2026-11-11: once Glacies is consumed (the last phase) she stays in the middle casting, and on any attack she may instead rush: run (2 tiles a tick) at a random player, melee them (her melee: max 27, Protect from Melee blocks 80%), and teleport straight back to the middle. Given up after `giveUpTicks` if she can't reach them.",
+      "chance": 0.2,
+      "steps": 2,
+      "giveUpTicks": 12,
+      "teleportGraphic": 2014,
+      "enabled": false,
+      "_removed": "kofi 2026-11-11: removed (it zig-zagged). The code is still in Fight.AngelOfDeath.js (startRush), off while enabled is false."
+    }
+  },
+  "specials": {
+    "_note": "kofi 2026-11-11: 8 attacks between specials, in rounds: Elemental Lockdown, then 2 of Nex's picked at random (no repeat in a round). Ice Containment is left out. Specials.AngelOfDeath.js.",
+    "firstAfter": 8,
+    "every": 8,
+    "everyAfterGlacies": 4,
+    "_everyAfterGlacies": "kofi 2026-11-11: once Glacies is consumed, a special every 4 attacks instead of 8.",
+    "pool": [
+      "cough",
+      "smash",
+      "siphon",
+      "sacrifice",
+      "prison"
+    ],
+    "randomPerRound": 2,
+    "siphon": {
+      "reaverHitpoints": 150,
+      "spawnRadius": 6,
+      "animTicks": 10
+    },
+    "smash": {
+      "_note": "kofi 2026-11-11: her Shadow Smash (Nex's pools, erupting 4 ticks after each lands) comes in waves once she has consumed minions: each wave lands under everyone where they stand on that tick, `gap` ticks after the last, so you keep stepping. Waves by the last of these consumed: Umbra (shadow) 2, Cruor (blood) 3, Glacies (ice) 4. Once Umbra is consumed, every round of her specials has it.",
+      "gap": 1,
+      "waves": {
+        "shadow": 2,
+        "blood": 3,
+        "ice": 4
+      }
+    }
+  },
+  "lockdown": {
+    "_note": "Elemental Lockdown (RS3, docs/aod-fight.md): walls on the midlines, three bolts at the quadrant she faces, three reavers walking to her.",
+    "say": "The elements, they call to me...",
+    "tell": {
+      "_note": "kofi: before she leaps, the chosen quadrant's pillar fires at her, so you can see where she'll land. Her other lockdown ticks count from the leap, `ticks` later.",
+      "ticks": 2,
+      "pillars": {
+        "sw": "smoke",
+        "nw": "blood",
+        "ne": "ice",
+        "se": "shadow"
+      },
+      "projectile": {
+        "start": 0,
+        "end": 60
+      }
+    },
+    "jumpAnim": 60101,
+    "dropTick": 3,
+    "landAnim": 60100,
+    "landTick": 5,
+    "slamMax": 25,
+    "wallTick": 6,
+    "channel": {
+      "_note": "kofi 2026-11-11: after she lands she throws a large ball of the faced pillar's element at the pillar (her mage attack), powering it up, then kneels in Nex's siphon (9183) while the pillar's three hits land on everyone in the quadrant, or on her if the quadrant is empty.",
+      "throwTick": 6,
+      "throwAnims": {
+        "blood": 9188,
+        "ice": 9188,
+        "smoke": 9189,
+        "shadow": 9189
+      },
+      "throwProjectiles": {
+        "smoke": 60014,
+        "shadow": 60015,
+        "blood": 60016,
+        "ice": 60017
+      },
+      "throw": {
+        "start": 46,
+        "startHeight": 40,
+        "endHeight": 90,
+        "angle": 5,
+        "progress": 84
+      },
+      "siphonTick": 8,
+      "siphonAnim": 60104,
+      "siphonTicks": 14,
+      "_siphon": "60104 is Nex's siphon (9183) fitted to 14 ticks with its stand-up at the end (scripts/rs3-port/aod_hold.py SIPHON_TICKS; change both together). She attacks again once it ends."
+    },
+    "wallLoc": 42943,
+    "wallInner": 1,
+    "_wallInner": "kofi 2026-11-11: icicles carried this many tiles further in, onto the edge of her body. Solid like the rest (kofi), so the quadrants are sealed and she can't step off the middle until the walls drop.",
+    "wallUntil": 36,
+    "wallMax": 15,
+    "interior": [
+      15,
+      49
+    ],
+    "midline": 32,
+    "bolts": [
+      {
+        "tick": 9
+      },
+      {
+        "tick": 11
+      },
+      {
+        "tick": 13
+      }
+    ],
+    "boltMax": 38,
+    "pillarBolt": {
+      "_note": "The pillar's hit: her element's projectile (combat.elements) from the top of the pillar, at everyone in its quadrant, or at her if it is empty. Shadow is ranged, the rest magic; the right protection prayer blocks it all.",
+      "start": 20,
+      "startHeight": 90,
+      "endHeight": 32,
+      "angle": 3,
+      "progress": 0
+    },
+    "emptySay": "The stones, they empower me",
+    "reaver": 11294,
+    "reaverHitpoints": 100,
+    "reaverStepTicks": 2,
+    "absorbAfter": 100,
+    "reaverCorners": {
+      "sw": [
+        22,
+        22
+      ],
+      "nw": [
+        22,
+        41
+      ],
+      "ne": [
+        41,
+        41
+      ],
+      "se": [
+        41,
+        22
+      ]
+    },
+    "_reaverCorners": "kofi 2026-11-11: the middle of each quadrant's painted circle (aod_paint.py: 9.5 tiles from her centre), as a 2x2's south-west tile. The amalgamations and minions spawn here too.",
+    "absorbSay": "A blood sacrifice is taken. My power is tested.",
+    "absorbDamage": 1.5,
+    "_jump": "jumpAnim (aod_fall.py) at 0: her leap, out of sight by tick 3; dropTick: moved to the middle, landAnim (her spawn fall); landTick: touch-down and slam (kofi: she jumps up and lands back in the middle)"
+  },
+  "minions": {
+    "_note": "kofi 2026-11-11: she calls a minion: its RS3 amalgamation (aod_amalgamations.py, static, no animations) appears where Lockdown's reaver spawns in that element's quadrant; once it is killed the minion itself appears there. The minions' combat comes later (kofi).",
+    "amalgamationHitpoints": 1,
+    "minionHitpoints": 1,
+    "_testing": "kofi 2026-11-11: both 1 for testing. Revert: amalgamationHitpoints 500, and remove minionHitpoints (the minion keeps its own hitpoints).",
+    "smoke": {
+      "name": "Fumus",
+      "npc": 17011,
+      "say": "Fumus!",
+      "callSay": "Fumus, it's time!",
+      "cough": true,
+      "_npc": "17011: OSRS Fumus holding the Third Age Wand of the praesul and Imperium core (aod_minions.py).",
+      "attack": {
+        "_note": "kofi 2026-11-11: Smoke Barrage every 3 ticks at a different player in his quadrant each time (random among the others); the 3x3 round the target is hit too. Max, poison and effects from Nex's Fumus (data/nex.json mages).",
+        "every": 3,
+        "radius": 1
+      }
+    },
+    "shadow": {
+      "name": "Umbra",
+      "npc": 17012,
+      "_npc": "17012: OSRS Umbra at 1.3x holding the shadow-dyed Wand of the praesul and Imperium core (aod_minions.py).",
+      "say": "Umbra!",
+      "callSay": "Umbra, it's time!",
+      "attack": {
+        "_note": "Shadow Barrage every 3 ticks at a different player in his quadrant each time; the 3x3 round the target too. Nex's Umbra: max 29, blinds and lowers Attack by 15%; Protect from Magic blocks it.",
+        "every": 3,
+        "radius": 1,
+        "poolEvery": 4,
+        "_pool": "kofi 2026-11-11: every 4th of Umbra's attacks drops Nex's shadow pools (one wave) under everyone in his quadrant instead of his barrage."
+      }
+    },
+    "blood": {
+      "name": "Cruor",
+      "npc": 17013,
+      "_npc": "17013: OSRS Cruor at 1.3x holding the blood-dyed Wand of the praesul and Imperium core (aod_minions.py).",
+      "say": "Cruor!",
+      "callSay": "Cruor, it's time!",
+      "attack": {
+        "_note": "Blood Barrage every 3 ticks at a different player in his quadrant each time; the 3x3 round the target too. Nex's Cruor: max 29, heals himself a quarter of the damage; Protect from Magic blocks it.",
+        "every": 3,
+        "radius": 1
+      }
+    },
+    "ice": {
+      "name": "Glacies",
+      "npc": 17014,
+      "_npc": "17014: OSRS Glacies at 1.3x holding the ice-dyed Wand of the praesul and Imperium core (aod_minions.py).",
+      "say": "Glacies!",
+      "callSay": "Glacies, it's time!",
+      "attack": {
+        "_note": "Ice Barrage every 3 ticks at a different player in his quadrant each time; the 3x3 round the target too. Nex's Glacies: max 29, freezes for 6 ticks (through prayer); Protect from Magic blocks the damage.",
+        "every": 3,
+        "radius": 1
+      }
+    },
+    "outside": {
+      "_note": "kofi 2026-11-11: while a minion's amalgamation or the minion itself is up, every `every` ticks the pillar of each other quadrant hits the players standing in its quadrant (not on a midline) with its own element's spell. Shadow is ranged, the rest magic; the right protection prayer takes off `prayed` of it.",
+      "every": 2,
+      "max": 20,
+      "prayed": 0.5,
+      "start": 20,
+      "startHeight": 90,
+      "endHeight": 32,
+      "angle": 5,
+      "progress": 64
+    },
+    "_cough": "kofi 2026-11-11: a minion with cough: true (Fumus) keeps Nex's Smoke Cough on every player while he is alive: anyone not coughing is infected again (Specials.Nex Effects.infect).",
+    "inside": {
+      "_note": "kofi 2026-11-11: while a minion's amalgamation or the minion is up, its own quadrant's pillar (Smoke for Fumus) hits one random player standing in that quadrant every `every` ticks, with the same spell, max and prayer rule as `outside`.",
+      "every": 4
+    },
+    "_phase": "kofi 2026-11-11: from her call until the minion dies she stays in the middle (she flies there if she isn't); while the minion is alive she only casts its element's spell (no melee, no specials).",
+    "consumed": {
+      "_note": "kofi 2026-11-11: as the minion dies it says `say` and stands there while she consumes it: her Zaros-phase spell (Nex's phase 5 magic) at it, then `clouds` Soul Split souls from it to her, one a tick, then it casts Nex's Wrath ('Taste my wrath!') over its whole quadrant (Nex's wrath numbers: up to 50 typeless) and is gone. Ticks from the killing blow.",
+      "say": "Take my power!!",
+      "wrathSay": "Taste her wrath!",
+      "spellTick": 0,
+      "cloudsFrom": 2,
+      "clouds": 5,
+      "wrathTick": 8,
+      "blastTick": 11,
+      "damageTick": 14,
+      "goneTick": 12,
+      "blastStep": 2
+    },
+    "final": {
+      "_note": "kofi 2026-11-11: once Glacies is consumed every pillar can be killed (500 hp) and, while it stands, throws its spell every `every` ticks at everyone in its quadrant (outside's max and prayer rule).",
+      "every": 4,
+      "specialEvery": 4,
+      "specials": {
+        "ice": "prison",
+        "smoke": "cough",
+        "shadow": "pools",
+        "blood": "siphon"
+      },
+      "_specials": "kofi 2026-11-11: in phase 6 every 4th attack of a pillar is its special, on its own quadrant only: Ice -> Nex's Ice Prison on a player there (kofi), Smoke -> Nex's Smoke Cough on a player there, Shadow -> one wave of shadow pools under everyone there, Blood -> its hit on everyone there heals the pillar by the damage dealt. While any pillar stands she only casts Zaros magic and rushes (no specials, no melee) with Soul Split always on."
+    }
+  },
+  "pillarsProtected": "The pillars draw on the elements. Glacies must fall first.",
+  "_pillarsProtected": "kofi 2026-11-11: the pillars take no damage until Glacies (ice) has been consumed; this is the message.",
+  "pillarHitpoints": 1,
+  "_pillarHitpoints": "kofi 2026-11-11: 1 for testing. Revert: 500 (Arena.AngelOfDeath's default).",
+  "finale": {
+    "_note": "kofi 2026-11-11: once Glacies is consumed she stops and says these, `every` ticks apart; then the last phase begins: her autos are Nex's phase 5 (Zaros) magic from then on (no element changes), the pillars attack and she can rush.",
+    "lines": [
+      "My 4 minions you killed!",
+      "They were splitting each element!",
+      "Now it truly is all mine!",
+      "Fine! I'll use the full power of the elements myself!!"
+    ],
+    "every": 4,
+    "pillarsDown": {
+      "_note": "kofi 2026-11-11. While pillars stand she can't be hurt. Each pillar destroyed: a Fire Surge blast on it and 200 damage to her. The last one: 'Nooooooo!!!', her Zaros spell at each pillar in turn (each landing with a Fire Surge blast), her lines, then at 'Now it's all mine!!' her siphon while 5 souls from each pillar flow into her, 'Now the world will die!!', and after the siphon 'And you will be first to die!!'. Then the phase starts: she can be hurt and her Zaros magic comes every `attackSpeed` ticks. Ticks from the last pillar's fall.",
+      "say": "Nooooooo!!!",
+      "attackSpeed": 4,
+      "pillarDamage": 200,
+      "fireSurge": {
+        "graphic": 1466,
+        "height": 124,
+        "_note": "Fire Surge's impact (CombatSpells FIRE_SURGE: graphic 1466 at the surge impact height). Add a `sound` id here if you want one."
+      },
+      "throwsFrom": 2,
+      "throwEvery": 2,
+      "lines": [
+        [
+          11,
+          "You destroyed their protection!"
+        ],
+        [
+          14,
+          "Those pillars were holding the pure ancient magic element!"
+        ],
+        [
+          17,
+          "They were there to hold me back!"
+        ],
+        [
+          20,
+          "To save the world from me!"
+        ],
+        [
+          23,
+          "From my true ultimate power!"
+        ],
+        [
+          26,
+          "Now it's all mine!!"
+        ],
+        [
+          29,
+          "Now the world will die!!"
+        ],
+        [
+          36,
+          "And you will be first to die!!"
+        ]
+      ],
+      "siphonTick": 26,
+      "siphonAnim": 9183,
+      "souls": 5,
+      "soulEvery": 1,
+      "startTick": 38,
+      "immune": "Nex: Angel of Death is protected by the pillars!",
+      "rotation": [
+        "smoke",
+        "shadow",
+        "blood",
+        "ice",
+        "zaros"
+      ],
+      "castsPerAttack": 2,
+      "castGap": 1,
+      "_rotation": "kofi 2026-11-11: the last phase (after the pillars): an attack every 4 ticks, each two casts of the same spell `castGap` tick apart, the spell rotating smoke, shadow, blood, ice, Zaros barrage and round again. Smoke/shadow/ice/Zaros hit everyone, blood her target and the 3x3."
+    }
+  },
+  "pillarDestroyed": "This pillar has already been destroyed."
+}

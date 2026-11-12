@@ -1,0 +1,34 @@
+[
+ {
+  "npc": 17001,
+  "name": "Pillar of Blood",
+  "x": 12,
+  "y": 50,
+  "rot": 3,
+  "size": 3
+ },
+ {
+  "npc": 17002,
+  "name": "Pillar of Ice",
+  "x": 50,
+  "y": 50,
+  "rot": 2,
+  "size": 3
+ },
+ {
+  "npc": 17003,
+  "name": "Pillar of Smoke",
+  "x": 12,
+  "y": 12,
+  "rot": 1,
+  "size": 3
+ },
+ {
+  "npc": 17004,
+  "name": "Pillar of Shadow",
+  "x": 50,
+  "y": 12,
+  "rot": 1,
+  "size": 3
+ }
+]

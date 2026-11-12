@@ -1,0 +1,50 @@
+{
+ "id": "aod-minions",
+ "targetCache": {
+  "name": "osrs-242_2026-11-03",
+  "game": "oldschool",
+  "revision": 242
+ },
+ "sourceCache": {
+  "name": "osrs-241_2026-10-20",
+  "game": "oldschool",
+  "revision": 241,
+  "environment": "live",
+  "timestamp": "2026-10-20T09:00:05.929Z",
+  "size": 0
+ },
+ "definitions": [
+  {
+   "kind": "npc",
+   "symbol": "aod_fumus",
+   "sourceId": 16783,
+   "id": 17011,
+   "dataBase64": "EQMzAzQDNQM2DQMoEgY+XwEdTQH0TwDISwDIH0F0dGFjawBjKAbAsQBGuJoAJQAMABQRmgAYFJQAJQAQABgCRnVtdXMAPQgAAKiIAACogAAAqH0AAKhoAACodQAAqI4AD0LcAA9C6vkJAAAADgAAAAUAAAAaAAAABQAAAEEAAAAZAAAABQAAABkAAAAGAAAAZAAAAAcAAABkAAAACAAAAJYAAAAu/////wAABVEAAAACYQCmYgCmAA==",
+   "crc": 561022555
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_umbra",
+   "sourceId": 16784,
+   "id": 17012,
+   "dataBase64": "EQMzAzQDNQM2DQMoEgY+XwEdTQH0TwDISwDIH0F0dGFjawBjAlVtYnJhAD0IAACooAAAqJwAAKiYAACokwAAqJYAAKihAA9C1gAPQuT5CQAAAA4AAAAFAAAAGgAAAAUAAABBAAAAGQAAAAUAAABkAAAABgAAAGQAAAAHAAAAZAAAAAgAAACWAAAALv////8AAAVRAAAAAmEApmIApgA=",
+   "crc": 3275388136
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_cruor",
+   "sourceId": 16785,
+   "id": 17013,
+   "dataBase64": "EQMzAzQDNQM2DQMoEgY+XwEdTQH0TwDISwDIH0F0dGFjawBjKAbAsQIvuJoHmAAMARARmgeQFJQCFAAQARYCQ3J1b3IAPQgAAKiIAACogAAAqH0AAKhrAACodQAAqI4AD0LYAA9C5vkJAAAADgAAAAUAAAAaAAAABQAAAEEAAAAZAAAABQAAAGQAAAAGAAAAGQAAAAcAAABkAAAACAAAAJYAAAAu/////wAABVEAAAACYQCmYgCmAA==",
+   "crc": 4281605734
+  },
+  {
+   "kind": "npc",
+   "symbol": "aod_glacies",
+   "sourceId": 16786,
+   "id": 17014,
+   "dataBase64": "EQMzAzQDNQM2DQMoEgY+XwEdTQH0TwDISwDIH0F0dGFjawBjKAbAsZROuJqUnAAMjY4RmpUQFJSAqQAQjRYCR2xhY2llcwA9CAAAqKAAAKicAAComAAAqJIAAKiWAACooQAPQtoAD0Lo+QkAAAAOAAAABQAAABoAAAAFAAAAQQAAABkAAAAFAAAAZAAAAAYAAABkAAAABwAAABkAAAAIAAAAlgAAAC7/////AAAFUQAAAAJhAKZiAKYA",
+   "crc": 220990466
+  }
+ ]
+}

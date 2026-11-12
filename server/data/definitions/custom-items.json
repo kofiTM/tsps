@@ -22,7 +22,13 @@
       "recolorTo": [],
       "retextureFrom": [],
       "retextureTo": [],
-      "inventoryActions": ["Wield", null, null, null, "Drop"],
+      "inventoryActions": [
+        "Wield",
+        null,
+        null,
+        null,
+        "Drop"
+      ],
       "isTradable": false,
       "note": -1,
       "noteTemplate": -1,
@@ -31,10 +37,82 @@
       "placeholder": -1,
       "placeholderTemplate": -1
     },
-    "itemDef": { "tradeable": false },
+    "itemDef": {
+      "tradeable": false
+    },
     "models": {
       "1000000": "dragonic-katana/drop.dat",
       "1000001": "dragonic-katana/equip.dat"
+    }
+  },
+  {
+    "id": 50331,
+    "baseItemId": 26348,
+    "_note": "Lil' Angel, the Nex: Angel of Death pet (npc 17005; Pets.plugin.js row). Model = her armoured body (custom-models.json), shrunk to 48/128 like Nexling.",
+    "objType": {
+      "name": "Lil' Angel",
+      "examine": "Even the angel of death was small once.",
+      "inventoryActions": [
+        null,
+        null,
+        null,
+        null,
+        "Drop"
+      ],
+      "isTradable": false,
+      "model": 1000449,
+      "resizeX": 48,
+      "resizeY": 48,
+      "resizeZ": 48,
+      "recolorFrom": [],
+      "recolorTo": [],
+      "retextureFrom": [],
+      "retextureTo": [],
+      "zoom2d": 2697,
+      "xan2d": 0,
+      "yan2d": 0,
+      "zan2d": 0,
+      "offsetX2d": -3,
+      "offsetY2d": 0
+    },
+    "itemDef": {
+      "tradeable": false,
+      "dropable": true
+    }
+  },
+  {
+    "id": 50332,
+    "baseItemId": 26348,
+    "_note": "Reeves, the blood reaver pet (npc 17006, scripts/rs3-port/aod_pet.py; Pets.plugin.js row). Model = Nex's blood reaver (cache 43217) at 72/128.",
+    "objType": {
+      "name": "Reeves",
+      "examine": "A little blood reaver. It seems to have taken a liking to you.",
+      "inventoryActions": [
+        null,
+        null,
+        null,
+        null,
+        "Drop"
+      ],
+      "isTradable": false,
+      "model": 43217,
+      "resizeX": 72,
+      "resizeY": 72,
+      "resizeZ": 72,
+      "recolorFrom": [],
+      "recolorTo": [],
+      "retextureFrom": [],
+      "retextureTo": [],
+      "zoom2d": 2697,
+      "xan2d": 0,
+      "yan2d": 0,
+      "zan2d": 0,
+      "offsetX2d": -3,
+      "offsetY2d": 0
+    },
+    "itemDef": {
+      "tradeable": false,
+      "dropable": true
     }
   }
 ]

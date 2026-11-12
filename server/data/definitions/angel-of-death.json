@@ -1,0 +1,26 @@
+{
+ "id": "angel-of-death",
+ "targetCache": {
+  "name": "osrs-242_2026-11-03",
+  "game": "oldschool",
+  "revision": 242
+ },
+ "sourceCache": {
+  "name": "osrs-241_2026-10-20",
+  "game": "oldschool",
+  "revision": 241,
+  "environment": "live",
+  "timestamp": "2026-10-20T09:00:05.929Z",
+  "size": 0
+ },
+ "definitions": [
+  {
+   "kind": "npc",
+   "symbol": "angel_of_death",
+   "sourceId": 16772,
+   "id": 17000,
+   "dataBase64": "DAMOI9cNI9kfQXR0YWNrAF8D6U0NSEoBO08A5k4BXksBBEwAyGMSBj0CTmV4AD0BAACoyfkPAAAAGgAAAAIAAAAOAAAABAAAAAoAAAAUAAAAAwAAAGQAAABBAAAAFgAAAAQAAACWAAAADAAAAAUAAAAFAAAAKAAAAAYAAACMAAAABwAAACMAAAAIAAABLAAAAf0AAAACAQAB/k5leAAAAAAuAAACFAAABVEAAAACAk5leDogQW5nZWwgb2YgRGVhdGgADAVhANpiANo9AQAPRAEA",
+   "crc": 434894357
+  }
+ ]
+}
