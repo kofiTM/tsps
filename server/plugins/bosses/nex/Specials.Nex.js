@@ -28,6 +28,12 @@ const PRAYER_BLOCK_SECONDS = 5;
 const THROWN_ANIM = 1157;
 /** Containment's icicles hold anyone inside for 10 ticks. Unverified: no OSRS source (docs/nex.md). */
 const CONTAINMENT_HOLD_TICKS = 10;
+/**
+ * Her siphon animation's full length, kneel and stand-up: seq 9183 is 273 client cycles (10 ticks,
+ * yarn dump:seq, cache rev 241). It used to be cut at the 8-tick kneel, and she could fly home before
+ * standing up: now it plays out, and she flies nowhere until it's done (kofi's call).
+ */
+const SIPHON_ANIM_TICKS = 10;
 const REAVER_SELF_HEAL = 0.25;
 const REAVER_HITPOINTS = 150;
 const GAS_PROTECTION = ["gas mask", "facemask"];
@@ -222,6 +228,7 @@ function virus(fight) {
   const spec = data().virus;
   const target = [...players].sort((a, b) => magicDefence(a) - magicDefence(b) || fight.distanceTo(b) - fight.distanceTo(a))[0];
   fight.say(spec.say);
+  fight.cue("virus", { target });
   fight.boss.performAnimation(Common.animation(spec.anim));
   fight.areaSound(spec.sound);
   fight.at(1, () => fight.effects.infect(target, false));
@@ -323,6 +330,8 @@ function dash(fight) {
   const end = fight.tile(aisle.end);
   const home = fight.tile(Common.data.chamber.nexTile);
   fight.say(spec.say);
+  // The aisle is plain to see once she turns to it; the zone is in real (chamber) tiles.
+  fight.cue("dash", { zone: aisle.zone });
   fight.boss.performAnimation(Common.animation(spec.anim[0], spec.anim[1]));
   fight.target = null;
   fight.boss.setMobileInteraction(null);
@@ -378,6 +387,7 @@ function charge(fight, aisle, end, home) {
 function smash(fight) {
   const spec = data().smash;
   fight.say(spec.say);
+  fight.cue("smash", { tiles: alive(fight).map((player) => player.getLocation().clone()) });
   fight.boss.performAnimation(Common.animation(spec.anim));
   for (const player of alive(fight)) {
     const at = player.getLocation().clone();
@@ -403,6 +413,7 @@ function smash(fight) {
 function darkness(fight) {
   const spec = data().darkness;
   fight.say(spec.say);
+  fight.cue("darkness");
   fight.boss.performAnimation(Common.animation(spec.anim));
   fight.areaSound(spec.sound);
   for (const player of fight.players()) player.getPacketSender().sendTypedMessage(Common.core.ChatType.SPAM ?? 0, spec.begins);
@@ -416,6 +427,7 @@ function darkness(fight) {
 function siphon(fight) {
   const spec = data().siphon;
   fight.say(spec.say);
+  fight.cue("siphon");
   fight.boss.performAnimation(Common.animation(spec.anim));
   fight.boss.performGraphic(Common.graphic(spec.graphic));
   fight.boss.getMovementQueue().reset();
@@ -426,7 +438,7 @@ function siphon(fight) {
   for (let i = 0; i < count; i++) spawnReaver(fight);
   fight.siphonUntil = fight.tick + spec.kneelTicks;
   fight.busyUntil = fight.tick + spec.kneelTicks;
-  fight.at(spec.kneelTicks, () => fight.boss.performAnimation(Common.animation(-1)));
+  fight.flightHeldUntil = fight.tick + SIPHON_ANIM_TICKS;
   return spec.nextAttackTicks;
 }
 
@@ -465,6 +477,7 @@ function sacrifice(fight) {
   if (players.length === 0) return null;
   const marked = Common.pick(players);
   fight.say(spec.say);
+  fight.cue("sacrifice", { marked });
   fight.areaSound(spec.sound);
   marked.getPacketSender().sendSoundEffect(spec.synth, 1, 0);
   marked.sendMessage(spec.marked);
@@ -521,6 +534,7 @@ function ring(minX, minY, maxX, maxY) {
 function containment(fight) {
   const spec = data().containment;
   fight.say(spec.say);
+  fight.cue("containment");
   fight.boss.performAnimation(Common.animation(spec.anim));
   fight.at(spec.placeTicks, () => {
     if (fight.stage !== "fighting") return;
@@ -560,6 +574,7 @@ function prison(fight) {
   if (players.length === 0) return null;
   const target = Common.pick(players);
   fight.say(spec.say);
+  fight.cue("prison", { target });
   fight.boss.performAnimation(Common.animation(spec.anim));
   fight.areaSound(spec.sound);
   const cycles = Common.projectile(fight.boss, target, { ...spec.projectile, start: Common.data.fight.attacks.projectileStart });

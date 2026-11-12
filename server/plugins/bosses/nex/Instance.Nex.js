@@ -7,7 +7,8 @@
  *   at 2 (3 during the fight). The safe room's door, chests, plaque, scoreboard and anvil are
  *   lifeless copies there.
  * - Joining asks whose fight; the owner must have the player as a friend, and no fight may be on
- *   ("The fight with Nex is already in progress...").
+ *   ("The fight with Nex is already in progress..."). Server custom: "on" means she can be hit, so
+ *   friends can still get in during her intro and as soon as she dies (Instance.locked).
  * - Nex appears 54 ticks after the instance is built and 36-38 ticks after each kill.
  * - Wiki: it costs 100,000 coins and needs the Hard Combat Achievements. It lasts while anyone is
  *   in it (not captured).
@@ -16,6 +17,9 @@ const Common = require("./Common.Nex");
 const Fight = require("./Fight.Nex");
 
 const COINS = 995;
+
+/** Server custom: the bot tax on top of the instance fee, by team (no bots is free). */
+const BOT_FEES = { four: 200000, duo: 100000, solo: 50000, none: 0 };
 const CHUNK = 8;
 const PLANES = 4;
 
@@ -175,6 +179,14 @@ class Instance {
     return npc;
   }
 
+  /**
+   * Server custom: shut to friends only while she can be hit. Open through her "AT LAST!" intro and
+   * the mage calls (more time to get in), and again the moment she dies.
+   */
+  locked() {
+    return this.fight != null && !["spawning", "dying", "ended"].includes(this.fight.stage);
+  }
+
   /** The barrier's state and the instance varbit, for one player. */
   sync(player) {
     const { varbits, barrierStates, instance } = Common.data;
@@ -199,13 +211,27 @@ class Instance {
       player.getPacketSender().sendVarbit(instance.instanceVarbit, 0);
       player.getPacketSender().sendVarbit(varbits.barrier, barrierStates.prison);
     }
-    if (this.players.size === 0) this.end();
+    Common.api.emitCustomEvent("nex:instance-left", { player, instance: this });
+    // Bot teammates (Bots.Nex) don't keep a fight going on their own.
+    if (![...this.players].some((other) => other.isPlayerBot?.() !== true)) this.end();
+  }
+
+  /** Into this instance at the chamber's door, as a private fight's way in does after the fader. */
+  enter(player) {
+    this.addPlayer(player);
+    this.area.enter(player);
+    player.moveTo(this.tile(Common.data.chamber.entry));
+    player.getPacketSender().sendSong(Common.data.music.silence);
+    this.scheduleSpawn(Common.data.chamber.firstSpawnTicks);
+    Common.api.emitCustomEvent("nex:instance-entered", { player, instance: this });
   }
 
   scheduleSpawn(ticks) {
     if (this.fight || this.pendingSpawn || this.ended) return;
     const at = {};
     this.pendingSpawn = at;
+    // When she'll rise (bots back from the bank time their return by it).
+    this.riseAt = Common.core.World.getProcessCycle() + ticks;
     Common.later(ticks, () => {
       if (this.pendingSpawn !== at) return;
       this.pendingSpawn = null;
@@ -248,7 +274,7 @@ function instanceOf(player) {
  * `resolve()` gives the instance on that tick (a new one is only built and paid for then), or null.
  */
 function bringIn(player, resolve) {
-  const { instance: spec, chamber } = Common.data;
+  const { instance: spec } = Common.data;
   player.getMovementQueue().reset();
   player.getPacketSender().sendInterfaceRemoval();
   player.getPacketSender().sendClientScript(spec.faderScript, 1, 1, 1, (spec.fader[0] << 16) | spec.fader[1]);
@@ -256,11 +282,7 @@ function bringIn(player, resolve) {
     if (!player.isRegistered()) return;
     const instance = resolve();
     if (!instance || instance.ended) return;
-    instance.addPlayer(player);
-    instance.area.enter(player);
-    player.moveTo(instance.tile(chamber.entry));
-    player.getPacketSender().sendSong(Common.data.music.silence);
-    instance.scheduleSpawn(Common.data.chamber.firstSpawnTicks);
+    instance.enter(player);
   });
 }
 
@@ -281,15 +303,49 @@ function start(player) {
     Common.statement(player, texts.costShort.replace("[cost]", cost.toLocaleString("en-US")));
     return;
   }
-  confirm(player, () => bringIn(player, () => {
-    if (player.getInventory().getAmount(COINS) < cost || instanceOf(player)) return null;
-    player.getInventory().delete(COINS, cost);
+  confirm(player, () => chooseTeam(player, (botTeam) => {
+    // The instance fee plus the bot tax for the team picked.
+    const total = cost + BOT_FEES[botTeam];
+    if (player.getInventory().getAmount(COINS) < total) {
+      Common.statement(player, texts.costShort.replace("[cost]", total.toLocaleString("en-US")));
+      return;
+    }
+    teamIn(player, botTeam, total);
+  }));
+}
+
+function teamIn(player, botTeam, total) {
+  bringIn(player, () => {
+    if (player.getInventory().getAmount(COINS) < total || instanceOf(player)) return null;
+    player.getInventory().delete(COINS, total);
     // An old instance still holding friends carries on without its owner.
     instances.delete(player);
     const instance = new Instance(player);
+    // The bot team that follows them in (Bots.Nex onEntered).
+    instance.botTeam = botTeam;
     instances.set(player, instance);
     return instance;
-  }));
+  });
+}
+
+/**
+ * Server custom: which bot teammates follow them in - four, two rangers or one lone
+ * ranger - as Castle Wars asks which bots to play with. Each costs extra on top of the fee (BOT_FEES).
+ */
+function chooseTeam(player, proceed) {
+  Common.api.sendMultiChatboxPrompt(player, "Which bot teammates come with you?",
+    "4 bots (2 melee, 2 rangers) - 200k extra", () => proceed("four"),
+    "2 perfect ranged bots - 100k extra", () => proceed("duo"),
+    "1 perfect ranged bot - 50k extra", () => proceed("solo"),
+    "More...", () => moreTeams(player, proceed));
+}
+
+/** The team menu's second page: no bots, the solo killer to come, or back to the first page. */
+function moreTeams(player, proceed) {
+  Common.api.sendMultiChatboxPrompt(player, "Which bot teammates come with you?",
+    "No bots - free", () => proceed("none"),
+    "Epic Nex killing solo bot (coming soon) - 1 million coins", () => Common.statement(player, "The epic Nex killing solo bot is coming soon."),
+    "Go back", () => chooseTeam(player, proceed));
 }
 
 /** The captured warning and "Are you sure you wish to begin?", unless "don't ask again" was picked. */
@@ -336,13 +392,13 @@ function join(player) {
         Common.statement(player, texts.notFriend);
         return;
       }
-      if (instance.fight) {
+      if (instance.locked()) {
         Common.statement(player, texts.inProgress);
         return;
       }
       confirm(player, () => bringIn(player, () => {
         if (instance.ended) return null;
-        if (!instance.fight) return instance;
+        if (!instance.locked()) return instance;
         Common.statement(player, texts.inProgress);
         return null;
       }));

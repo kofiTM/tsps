@@ -192,6 +192,19 @@ function healNpc(npc, amount, max) {
   return healed;
 }
 
+/**
+ * A player healed (a blood reaver's hit, Wiki: half the damage), shown with the same heal hitsplat as
+ * her heals (kofi): only what it really healed, nothing at full hitpoints.
+ */
+function healPlayer(player, amount) {
+  if (!player || amount <= 0) return 0;
+  const before = player.getHitpoints();
+  player.heal(Math.floor(amount));
+  const healed = player.getHitpoints() - before;
+  if (healed > 0) player.showHitsplat(healed, HEAL_SPLAT);
+  return healed;
+}
+
 /** Her shout: overhead, and in each player's chatbox as "Nex: ..." (captured as npc_say). */
 function say(npc, players, text) {
   if (!npc) return;
@@ -266,7 +279,7 @@ function isIronman(player) {
 
 module.exports = {
   init, later, toLocation, randomInt, pick, count, inBox, graphic, animation, sounds, areaSound, tileGraphic,
-  projectile, landsIn, styleMethod, protectedStyle, strike, damage, healNpc, say, statement, distanceToBody,
+  projectile, landsIn, styleMethod, protectedStyle, strike, damage, healNpc, healPlayer, say, statement, distanceToBody,
   fadeMove, getEssence, setEssence, isZarosian, wearsZarosian, formatTicks, isIronman,
   UNLOCKED_ATTRIBUTE, ALTAR_ATTRIBUTE, KILLS_ATTRIBUTE, BEST_ATTRIBUTE, DEATHS_ATTRIBUTE, RECLAIM_ATTRIBUTE,
   SKIP_WARNING_ATTRIBUTE, INSTANCE_ATTRIBUTE,

@@ -211,6 +211,25 @@ function canAttackIn(attacker, target) {
   return false;
 }
 
+/**
+ * The public chamber as a private fight looks to Bots.Nex (Instance.Nex's shape): who is in, the fight,
+ * tile mapping (none: real tiles) and the way in. It has no owner; the bots pick one.
+ */
+const venue = {
+  public: true,
+  ended: false,
+  players: { has: (player) => !!chamberArea?.hasMember(player) },
+  get area() { return null; },
+  get fight() { return state.fight; },
+  tile: (tile) => Common.toLocation(tile),
+  real: (location) => [location.getX(), location.getY()],
+  inChamber: (location) => Common.inBox(Common.data.chamber.box, location) && location.getZ() === 0,
+  present: () => chamberPlayers(),
+  enter(player) {
+    player.moveTo(Common.toLocation(Common.data.chamber.entry));
+  },
+};
+
 let AreaClass = null;
 
 function areaClass() {
@@ -246,6 +265,7 @@ function areaClass() {
       require("../godwars/Dungeon.GodWars").openOverlay(player);
       sendBarrier(player);
       if (!state.fight) scheduleSpawn(Common.data.chamber.firstSpawnTicks);
+      Common.api.emitCustomEvent("nex:instance-entered", { player, instance: venue });
     }
 
     postLeave(mobile, logout) {
@@ -255,6 +275,7 @@ function areaClass() {
       if (logout) player.setLocation(Common.toLocation(Common.data.prison.entryRoom));
       else sendBarrier(player);
       if (chamberPlayers().filter((other) => other !== player).length === 0 && !state.fight) state.spawnAt = null;
+      Common.api.emitCustomEvent("nex:instance-left", { player, instance: venue });
     }
 
     canAttack(attacker, target) {
@@ -286,6 +307,6 @@ function attachChamber(api) {
 }
 
 module.exports = {
-  attachChamber, arena, fight, fightFor, startFight, scheduleSpawn, sendBarrier, chamberPlayers, canAttackIn, recordDeath, recordKill, pass, peek,
+  attachChamber, arena, venue, fight, fightFor, startFight, scheduleSpawn, sendBarrier, chamberPlayers, canAttackIn, recordDeath, recordKill, pass, peek,
   get state() { return state; },
 };

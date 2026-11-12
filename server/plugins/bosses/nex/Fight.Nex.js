@@ -19,6 +19,62 @@ const { sendBossKillCount } = require("../../interface/BossKillCount.plugin");
 const SIZE = 3;
 const BOSS_NAME = "Nex";
 
+/** A player gone invisible (AdminCommands ::invis answers): out of the fight for her. */
+function invisible(player) {
+  const query = { player, invisible: false };
+  Common.api.emitCustomEvent("admin:is-invisible", query);
+  return query.invisible === true;
+}
+/**
+ * Ticks her target can stand under her before she walks out after them: she holds still for these
+ * (a 5-tick stall, Wiki: Nex/Strategies), and from the next - the 6th - walks off them to attack.
+ */
+const UNDER_HOLD_TICKS = 5;
+/**
+ * Off the middle with someone under her for this many ticks (walking her back) - counted from the
+ * tick after they first stood there, never reset by her walking - she darts the rest of the way home.
+ * Wiki (Nex/Strategies): out of combat for 8 ticks she flies, and with the player under her at the
+ * edges of the room she dashes to the centre.
+ */
+const SEND_HOME_TICKS = 8;
+/** Up to two ticks out from under her (a bot catching up as she runs) doesn't start her count again. */
+const UNDER_GAP_TICKS = 2;
+/**
+ * Up to this many ticks after a special starts, the walk home is only paused, not started again:
+ * Shadow Smash puts a shadow under whoever is walking her (they step off it), and Blood Siphon drops
+ * her target while she kneels (8 ticks). Restarting the count each time made the walk much longer
+ * before her dart home (kofi's call).
+ */
+const SPECIAL_PAUSE_TICKS = 12;
+/** Her specials (not her autos) whose hits are listed for talk (specialHits). */
+const SPECIAL_HITS = new Set(["darkness", "dash", "smash", "sacrifice", "containment", "prison"]);
+/** A Blood Siphon that heals her at least this much in all is cued as a big heal ("bigheal"). */
+const BIG_SIPHON_HEAL = 60;
+/**
+ * Now and then, on an attack, she runs at her target to melee them instead of shooting - RUSH_CHANCE an
+ * attack, given up after RUSH_TICKS if she can't get there. OSRS has it in the shadow phase; here it's
+ * every phase (server custom: kofi's call).
+ */
+const RUSH_CHANCE = 0.08;
+/** A little more often while one of her mages is up and being killed (kofi's call: not by much). */
+const RUSH_CHANCE_MINION = 0.12;
+const RUSH_TICKS = 10;
+/**
+ * A rush still closing in on its target runs on past RUSH_TICKS, up to this long in all: it timed out
+ * as she got there round a teammate or a mage, so she never swung and the bot stepped under her
+ * instead (kofi saw it). Reaching them she always gets her melee hit.
+ */
+const RUSH_MAX_TICKS = 20;
+/** How far (tiles) a rush looks for a way round something blocking its straight run. */
+const RUSH_PATH_RADIUS = 18;
+/**
+ * Shadow phase: now and then a re-target picks someone out of her range on purpose, and she flies to
+ * them (the bot there then walks her back to the middle).
+ */
+const SHADOW_FAR_TARGET_CHANCE = 0.15;
+/** After a flight she can't fly again this soon: never two teleports back to back. */
+const FLY_GRACE_TICKS = 20;
+
 class Fight {
   /**
    * `arena`: { area, tile([x,y,z]), real(location) -> [x, y], inChamber(location), players(),
@@ -56,6 +112,9 @@ class Fight {
     this.startPlayers = 0;
     /** What the Combat Achievements judge: per player, the hits they took from each special. */
     this.record = { siphonHealed: false, hitBy: new Map(), coughing: new Set() };
+    this.specialHits = [];
+    /** The specials and Wrath as they start, newest last: what Bots.Nex's team reacts to. */
+    this.cues = [];
     this.stopped = false;
     this.effects = new Specials.Effects(this);
     this.spawn();
@@ -68,8 +127,9 @@ class Fight {
     this.events.push({ tick: this.tick + Math.max(1, ticks), action });
   }
 
+  /** Everyone in the fight: not a player who went invisible (::invis), whom she neither targets nor hits. */
   players() {
-    return this.arena.players();
+    return this.arena.players().filter((player) => !invisible(player));
   }
 
   phase() {
@@ -130,12 +190,26 @@ class Fight {
     this.contribution.set(player, (this.contribution.get(player) ?? 0) + amount);
   }
 
+  /** A special (or Wrath) starting, with what a player would read off it: the aisle, the mark, the tiles. */
+  cue(name, details = {}) {
+    // Numbered, so a reader keeps its place by number: only the last 16 are kept, and a place kept by
+    // position stuck at 16 once the list was full - the bots saw no special after that.
+    this.cueSeq = (this.cueSeq ?? 0) + 1;
+    this.cues.push({ seq: this.cueSeq, name, tick: this.tick, ...details });
+    if (this.cues.length > 16) this.cues.shift();
+  }
+
   /** A player was hit by a special (the Combat Achievements' "no damage from" tasks). */
   noteHit(player, special, amount) {
     if (amount <= 0) return;
+    // The last thing to hit each player, for what killed them (Bots.Nex: death talk).
+    this.lastHitBy = this.lastHitBy ?? new Map();
+    this.lastHitBy.set(player, { kind: special, tick: this.tick });
     const hits = this.record.hitBy.get(player) ?? new Set();
     hits.add(special);
     this.record.hitBy.set(player, hits);
+    // Her specials' hits, in order, for her bot teammates to talk about (Bots.Nex Team.hitWatch).
+    if (SPECIAL_HITS.has(special)) this.specialHits.push({ player, special, amount, tick: this.tick });
   }
 
   // ------------------------------------------------------------------ the spawn
@@ -209,7 +283,12 @@ class Fight {
     const { npcs, spawn } = Common.data;
     this.transform(npcs.nex);
     this.stage = "fighting";
-    this.immuneUntil = this.tick + (spawn.firstAttackTick - spawn.fillTick);
+    // She can be hit from "Fill my soul with smoke!" (teams spec her right away); she just holds her
+    // first attack, and stays put, until firstAttackTick.
+    this.busyUntil = this.tick + (spawn.firstAttackTick - spawn.fillTick);
+    // Her idle clock starts with the fight, not at zero: the spawn isn't idling, and counted as
+    // such she flew off the middle to her first target before her first attack.
+    this.lastAttackTick = this.tick + (spawn.firstAttackTick - spawn.fillTick);
     this.startPhase(0, spawn.firstAttackTick - spawn.fillTick);
   }
 
@@ -289,15 +368,22 @@ class Fight {
     for (const event of due) if (!this.stopped) event.action();
     if (this.stopped) return;
     const players = this.players();
-    if (players.length === 0 && this.stage !== "dying") {
+    // An invisible watcher (::invis) keeps the fight going and still sees her health bar.
+    const everyone = this.arena.players();
+    if (everyone.length === 0 && this.stage !== "dying") {
       this.end(false);
       return;
     }
     if (this.stage !== "dying") {
-      for (const player of players) if (!this.hudShown.has(player)) this.showHud(player);
+      for (const player of everyone) if (!this.hudShown.has(player)) this.showHud(player);
       this.updateHud();
     }
     this.effects.process(players);
+    // A siphon over: a big heal from its hits is cued once (Bots.Nex Team.healWatch).
+    if (this.siphonHealed && this.tick >= this.siphonUntil) {
+      if (this.siphonHealed >= BIG_SIPHON_HEAL) this.cue("bigheal", { amount: this.siphonHealed, source: "siphon" });
+      this.siphonHealed = 0;
+    }
     if (this.stage !== "fighting") return;
     this.checkCall();
     this.capDefenceDrain();
@@ -315,6 +401,7 @@ class Fight {
       const name = phase.specials[this.lane % phase.specials.length];
       const hold = Specials.run(this, name);
       if (hold != null) {
+        this.specialAt = this.tick;
         this.specialDue = false;
         this.autosSinceSpecial = 0;
         this.lastLane = this.lane;
@@ -324,12 +411,41 @@ class Fight {
         return;
       }
     }
-    if (Attacks.attack(this, this.target)) {
-      this.lastAttackTick = this.tick;
-      this.autosSinceSpecial++;
-      this.attacksOnTarget++;
-      if (phase.key === "zaros") this.rotateCurse();
+    // In any phase: sometimes she runs at her target to melee them (move runs her there), holding the
+    // attack until she's in reach; their first melee hit ends it (Bots.Nex's reset bot watches it).
+    if (!this.rush && this.target && this.distanceTo(this.target) > 1 && Math.random() < (this.vulnerable.size > 0 ? RUSH_CHANCE_MINION : RUSH_CHANCE)) {
+      this.rush = { target: this.target, until: this.tick + RUSH_TICKS, startedAt: this.tick };
+      // She runs in to melee: a chain of melee hits before it doesn't make this one a spell.
+      this.noMeleeNext = false;
+      this.meleeChain = 0;
+      this.cue("rush", { target: this.target });
     }
+    // A rush ends on a new target or when it runs out - but not with her beside them: that's the hit
+    // it ran in for, so she swings (melee: noMeleeNext was cleared as it started).
+    const arrived = this.rush && this.target && Attacks.inMeleeReach(this, this.target);
+    if (this.rush && (this.rush.target !== this.target || (this.tick >= this.rush.until && !arrived))) this.rush = null;
+    if (this.rush && this.target && !Attacks.inMeleeReach(this, this.target)) {
+      this.nextAttackTick = this.tick + 1;
+      return;
+    }
+    const melee = !!this.target && Attacks.inMeleeReach(this, this.target) && !this.noMeleeNext;
+    if (!Attacks.attack(this, this.target)) {
+      // Couldn't reach them this tick (under her, out of range): she tries again next tick, so a
+      // player stepping under her on her attack tick delays it - the 5-tick stall (Wiki). Out of her
+      // range, she switches to anyone within it instead (Wiki: "every attack until she succeeds").
+      this.nextAttackTick = this.tick + 1;
+      if (this.target && this.target !== this.farPick && this.distanceTo(this.target) > Common.data.fight.magicRange) this.retargetInRange();
+      if (this.target && this.distanceTo(this.target) === 0) this.blockedAt ??= this.tick;
+      return;
+    }
+    this.lastAttackTick = this.tick;
+    this.autosSinceSpecial++;
+    this.attacksOnTarget++;
+    if (melee) {
+      this.lastMelee = { target: this.target, tick: this.tick };
+      this.rush = null;
+    }
+    if (phase.key === "zaros") this.rotateCurse();
   }
 
   /** Zaros: Soul Split on her first attack, Deflect Melee 4 attacks later, then none, and round (Wiki). */
@@ -346,18 +462,47 @@ class Fight {
 
   // ------------------------------------------------------------------ targeting and movement
 
-  /** The nearest player in range, not the last target if anyone else will do (Wiki). */
+  /**
+   * Her target (Wiki: Nex/Strategies): every few attacks she re-targets the nearest player within her
+   * attack range (10); players outside it, and her previous target, aren't considered. With none to
+   * switch to she keeps her target and tries again next attack. Only with no target at all does she
+   * take the nearest player wherever they are, so she's never left with nobody.
+   */
   pickTarget(players) {
     const { fight } = Common.data;
     const alive = players.filter((player) => player.getHitpoints() > 0);
-    const keep = this.target && alive.includes(this.target) && this.attacksOnTarget < fight.retargetEvery;
-    if (keep) return;
-    const inRange = alive.filter((player) => this.distanceTo(player) <= fight.magicRange);
-    const pool = inRange.length > 0 ? inRange : alive;
-    const candidates = pool.length > 1 ? pool.filter((player) => player !== this.target) : pool;
+    const current = this.target && alive.includes(this.target) ? this.target : null;
+    // Just flown to them: she stays on them for her walk-in, never switching on landing (which left
+    // her standing there instead of walking at them - kofi's call).
+    if (current && this.rush?.flight && this.rush.target === current && this.tick < this.rush.until) return;
+    if (current && this.attacksOnTarget < fight.retargetEvery) return;
+    // Shadow phase: sometimes someone out of range, on purpose; she flies to them (move).
+    const far = alive.filter((player) => player !== current && this.distanceTo(player) > fight.magicRange);
+    if (this.phase().key === "shadow" && far.length && Math.random() < SHADOW_FAR_TARGET_CHANCE) {
+      this.target = Common.pick(far);
+      this.farPick = this.target;
+      this.cue("farpick", { target: this.target });
+      this.attacksOnTarget = 0;
+      this.boss.setMobileInteraction(this.target);
+      return;
+    }
+    const pick = this.nearestInRange(alive, current) ?? (current ? null : this.nearest(alive));
+    if (!pick) return;
+    this.target = pick;
+    this.attacksOnTarget = 0;
+    this.boss.setMobileInteraction(this.target);
+  }
+
+  /** The nearest of `players` within her attack range, other than `except` (ties at random). */
+  nearestInRange(players, except) {
+    const { fight } = Common.data;
+    return this.nearest(players.filter((player) => player !== except && this.distanceTo(player) <= fight.magicRange));
+  }
+
+  nearest(players) {
     let best = [];
     let bestDistance = Infinity;
-    for (const player of candidates) {
+    for (const player of players) {
       const distance = this.distanceTo(player);
       if (distance < bestDistance) {
         best = [player];
@@ -366,45 +511,361 @@ class Fight {
         best.push(player);
       }
     }
-    this.target = best.length > 0 ? Common.pick(best) : null;
+    return best.length > 0 ? Common.pick(best) : null;
+  }
+
+  /** Her target out of reach: someone else within range instead, if there is anyone (Wiki). True if she switched. */
+  retargetInRange() {
+    const pick = this.nearestInRange(this.players().filter((player) => player.getHitpoints() > 0), this.target);
+    if (!pick) return false;
+    this.target = pick;
     this.attacksOnTarget = 0;
-    if (this.target) this.boss.setMobileInteraction(this.target);
+    this.boss.setMobileInteraction(pick);
+    return true;
   }
 
   /** She closes in while her target is out of reach, and flies to it when she can't attack (captured). */
   move() {
     const { fight } = Common.data;
     const target = this.target;
-    if (!target || this.tick < this.busyUntil || this.tick < this.immuneUntil) return;
-    if (this.tick - this.lastAttackTick >= fight.flyAfterTicks) {
+    // Over players only for a step off someone under her (stepAwayFrom); otherwise they block her.
+    this.boss.removeFlag?.(Common.core.NPC.WALK_THROUGH_ENTITIES_FLAG);
+    // The tick her swing was first blocked by her target standing under her, and the tick they first
+    // stood there, cleared once they aren't.
+    // A special lately: time out from under her then pauses the count rather than restarting it.
+    const specialBreak = this.tick - (this.specialAt ?? -Infinity) <= SPECIAL_PAUSE_TICKS;
+    if (!target || this.distanceTo(target) !== 0) {
+      this.blockedAt = null;
+      // Home again: the walk is over (a bot stepping in and out beside her there kept it counting).
+      if (this.atHome() || this.tick - (this.lastUnderTick ?? -Infinity) > (specialBreak ? SPECIAL_PAUSE_TICKS : UNDER_GAP_TICKS)) {
+        this.underSince = null;
+        this.walkedSince = null;
+      }
+    } else {
+      // Back under her after a special's break: the ticks away don't count, so the walk carries on
+      // from where it was (and she walks on at once if she was already walking).
+      const away = this.tick - (this.lastUnderTick ?? this.tick) - 1;
+      if (this.underSince != null && specialBreak && away > 0) {
+        this.underSince += away;
+        if (this.walkedSince != null) this.walkedSince += away;
+      }
+      this.underSince ??= this.tick;
+      this.lastUnderTick = this.tick;
+    }
+    // Still gliding (the flight's tick): no steps yet. After a flight to her target she walks on into
+    // melee straight away, her landing immunity notwithstanding (kofi's call).
+    const gliding = this.tick <= (this.lastFlightTick ?? -Infinity);
+    const flightWalkIn = this.rush?.flight && this.rush.target === target;
+    if (!target || gliding || this.tick < this.busyUntil || (this.tick < this.immuneUntil && !flightWalkIn)) return;
+    // Still standing up from Blood Siphon (Specials SIPHON_ANIM_TICKS): the animation plays out first,
+    // then she walks or flies home - no flight from halfway through it (kofi's call).
+    if (this.tick < (this.flightHeldUntil ?? -Infinity)) return;
+    // Idle counts from her last attack or the end of a special that kept her busy (No Escape's 12
+    // ticks were counted as idle, so she flew off to a target in range the moment it ended).
+    const idleSince = Math.max(this.lastAttackTick, this.busyUntil ?? -Infinity, this.immuneUntil ?? -Infinity);
+    // A rush is always run on foot, never flown (server custom: kofi's call). Its held
+    // attack isn't idle time, so it can't set off her flight partway there.
+    const rushingAt = this.rush && this.rush.target === target;
+    if (!rushingAt && this.tick - idleSince >= fight.flyAfterTicks && this.tick - (this.lastFlightTick ?? -Infinity) >= FLY_GRACE_TICKS) {
+      // Never off to someone out of range while there's anyone within it: she takes them instead.
+      if (this.distanceTo(target) > fight.magicRange && this.farPick !== target && this.retargetInRange()) return;
       this.fly(target);
       return;
     }
-    if (this.distanceTo(target) <= fight.magicRange && this.distanceTo(target) > 0) return;
+    // Out of her range with nobody else within it - or picked out there on purpose (shadow phase):
+    // she flies to them (no long run across the room).
+    if (this.farPick !== target) this.farPick = null;
+    // A rush at someone out of her range: the one time a rush goes by flight - straight to them, never
+    // swapping to someone nearer (server custom: kofi's call).
+    if (rushingAt && this.distanceTo(target) > fight.magicRange) {
+      this.fly(target);
+      // A rush that flew (not her idle flight): no 5-tick hold if they get under her after (kofi's call).
+      if (this.rush) this.rush.flownRush = true;
+      this.cue("rushfly", { target });
+      return;
+    }
+    const chosenFar = this.farPick === target;
+    if (this.distanceTo(target) > fight.magicRange && (chosenFar || !this.retargetInRange()) && this.tick - (this.lastFlightTick ?? -Infinity) >= FLY_GRACE_TICKS) {
+      this.farPick = null;
+      this.fly(target);
+      return;
+    }
+    // A rush runs her right up to them; otherwise in range she stands and attacks. Right
+    // up to them means into melee reach: a corner of her body touching theirs diagonally isn't (she
+    // can't swing there), so the rush stopped there and she shot instead (kofi saw her stuck).
+    const rushing = this.rush && this.rush.target === target && this.distanceTo(target) > 0 && !Attacks.inMeleeReach(this, target);
+    // Still on her way to them: the rush keeps going (RUSH_MAX_TICKS at most) so it can't run out as
+    // she arrives.
+    if (rushing) this.rush.until = Math.max(this.rush.until, Math.min(this.tick + 2, this.rush.startedAt + RUSH_MAX_TICKS));
+    if (!rushing && this.distanceTo(target) <= fight.magicRange && this.distanceTo(target) > 0) return;
+    // Her target under her: she holds still for UNDER_HOLD_TICKS (so a 5-tick stall, stepping straight
+    // back out, only delays her swing), then from the 6th tick walks off them each tick to attack;
+    // her idle time still sends her flying (fly, above).
+    if (this.distanceTo(target) === 0) {
+      // Someone under her walking her home: any rush is over (she got to them). Left running, it sent her
+      // straight back out after the dart home and she sat stuck there (kofi's call).
+      if (this.rush && !this.rush.flight) this.rush = null;
+      // Locked on to them the whole time (as in OSRS): walked off the middle she still faces them,
+      // rather than looking anywhere a flight or a special left her facing.
+      if (this.boss.getInteractingMobile?.() !== target) this.boss.setMobileInteraction(target);
+      // Already home: she waits there for them to step out (her bots do at once), rather than walking
+      // off the middle or flying out to a bridge.
+      if (this.atHome()) {
+        this.underSince = this.tick;
+        this.walkedSince = null;
+        return;
+      }
+      // Walked back long enough: she darts the rest of the way to the middle.
+      // Count 1 is the tick after they first stood under her; she darts on count SEND_HOME_TICKS.
+      if (this.tick - this.underSince >= SEND_HOME_TICKS) {
+        this.cue("walkfly", { target, under: this.tick - this.underSince + 1 });
+        this.underSince = null;
+        this.walkedSince = null;
+        this.fly(target);
+        return;
+      }
+      // Walked home by a player under her: each step that brings her nearer the middle keeps her busy,
+      // so arriving can't set off her idle flight (a walk home and a flight away straight after was the
+      // double teleport). A step that doesn't (a wall in the way) leaves her idle time running, so she
+      // still flies home rather than wandering.
+      // On her middle tile (a walk home, where her bots stand): she walks at once, towards the middle of
+      // the room (kofi's call, again 2026-11-03); her count runs on through the walk, so from far out she
+      // still dashes home on SEND_HOME_TICKS. On an edge tile (a 5-tick stall) she holds UNDER_HOLD_TICKS,
+      // so the stall keeps delaying her swing.
+      const onCentre = target.getLocation().equals(this.boss.getLocation().transform(1, 1));
+      // Once she's walking she keeps walking every tick while they're under her: after each of her
+      // steps the bot is left on her edge a moment (it moves after her), which read as a stall and she
+      // stopped and started (kofi's call).
+      // Walked home after a rush she still holds the 5 ticks first (Wiki), so the walk is short and her
+      // dash home on count SEND_HOME_TICKS comes (kofi: walking at once got her home before it, no dash).
+      // Landed from a rush that flew to them out of range: she walks off them at once, no hold (kofi's call).
+      const flownRush = this.rush?.flownRush && this.rush.target === target;
+      if (onCentre || flownRush || this.walkedSince != null || this.tick - this.underSince >= UNDER_HOLD_TICKS) {
+        if (this.walkedSince == null) {
+          this.walkedSince = this.tick;
+          this.cue("walkout", { target, under: this.tick - this.underSince + 1 });
+        }
+        const before = this.homeDistance(this.boss.getLocation());
+        const to = this.stepAwayFrom(target);
+        if (to && this.homeDistance(to) < before) this.lastAttackTick = this.tick;
+      }
+      return;
+    }
     const { RegionManager } = Common.core;
     const from = this.boss.getLocation();
     const dx = Math.sign(target.getLocation().getX() - (from.getX() + 1));
     const dy = Math.sign(target.getLocation().getY() - (from.getY() + 1));
-    for (const [x, y] of [[dx, dy], [dx, 0], [0, dy]]) {
-      if (x === 0 && y === 0) continue;
-      if (!RegionManager.canMove(from.getX(), from.getY(), from.getX() + x, from.getY() + y, from.getZ(), SIZE, SIZE, this.arena.area)) continue;
-      const movement = this.boss.getMovementQueue();
-      movement.reset();
-      movement.addSteps(from.transform(x, y));
+    // She runs at a player's speed (Wiki): two steps a tick while the way is clear.
+    this.boss.setMovementSteps?.(2);
+    // A rush charges through whoever stands in the way.
+    if (rushing) this.boss.setFlag?.(Common.core.NPC.WALK_THROUGH_ENTITIES_FLAG, true);
+    const clear = (at, x, y) => RegionManager.canMove(at.getX(), at.getY(), at.getX() + x, at.getY() + y, from.getZ(), SIZE, SIZE, this.arena.area);
+    const gap = (at) => Common.distanceToBody(target.getLocation(), at, SIZE);
+    // In melee reach of them with her body's south-west tile at `at`: beside her body, not off a corner.
+    const reachAt = (at) => {
+      if (gap(at) !== 1) return false;
+      const t = target.getLocation();
+      return (t.getX() >= at.getX() && t.getX() < at.getX() + SIZE) || (t.getY() >= at.getY() && t.getY() < at.getY() + SIZE);
+    };
+    // A rush follows one planned route every tick (pathToReach): the fewest steps, then the tightest
+    // line, so she hugs a corner round to them. Stepping straight at them first walked her into the
+    // corner's pocket, and swapping between that and the planned way round had her swing wide and
+    // zigzag (kofi saw it). In an open room the route is the same straight run.
+    if (rushing) {
+      this.rushAlong(target, from, clear, gap, reachAt);
       return;
     }
+    const now = this.distanceTo(target);
+    // Off a corner of them (1 away, can't swing): a sidestep onto their side first.
+    const options = now === 1 ? [[dx, 0], [0, dy], [dx, dy]] : [[dx, dy], [dx, 0], [0, dy]];
+    for (const [x, y] of options) {
+      if (x === 0 && y === 0) continue;
+      if (!clear(from, x, y)) continue;
+      const step = from.transform(x, y);
+      // Only a step that brings her nearer, or into melee reach: a sideways one that does neither had
+      // her bouncing to and fro on the spot with the way ahead blocked. Never onto them (gap 0).
+      if (gap(step) === 0 || (gap(step) >= now && !reachAt(step))) continue;
+      const movement = this.boss.getMovementQueue();
+      movement.reset();
+      movement.addSteps(step);
+      // The second step of the run, the same way on, if it's clear and nearer still (not once she's
+      // in reach, and never onto them).
+      const on = step.transform(x, y);
+      if (!reachAt(step) && clear(step, x, y) && gap(on) < gap(step) && gap(on) > 0) movement.addSteps(on);
+      return;
+    }
+    // No straight way nearer (a wall, a pillar, the chamber's edge): she waits for her idle flight.
+  }
+
+  /**
+   * A rush's run to a tile she can swing from (kofi: she got stuck and never landed the hit): two
+   * steps a tick along pathToReach's route, every step one tile on from the last (none skipped).
+   */
+  rushAlong(target, from, clear, gap, reachAt) {
+    const path = this.pathToReach(from, clear, gap, reachAt);
+    if (!path) {
+      this.cue("rushstuck", { target, at: `${from.getX()},${from.getY()}` });
+      return;
+    }
+    const movement = this.boss.getMovementQueue();
+    movement.reset();
+    // Two steps a tick, as she runs.
+    for (const step of path.slice(0, 2)) movement.addSteps(step);
+    if (!this.rushPathCued || this.rushPathCued !== this.rush) {
+      this.rushPathCued = this.rush;
+      // Time to get round: the rush lasts long enough to walk the detour (two steps a tick) and swing.
+      this.rush.until = Math.max(this.rush.until, this.tick + Math.ceil(path.length / 2) + 2);
+      this.cue("rushpath", { target, at: `${from.getX()},${from.getY()}`, steps: path.length });
+    }
+  }
+
+  /**
+   * The shortest walk for her 3x3 body from `from` to a spot where `reachAt` holds (her target in melee
+   * reach), round whatever blocks the straight line: a list of her south-west tile at each step, or
+   * null with no way within RUSH_PATH_RADIUS. Never through a tile where her body would cover them.
+   * Of the routes with the fewest steps (her time there), the shortest line: it hugs a corner rather
+   * than swinging wide round it, and runs straight where nothing's in the way (kofi's call).
+   */
+  pathToReach(from, clear, gap, reachAt) {
+    const key = (at) => `${at.getX()},${at.getY()}`;
+    // Cost: steps first (a thousand each), then the line's length (a straight step 100, a diagonal 141).
+    const best = new Map([[key(from), 0]]);
+    const came = new Map([[key(from), null]]);
+    const heap = [{ at: from, cost: 0 }];
+    const push = (node) => {
+      heap.push(node);
+      for (let i = heap.length - 1; i > 0;) {
+        const parent = (i - 1) >> 1;
+        if (heap[parent].cost <= heap[i].cost) break;
+        [heap[parent], heap[i]] = [heap[i], heap[parent]];
+        i = parent;
+      }
+    };
+    const pop = () => {
+      const top = heap[0];
+      const last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        for (let i = 0; ;) {
+          const [l, r] = [2 * i + 1, 2 * i + 2];
+          let min = i;
+          if (l < heap.length && heap[l].cost < heap[min].cost) min = l;
+          if (r < heap.length && heap[r].cost < heap[min].cost) min = r;
+          if (min === i) break;
+          [heap[min], heap[i]] = [heap[i], heap[min]];
+          i = min;
+        }
+      }
+      return top;
+    };
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+    while (heap.length) {
+      const { at, cost } = pop();
+      if (cost > best.get(key(at))) continue;
+      if (at !== from && reachAt(at)) {
+        const path = [];
+        for (let step = at; step && key(step) !== key(from); step = came.get(key(step))) path.unshift(step);
+        return path;
+      }
+      for (const [x, y] of dirs) {
+        const next = at.transform(x, y);
+        const k = key(next);
+        const nextCost = cost + 1000 + (x !== 0 && y !== 0 ? 141 : 100);
+        if (best.has(k) && best.get(k) <= nextCost) continue;
+        if (Math.max(Math.abs(next.getX() - from.getX()), Math.abs(next.getY() - from.getY())) > RUSH_PATH_RADIUS) continue;
+        if (!this.arena.inChamber(next) || !this.arena.inChamber(next.transform(SIZE - 1, SIZE - 1))) continue;
+        if (gap(next) === 0 || !clear(at, x, y)) continue;
+        best.set(k, nextCost);
+        came.set(k, at);
+        push({ at: next, cost: nextCost });
+      }
+    }
+    return null;
+  }
+
+  /** Tiles from her middle tile. */
+  homeDistance(at) {
+    const home = this.tile(Common.data.chamber.nexTile);
+    return Math.max(Math.abs(at.getX() - home.getX()), Math.abs(at.getY() - home.getY()));
+  }
+
+  /** On her middle tile or one off it. */
+  atHome() {
+    return this.homeDistance(this.boss.getLocation()) <= 1;
+  }
+
+  /** One step directly away from `player` (under her): the tile she steps to, or false when she can't. */
+  stepAwayFrom(player) {
+    const { RegionManager } = Common.core;
+    const from = this.boss.getLocation();
+    let dx = Math.sign(from.getX() + 1 - player.getLocation().getX());
+    let dy = Math.sign(from.getY() + 1 - player.getLocation().getY());
+    if (dx === 0 && dy === 0) {
+      // On her centre tile: out towards the middle of the room (or any side when she's there).
+      const home = this.tile(Common.data.chamber.nexTile);
+      dx = Math.sign(home.getX() - from.getX()) || (Math.random() < 0.5 ? 1 : -1);
+      dy = Math.sign(home.getY() - from.getY());
+    }
+    // Away first, then square to it (along a bridge when that's the only way), and back last.
+    const tried = new Set();
+    // Of the three steps away, the one nearest the middle first: blocked going diagonally home, she took
+    // the sideways one and sat 11 off for a walk's worth of ticks (kofi saw the long walk).
+    const away = [[dx, dy], [dx, 0], [0, dy]].map(([x, y], i) => ({ x, y, i, home: this.homeDistance(from.transform(x, y)) }))
+      .sort((a, b) => a.home - b.home || a.i - b.i).map(({ x, y }) => [x, y]);
+    for (const [x, y] of [...away, [dy, dx], [-dy, -dx], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      if ((x === 0 && y === 0) || tried.has(`${x},${y}`)) continue;
+      tried.add(`${x},${y}`);
+      const to = from.transform(x, y);
+      if (!this.arena.inChamber(to) || !this.arena.inChamber(to.transform(SIZE - 1, SIZE - 1))) continue;
+      if (!RegionManager.canMove(from.getX(), from.getY(), to.getX(), to.getY(), from.getZ(), SIZE, SIZE, this.arena.area)) continue;
+      // The player under her would otherwise block every step: her body still covers them.
+      this.boss.setFlag?.(Common.core.NPC.WALK_THROUGH_ENTITIES_FLAG, true);
+      // A walk, one tile a tick: a bot walking her home stays under her as she goes.
+      this.boss.setMovementSteps?.(1);
+      const movement = this.boss.getMovementQueue();
+      movement.reset();
+      movement.addSteps(to);
+      return to;
+    }
+    return false;
   }
 
   /** seq 9187 and a 30-cycle glide to beside her target (captured); hits do nothing meanwhile (Wiki). */
   fly(target) {
     const { fight } = Common.data;
     this.lastAttackTick = this.tick;
+    this.lastFlightTick = this.tick;
     this.immuneUntil = this.tick + 2;
-    this.nextAttackTick = Math.max(this.nextAttackTick, this.tick + 3);
-    const destination = this.landingNear(target) ?? this.tile(Common.data.chamber.nexTile);
+    // Her swing as soon as the glide's done (30 cycles, a tick): no standing about after landing.
+    this.nextAttackTick = Math.max(this.nextAttackTick, this.tick + 2);
+    const home = this.tile(Common.data.chamber.nexTile);
+    // Her target under her (she can't attack them there): back to the middle, or from the middle
+    // out onto a bridge of the cross - the "shadow reset" teams use (Wiki: Nex/Strategies).
+    let destination;
+    const toTarget = this.distanceTo(target) !== 0;
+    if (!toTarget) {
+      const at = this.boss.getLocation();
+      const inMiddle = Math.max(Math.abs(at.getX() - home.getX()), Math.abs(at.getY() - home.getY())) <= 1;
+      destination = inMiddle ? this.tile(Common.pick(Common.data.chamber.aisles).end) : home;
+    } else {
+      destination = this.landingNear(target) ?? home;
+    }
     this.boss.performAnimation(Common.animation(fight.flyAnim));
     this.boss.getMovementQueue().reset();
     this.boss.exactMove(destination, { startCycles: 0, endCycles: fight.flyCycles });
+    // The move clears who she faces: turned straight back to her target (not left looking nowhere
+    // until her next swing).
+    this.boss.setMobileInteraction(target);
+    // Flown to her target (not home from under them): the moment she lands she walks straight on
+    // into melee to hit them, as a rush does (server custom: kofi's call), whatever the phase.
+    // Home (or onto a bridge) from under them: no rush carries on - back to her normal attacks from
+    // there, and a new rush can be rolled on any attack after.
+    if (!toTarget) this.rush = null;
+    if (toTarget) {
+      this.rush = { target, until: this.tick + RUSH_TICKS, startedAt: this.tick, flight: true };
+      this.noMeleeNext = false;
+      this.meleeChain = 0;
+    }
   }
 
   /** A free spot for her 3x3 body next to the player, inside the chamber. */
@@ -448,6 +909,7 @@ class Fight {
       zero();
       Common.healNpc(this.boss, total, fight.hitpoints);
       this.record.siphonHealed = true;
+      this.siphonHealed = (this.siphonHealed ?? 0) + total;
       return;
     }
     const phase = this.phase();
@@ -536,6 +998,7 @@ class Fight {
     this.say(wrath.say);
     this.transform(npcs.dying);
     const centre = this.centre();
+    this.cue("wrath", { centre });
     this.at(wrath.deathAnimTick, () => this.boss.performAnimation(Common.animation(wrath.deathAnim)));
     this.at(wrath.blastTick, () => this.blast(centre));
     this.at(wrath.hudFadeTick, () => {
@@ -617,6 +1080,8 @@ class Fight {
     if (healHer && healed > 0) {
       Common.healNpc(this.boss, healed, Common.data.fight.hitpoints);
       this.record.siphonHealed = true;
+      // Her bot teammates react to it (Bots.Nex Team.healWatch).
+      this.cue("bigheal", { amount: healed, source: "reavers" });
     }
     return healed;
   }
@@ -721,7 +1186,49 @@ function dealtDamage({ player, target, hit }) {
   const fight = fightOf(target);
   if (!fight || !fight.reavers.includes(target)) return;
   const amount = hit.getTotalDamage();
-  if (amount > 1) player.heal(Math.floor(amount / 2));
+  if (amount > 1) Common.healPlayer(player, Math.floor(amount / 2));
+}
+
+/**
+ * A thrall's hit skips modifyHit (it is damage, not a PendingHit), so her rules are applied to its
+ * max hit instead: nothing while she is immune, at a phase's floor or on an uncalled mage, no more
+ * than the room above the floor, and during Blood Siphon it heals her (Wiki: every hit does).
+ */
+function thrallMaxHit(request) {
+  const fight = fightOf(request.target);
+  if (!fight) return;
+  const npc = request.target;
+  if (fight.isImmuneMage(npc)) {
+    request.maxHit = 0;
+    return;
+  }
+  // A thrall doesn't finish Cruor while reavers live: they'd heal her their hitpoints as he dies.
+  if (npc === fight.mages.get("cruor") && fight.reavers.some((reaver) => reaver?.isRegistered?.() && reaver.getHitpoints() > 0)) {
+    request.maxHit = 0;
+    return;
+  }
+  if (npc !== fight.boss) return;
+  const { fight: data } = Common.data;
+  if (fight.stage !== "fighting" || fight.tick < fight.immuneUntil) {
+    request.maxHit = 0;
+    return;
+  }
+  if (fight.tick < fight.siphonUntil) {
+    Common.healNpc(fight.boss, Common.randomInt(0, Math.max(0, request.maxHit)), data.hitpoints);
+    fight.record.siphonHealed = true;
+    request.maxHit = 0;
+    return;
+  }
+  const phase = fight.phase();
+  if (phase.key === "zaros") return;
+  const room = Math.max(0, fight.boss.getHitpoints() - Math.floor(data.hitpoints * phase.floor));
+  request.maxHit = Math.min(request.maxHit, room);
+}
+
+/** A thrall's damage counts as its summoner's (Wiki: Thralls), for the shares and the MVP. */
+function thrallHit({ player, target, damage }) {
+  const fight = fightOf(target);
+  if (fight) fight.credit(player, damage);
 }
 
 /** At 0 she casts Wrath before going. */
@@ -755,6 +1262,8 @@ function attachFight(api) {
   const method = scriptedClass();
   for (const id of [npcs.nex, npcs.spawning, npcs.soulSplit, npcs.deflect, npcs.dying]) api.registerNpcCombatMethodProvider(id, method);
   api.onNpcHitModify(modifyHit);
+  api.onCustomEvent("magic:thrall-max-hit", thrallMaxHit);
+  api.onCustomEvent("magic:thrall-hit", thrallHit);
   api.onPlayerDealtDamage(dealtDamage);
   api.onNpcBeforeDeath(beforeDeath);
   api.onNpcDeath(npcDied);

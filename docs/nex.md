@@ -210,6 +210,31 @@ Her kill count goes through `combat-achievements:kill` (Nex Veteran and Nex Mast
 | `::nexhp <n>` | Her hitpoints. |
 | `::nexend` | Ends the fight without a kill. |
 
+## Bot teammates (`Bots.Nex.js`, server custom)
+
+Not OSRS. Starting a private fight brings the bots picked at the barrier (four, two, one or none) in
+behind the owner (`nex:instance-entered` from `Instance.enter`); the public chamber never has bots. They are
+`createBotPlayer` bots (never saved), all combat skills 99 (combat 126):
+
+| Role | Gear | Inventory |
+| --- | --- | --- |
+| Melee x2 | Torva, Osmumten's fang, Avernic defender, rancour, ferocious, Avernic treads, Ultor, infernal | the ranged switch below, super combat, ranging, 6 restores, 8 brews, 2 anglerfish |
+| Ranged x2 | Masori (f), Twisted bow + dragon arrows, blessed quiver, rupture, Zaryte vambraces, Avernic treads, Venator | Zaryte crossbow, ruby dragon bolts (e), Twisted buckler, ranging, 8 restores, 10 brews, 5 anglerfish |
+
+Behaviour (Wiki Nex/Strategies): Piety/Rigour and the phase's protection (Protect from Melee
+while she melees them); rangers 4-8 tiles out (7-9 in shadow), away from Glacies in ice; melee on
+her sides, never sharing a tile, spread in blood; the melee switch to their bows from Fumus's death
+to Umbra's; the called mage first; reavers through Blood Siphon; out of the dash's aisle, off the
+shadows, out of the darkness, out of the 5x5 before Containment, 9 tiles away when marked, out of
+Wrath; melee break a trapped player's stalagmite; melee hold during Deflect Melee; a Zaryte crossbow
+special while she is over 600; brew/restore/boost upkeep, kept high in the ice phase and topped up
+when her ice prison is cast at them. Each reacts 1-3 ticks late and misses a dodge 5% of the time, so
+deaths happen. A dead bot logs out and a new one runs in before the next kill; when the last real
+player leaves, the bots log out and the instance ends.
+
+`Fight.cue(name, details)` records each special as it starts (`fight.cues`): the dash's aisle, the
+smash's shadow tiles, the sacrifice's mark, the prison's target, Wrath.
+
 ## Not done
 
 - Ashuelot Reis's dialogue (rec 801 has his story) and varbit 13182.

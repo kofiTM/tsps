@@ -74,7 +74,7 @@
       { "end": [2914, 5202, 0], "angle": 1536, "zone": { "minX": 2914, "maxX": 2924, "minY": 5202, "maxY": 5204 } }
     ],
     "firstSpawnTicks": 54,
-    "respawnTicks": 37
+    "respawnTicks": 70
   },
   "instance": {
     "chunkX": 360,
@@ -343,7 +343,7 @@
     "peek": "There [are] [n] [adventurers] on the other side of the barrier.",
     "peekPhase": "<br>Nex is imbued with [phase].",
     "exitOnlyAltar": "You can only exit by using the altar.",
-    "privateMenu": ["Start a private fight (your friends will be able to join you).", "Join a private fight.", "Do nothing."],
+    "privateMenu": ["Start a private fight (your friends and/or bots can join you).", "Join a private fight.", "Do nothing."],
     "warning": "You are about to begin an encounter with Nex. Dying during this encounter will not be considered a safe death. After entering, you won't be able to leave using the barrier. Instead, you'll need to use the altar to teleport out. Are you sure you wish to begin?",
     "confirm": ["Are you sure you wish to begin?", "Yes.", "Yes, and don't ask again.", "No."],
     "joinPrompt": "Whose fight would you like to join? You must be on their friends list.",

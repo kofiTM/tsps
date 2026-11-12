@@ -18,6 +18,7 @@ const Items = require("./nex/Items.Nex");
 const Forge = require("./nex/Forge.Nex");
 const CombatAchievements = require("./nex/CombatAchievements.Nex");
 const Commands = require("./nex/Commands.Nex");
+const Bots = require("./nex/Bots.Nex");
 
 module.exports = {
   name: "Nex",
@@ -38,5 +39,6 @@ module.exports = {
     Forge.attachForge(api);
     CombatAchievements.attachCombatAchievements(api);
     Commands.attachCommands(api);
+    Bots.attachBots(api);
   },
 };

@@ -2,7 +2,8 @@
  * Nex's standard attacks (docs/nex.md):
  * - Wiki: melee (max 27) when her target stands beside her, always three in a row while they stay
  *   there, and never a fourth; otherwise the phase's spell. Smoke, ice and Zaros magic (max 33)
- *   and shadow shots (ranged, up to 60, less further away) hit everyone; the blood barrage hits her
+ *   and shadow shots (ranged, up to 60, less further away) hit everyone within her attack range
+ *   (10 tiles from her body); the blood barrage hits her
  *   target and anyone beside them, healing her a quarter. Protection prayers block 80% of her
  *   melee (two thirds in the Zaros phase) and half her magic and ranged; against Zaros magic,
  *   raising the prayer after she cast blocks a quarter.
@@ -36,6 +37,8 @@ function attack(fight, target) {
   if (!target || target.getHitpoints() <= 0) return false;
   const distance = fight.distanceTo(target);
   if (distance === 0 || distance > data.magicRange) return false;
+  // Turned to them with every attack: a flight, a dash or calling a mage leaves her facing elsewhere.
+  fight.boss.setMobileInteraction(target);
   if (inMeleeReach(fight, target) && !fight.noMeleeNext) {
     melee(fight, target);
     fight.meleeChain++;
@@ -65,7 +68,7 @@ function melee(fight, target) {
   });
 }
 
-/** Smoke, shadow, ice or Zaros: a projectile at everyone, each landing on its own. */
+/** Smoke, shadow, ice or Zaros: a projectile at everyone within her range, each landing on its own. */
 function spell(fight, target) {
   const { fight: data } = Common.data;
   const key = fight.phase().key;
@@ -75,7 +78,7 @@ function spell(fight, target) {
   const kind = key === "shadow" ? "ranged" : "magic";
   const drag = key === "smoke" ? require("./Specials.Nex").dragCandidate(fight) : null;
   for (const player of fight.players()) {
-    if (player.getHitpoints() <= 0) continue;
+    if (player.getHitpoints() <= 0 || fight.distanceTo(player) > data.magicRange) continue;
     const cycles = Common.projectile(fight.boss, player, {
       ...style.projectile,
       start: data.attacks.projectileStart,
@@ -145,7 +148,7 @@ function blood(fight, target) {
   const centre = target.getLocation();
   const victims = fight.players().filter((player) => {
     const at = player.getLocation();
-    return player.getHitpoints() > 0 && Math.max(Math.abs(at.getX() - centre.getX()), Math.abs(at.getY() - centre.getY())) <= 1;
+    return player.getHitpoints() > 0 && fight.distanceTo(player) <= data.magicRange && Math.max(Math.abs(at.getX() - centre.getX()), Math.abs(at.getY() - centre.getY())) <= 1;
   });
   for (const player of victims) {
     Common.strike(fight.boss, player, "magic", data.magicMax, Common.landsIn(cycles), {
