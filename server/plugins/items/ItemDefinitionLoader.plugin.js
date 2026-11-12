@@ -328,6 +328,27 @@ function loadItemDefinitions() {
       customModels.push(model);
     }
   }
+  // Models that belong to no item (e.g. custom NPC bodies): data/definitions/custom-models.json,
+  // { "<model id>": "<file under data/models>" }.
+  const extraModelsPath = path.resolve(process.cwd(), getGameConstants().DEFINITIONS_DIRECTORY, "custom-models.json");
+  if (fs.existsSync(extraModelsPath)) {
+    for (const [rawId, rawFile] of Object.entries(JSON.parse(fs.readFileSync(extraModelsPath, "utf8")))) {
+      const modelId = Number(rawId);
+      if (!Number.isInteger(modelId) || modelId < 1000000 || modelIds.has(modelId) || typeof rawFile !== "string" || !/^[a-zA-Z0-9._/-]+\.dat$/.test(rawFile)) {
+        throw new Error(`[custom-models] invalid model ${String(rawId)}`);
+      }
+      modelIds.add(modelId);
+      const filePath = fs.realpathSync(path.resolve(modelRoot, rawFile));
+      if (!filePath.startsWith(`${modelRoot}${path.sep}`)) throw new Error(`[custom-models] model path escapes data/models: ${rawFile}`);
+      const data = fs.readFileSync(filePath);
+      if (data.length < 18 || data.length > 1024 * 1024) throw new Error(`[custom-models] model ${filePath} must be 18 bytes..1 MiB`);
+      const model = { id: modelId, data: data.toString("base64") };
+      if (encodeContentData("server", [{ key: "customModels", rows: [model] }]).length > 0xffff) {
+        throw new Error(`[custom-models] model packet ${modelId} exceeds protocol limit`);
+      }
+      customModels.push(model);
+    }
+  }
   for (const row of customRows) {
     for (const [key, value] of Object.entries(row.objType ?? {})) {
       if (/^(model|(?:male|female)(?:Head)?Model[12]?)$/.test(key) && value >= 1000000 && !modelIds.has(value)) {
@@ -359,6 +380,22 @@ function loadItemDefinitions() {
   }
   CacheDefinitions.registerCustomItems(customRows);
   CacheDefinitions.setCustomModels(customModels);
+  // Custom spot animations: a cache spot anim with its model swapped for a custom model
+  // (data/definitions/custom-spotanims.json: [{ id: 60000..65535, baseId, modelId, widthScale?, heightScale? }];
+  // the scales, 128 = normal size, replace the base's when given).
+  const spotPath = path.resolve(process.cwd(), getGameConstants().DEFINITIONS_DIRECTORY, "custom-spotanims.json");
+  customSpotAnims = [];
+  if (fs.existsSync(spotPath)) {
+    for (const row of JSON.parse(fs.readFileSync(spotPath, "utf8"))) {
+      if (!Number.isInteger(row.id) || row.id < 60000 || row.id > 65535 || !Number.isInteger(row.baseId) ||
+          !Number.isInteger(row.modelId) || (row.modelId >= 1000000 && !modelIds.has(row.modelId))) {
+        throw new Error(`[custom-spotanims] invalid row ${JSON.stringify(row)}`);
+      }
+      const scales = {};
+      for (const key of ["widthScale", "heightScale"]) if (Number.isInteger(row[key]) && row[key] > 0) scales[key] = row[key];
+      customSpotAnims.push({ id: row.id, baseId: row.baseId, modelId: row.modelId, ...scales });
+    }
+  }
   for (const row of CacheDefinitions.getCustomItems()) {
     const props = { ...(row.itemDef ?? {}) };
     if (typeof props.equipmentType === "string") props.equipmentType = hydrateEquipmentType(props.equipmentType);
@@ -367,6 +404,12 @@ function loadItemDefinitions() {
     if (row.specialAttack) {
       getCombatSpecial().setItemSpecial(row.id, { from: row.specialAttack.from, drainAmount: row.specialAttack.energy });
     }
+  }
+  // Opt-in: `"aliasBase": true` makes a custom item behave as its base item wherever it has no
+  // entry of its own (special attacks, ranged weapon/ammo tables, weapon profiles) - see ItemAliases.
+  const { ItemAliases } = requireGameModule(path.join("game", "model", "ItemAliases"));
+  for (const row of customRows) {
+    if (row.aliasBase === true && Number.isInteger(row.baseItemId)) ItemAliases.register(row.id, row.baseItemId);
   }
 
   return {
@@ -381,7 +424,9 @@ function loadItemDefinitions() {
   };
 }
 
-function customItemsResource() { return CacheDefinitions.getCustomItems(); }
+let customSpotAnims = [];
+
+function customItemsResource() { return CacheDefinitions.getCustomItems().map(withSpecialAttackEnergy); }
 
 let alchemyValues;
 /**
@@ -406,13 +451,26 @@ function customModelsResource(_query, segments) {
   return segments.length ? models.find((model) => String(model.id) === segments[0]) : models;
 }
 
+/**
+ * A custom item's row with the energy of the special it has (its own, or its base item's through
+ * ItemAliases), so the client can draw the spec bar: cache enum 906 has no custom ids.
+ */
+function withSpecialAttackEnergy(row) {
+  const { CombatSpecial } = requireGameModule(path.join("game", "content", "combat", "CombatSpecial"));
+  const special = CombatSpecial.getForWeaponId(row.id);
+  return special ? { ...row, specialAttackEnergy: special.getDrainAmountForWeaponId(row.id) } : row;
+}
+
 function sendCustomItems({ player }) {
+  // Bots render nothing: encoding every custom model for each of the tournament's bots overran ticks.
+  if (player.isPlayerBot?.()) return;
   const sender = player.getPacketSender();
   sender.sendContentData("server", [{ key: "customModels", rows: [] }]);
   for (const model of CacheDefinitions.getCustomModels()) {
     sender.sendContentData("server", [{ key: "customModels", rows: [model] }]);
   }
-  sender.sendContentData("server", [{ key: "customItems", rows: CacheDefinitions.getCustomItems() }]);
+  sender.sendContentData("server", [{ key: "customSpotAnims", rows: customSpotAnims }]);
+  sender.sendContentData("server", [{ key: "customItems", rows: CacheDefinitions.getCustomItems().map(withSpecialAttackEnergy) }]);
 }
 
 module.exports = {

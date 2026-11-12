@@ -1,0 +1,477 @@
+13858 Zuriel's robe top 67488 66693
+13860 Zuriel's robe top 67488 66693
+13861 Zuriel's robe bottom 67486 66604
+13863 Zuriel's robe bottom 67486 66604
+13864 Zuriel's hood 67487 66486
+13866 Zuriel's hood 67487 66486
+13867 Zuriel's staff 42595 42617
+13869 Zuriel's staff 42595 42617
+13932 Corrupt Zuriel's robe top 67488 66693
+13934 Corrupt Zuriel's robe top (deg) 67488 66693
+13935 Corrupt Zuriel's robe bottom 67486 66604
+13937 Corrupt Zuriel's robe bottom (deg) 67486 66604
+13938 Corrupt Zuriel's hood 67487 66486
+13940 Corrupt Zuriel's hood (deg) 67487 66486
+13941 Corrupt Zuriel's staff 42595 42617
+13943 Corrupt Zuriel's staff (deg) 42595 42617
+18355 Chaotic staff 140233 140232
+18356 Chaotic staff (broken) 140233 140232
+24457 Obliteration 71203 71222
+24458 Obliteration 71248 71248
+25439 Obliteration 71203 71222
+25654 Virtus wand 79155 75065
+25664 Virtus book 79154 74905
+30493 Virtus wand 79155 75065
+30494 Virtus wand (broken) 79155 75065
+30495 Virtus book 79154 74905
+30496 Virtus book (broken) 79154 74905
+31725 Noxious scythe 96996 96990
+31727 Noxious scythe 96996 96990
+31728 Noxious scythe (broken) 96996 96990
+31729 Noxious staff 96997 96993
+31731 Noxious staff 96997 96993
+31732 Noxious staff (broken) 96997 96993
+33330 Noxious scythe (Barrows) 100548 100388
+33331 Noxious scythe (Barrows) 100548 100388
+33332 Noxious scythe (Barrows)(broken) 100548 100388
+33333 Noxious staff (Barrows) 100551 100406
+33334 Noxious staff (Barrows) 100551 100406
+33335 Noxious staff (Barrows)(broken) 100551 100406
+33396 Noxious scythe (shadow) 100549 100390
+33397 Noxious scythe (shadow) 100549 100390
+33398 Noxious scythe (shadow)(broken) 100549 100390
+33399 Noxious staff (shadow) 100552 100408
+33400 Noxious staff (shadow) 100552 100408
+33401 Noxious staff (shadow)(broken) 100552 100408
+33462 Noxious scythe (Third Age) 100550 100392
+33463 Noxious scythe (Third Age) 100550 100392
+33464 Noxious scythe (Third Age)(broken) 100550 100392
+33465 Noxious staff (Third Age) 100553 100410
+33466 Noxious staff (Third Age) 100553 100410
+33467 Noxious staff (Third Age)(broken) 100553 100410
+34085 Lucky chaotic staff 102014 101966
+34086 Lucky chaotic staff (broken) 101988 101966
+34155 Staff of darkness 102099 102086
+36333 Noxious scythe (blood) 108559 108533
+36334 Noxious scythe (blood) 108559 108533
+36335 Noxious scythe (blood)(broken) 108559 108533
+36336 Noxious staff (blood) 108560 108535
+36337 Noxious staff (blood) 108560 108535
+36338 Noxious staff (blood)(broken) 108560 108535
+36629 Augmented staff of darkness 102099 102086
+36630 Augmented staff of darkness (uncharged) 102099 102086
+36659 Augmented Virtus book 79154 74905
+36660 Augmented Virtus book (uncharged) 79154 74905
+36661 Augmented Virtus wand 79155 75065
+36662 Augmented Virtus wand (uncharged) 79155 75065
+36687 Augmented chaotic staff 140233 140232
+36688 Augmented chaotic staff (uncharged) 140233 140232
+36713 Augmented noxious staff 96997 96993
+36714 Augmented noxious staff (uncharged) 96997 96993
+36715 Augmented noxious scythe 96996 96990
+36716 Augmented noxious scythe (uncharged) 96996 96990
+37085 Wand of the Cywir elders 110685 111203
+37088 Wand of the Cywir elders 110685 111203
+37089 Wand of the Cywir elders (broken) 110685 111203
+37090 Blade of Nymora 110885 111159
+37093 Blade of Nymora 110885 111159
+37094 Blade of Nymora (broken) 110885 111159
+37095 Blade of Avaryss 110886 111160
+37098 Blade of Avaryss 110886 111160
+37099 Blade of Avaryss (broken) 110886 111160
+37168 Augmented Wand of the Cywir elders 110685 111203
+37169 Augmented Wand of the Cywir elders (uncharged) 110685 111203
+37170 Augmented Blade of Nymora 110885 111159
+37171 Augmented Blade of Nymora (uncharged) 110885 111159
+37172 Augmented Blade of Avaryss 110886 111160
+37173 Augmented Blade of Avaryss (uncharged) 110886 111160
+38272 Augmented noxious scythe (Barrows) 100548 100388
+38273 Augmented noxious scythe (Barrows)(uncharged) 100548 100388
+38274 Augmented noxious staff (Barrows) 100551 100406
+38275 Augmented noxious staff (Barrows)(uncharged) 100551 100406
+38298 Augmented noxious scythe (shadow) 100549 100390
+38299 Augmented noxious scythe (shadow)(uncharged) 100549 100390
+38300 Augmented noxious staff (shadow) 100552 100408
+38301 Augmented noxious staff (shadow)(uncharged) 100552 100408
+38324 Augmented noxious scythe (Third Age) 100550 100392
+38325 Augmented noxious scythe (Third Age)(uncharged) 100550 100392
+38326 Augmented noxious staff (Third Age) 100553 100410
+38327 Augmented noxious staff (Third Age)(uncharged) 100553 100410
+38350 Augmented noxious scythe (blood) 108559 108533
+38351 Augmented noxious scythe (blood)(uncharged) 108559 108533
+38352 Augmented noxious staff (blood) 108560 108535
+38353 Augmented noxious staff (blood)(uncharged) 108560 108535
+39057 Obliteration 115831 115707
+39059 Obliteration 115831 115707
+39060 Obliteration (broken) 71203 115707
+39085 Superior Zuriel's robe top 115818 115629
+39086 Superior Zuriel's robe top 115818 115629
+39087 Augmented superior Zuriel's robe top 115818 115629
+39088 Augmented superior Zuriel's robe top (uncharged) 115818 115629
+39089 Superior Zuriel's robe bottom 115815 115616
+39090 Superior Zuriel's robe bottom 115815 115616
+39091 Augmented superior Zuriel's robe bottom 115815 115616
+39092 Augmented superior Zuriel's robe bottom (uncharged) 115815 115616
+39093 Superior Zuriel's hood 115771 115604
+39094 Superior Zuriel's hood 115771 115604
+39095 Superior Zuriel's staff 115788 115718
+39096 Superior Zuriel's staff 115788 115718
+39097 Augmented superior Zuriel's staff 115788 115718
+39098 Augmented superior Zuriel's staff (uncharged) 115788 115718
+39232 Augmented Obliteration 115831 115707
+39233 Augmented Obliteration (uncharged) 115831 115707
+40600 Orb of the Cywir elders 119631 119635
+40603 Orb of the Cywir elders 119631 119635
+40604 Orb of the Cywir elders (broken) 119632 119636
+40605 Augmented Orb of the Cywir elders 119631 119635
+40606 Augmented Orb of the Cywir elders (uncharged) 119631 119635
+41875 Second-Age staff 11748 24211
+42049 Noxious scythe (ice) 24459 24347
+42050 Noxious scythe (ice) 24459 24347
+42051 Noxious scythe (ice)(broken) 24459 24347
+42052 Noxious staff (ice) 24460 23879
+42053 Noxious staff (ice) 24460 23879
+42054 Noxious staff (ice)(broken) 24460 23879
+42178 Augmented noxious scythe (ice) 24459 24347
+42179 Augmented noxious scythe (ice)(uncharged) 24459 24347
+42180 Augmented noxious staff (ice) 24460 23879
+42181 Augmented noxious staff (ice)(uncharged) 24460 23879
+42216 Augmented Second-Age staff 11748 24211
+42217 Augmented Second-Age staff (uncharged) 11748 24211
+43432 Golden chaotic staff 102015 101968
+43433 Golden chaotic staff (broken) 101989 101968
+44718 Necturion (Masterwork) Helm 2521 73097
+44719 Necturion (Masterwork) Platebody 2521 73101
+44720 Necturion (Masterwork) Platelegs 2521 73099
+44721 Necturion (Masterwork) Gauntlets 2521 73095
+44722 Necturion (Masterwork) Boots 2521 73085
+44723 Necturion (Masterwork) Shield 2521 73428
+44724 Necturion (Masterwork) Scimitar 2521 73398
+44725 Necturion (Masterwork) Off-hand Scimitar 2521 73399
+44736 Invictum (Masterwork) Helm 2521 73129
+44737 Invictum (Masterwork) Platebody 2521 73146
+44738 Invictum (Masterwork) Platelegs 2521 73136
+44739 Invictum (Masterwork) Gauntlets 2521 73124
+44740 Invictum (Masterwork) Boots 2521 73114
+44741 Invictum (Masterwork) Shield 2521 73432
+44742 Invictum (Masterwork) Scimitar 2521 73407
+44743 Invictum (Masterwork) Off-hand Scimitar 2521 73408
+44754 Aetherium (Masterwork) Helm 2521 73164
+44755 Aetherium (Masterwork) Platebody 2521 73172
+44756 Aetherium (Masterwork) Platelegs 2521 73168
+44757 Aetherium (Masterwork) Gauntlets 2521 73160
+44758 Aetherium (Masterwork) Boots 2521 73156
+44759 Aetherium (Masterwork) Shield 2521 73446
+44760 Aetherium (Masterwork) Scimitar 2521 73416
+44761 Aetherium (Masterwork) Off-hand Scimitar 2521 73417
+45955 Masterwork melee helm 73665 71844
+45957 Masterwork melee helm 73665 71844
+45960 Masterwork melee gloves 73664 71830
+45962 Masterwork melee gloves 73664 71830
+45965 Masterwork melee boots 73662 71829
+45967 Masterwork melee boots 73662 71829
+45970 Masterwork melee platebody 73668 71854
+45972 Masterwork melee platebody 73668 71854
+45975 Masterwork melee platelegs 73666 71845
+45977 Masterwork melee platelegs 73666 71845
+45980 Augmented masterwork melee platebody 73668 71854
+45981 Augmented masterwork melee platebody (uncharged) 73668 71854
+45982 Augmented masterwork melee platelegs 73666 71845
+45983 Augmented masterwork melee platelegs (uncharged) 73666 71845
+46038 Trimmed masterwork melee helm 73654 73199
+46040 Trimmed masterwork melee helm 73654 73199
+46043 Trimmed masterwork melee gloves 73650 73198
+46045 Trimmed masterwork melee gloves 73650 73198
+46048 Trimmed masterwork melee boots 73649 73197
+46050 Trimmed masterwork melee boots 73649 73197
+46053 Trimmed masterwork melee platebody 73655 73201
+46055 Trimmed masterwork melee platebody 73655 73201
+46058 Trimmed masterwork melee platelegs 73651 73200
+46060 Trimmed masterwork melee platelegs 73651 73200
+46063 Augmented trimmed masterwork melee platebody 73655 73201
+46064 Augmented trimmed masterwork melee platebody (uncharged) 73655 73201
+46065 Augmented trimmed masterwork melee platelegs 73651 73200
+46066 Augmented trimmed masterwork melee platelegs (uncharged) 73651 73200
+46067 Custom-fit trimmed masterwork melee helm 73654 73199
+46069 Custom-fit trimmed masterwork melee helm 73654 73199
+46072 Custom-fit trimmed masterwork melee gloves 73650 73198
+46074 Custom-fit trimmed masterwork melee gloves 73650 73198
+46077 Custom-fit trimmed masterwork melee boots 73649 73197
+46079 Custom-fit trimmed masterwork melee boots 73649 73197
+46082 Custom-fit trimmed masterwork melee platebody 73655 73201
+46084 Custom-fit trimmed masterwork melee platebody 73655 73201
+46087 Custom-fit trimmed masterwork melee platelegs 73651 73200
+46089 Custom-fit trimmed masterwork melee platelegs 73651 73200
+46092 Augmented custom-fit trimmed masterwork melee platebody 73655 73201
+46093 Augmented custom-fit trimmed masterwork melee platebody (uncharged) 73655 73201
+46094 Augmented custom-fit trimmed masterwork melee platelegs 73651 73200
+46095 Augmented custom-fit trimmed masterwork melee platelegs (uncharged) 73651 73200
+47852 Custom-fit trimmed spiked masterwork melee helm 73659 73202
+47853 Custom-fit trimmed spiked masterwork melee helm 73659 73202
+47855 Custom-fit trimmed spiked masterwork melee gloves 73657 71825
+47856 Custom-fit trimmed spiked masterwork melee gloves 73657 71825
+47858 Custom-fit trimmed spiked masterwork melee boots 73656 71796
+47859 Custom-fit trimmed spiked masterwork melee boots 73656 71796
+47861 Custom-fit trimmed spiked masterwork melee platebody 73661 73204
+47862 Custom-fit trimmed spiked masterwork melee platebody 73661 73204
+47864 Custom-fit trimmed spiked masterwork melee platelegs 73660 73203
+47865 Custom-fit trimmed spiked masterwork melee platelegs 73660 73203
+47867 Augmented custom-fit trimmed spiked masterwork melee platebody 73661 73204
+47868 Augmented custom-fit trimmed spiked masterwork melee platebody (uncharged) 73661 73204
+47869 Augmented custom-fit trimmed spiked masterwork melee platelegs 73660 73203
+47870 Augmented custom-fit trimmed spiked masterwork melee platelegs (uncharged) 73660 73203
+48572 Bright Inquisitor Staff 79166 79166
+49965 Spear of Annihilation 103607 103578
+49967 Spear of Annihilation 103607 103578
+49968 Spear of Annihilation (broken) 103607 103578
+49969 Prepared masterwork Spear of Annihilation 103607 103578
+49970 Masterwork Spear of Annihilation 103607 103578
+49972 Masterwork Spear of Annihilation 103607 103578
+49973 Masterwork Spear of Annihilation (broken) 103607 103578
+49982 Inquisitor staff 103507 103442
+49984 Inquisitor staff 103507 103442
+49985 Inquisitor staff (broken) 103470 103442
+50170 Augmented Inquisitor staff 103507 103442
+50171 Augmented Inquisitor staff (uncharged) 103507 103442
+50172 Augmented Spear of Annihilation 103607 103578
+50173 Augmented Spear of Annihilation (uncharged) 103607 103578
+50174 Augmented Masterwork Spear of Annihilation 103607 103578
+50175 Augmented Masterwork Spear of Annihilation (uncharged) 103607 103578
+52041 Dark ice shard 123512 123506
+52043 Dark ice shard 123512 123506
+52044 Dark ice shard (broken) 123512 123506
+52045 Dark ice sliver 123502 123503
+52047 Dark ice sliver 123502 123503
+52048 Dark ice sliver (broken) 123502 123503
+52049 Augmented dark ice shard 123512 123506
+52050 Augmented dark ice shard (uncharged) 123512 123506
+52051 Augmented dark ice sliver 123502 123503
+52052 Augmented dark ice sliver (uncharged) 123502 123503
+52053 Dark Shard of Leng 123532 123526
+52055 Dark Shard of Leng 123532 123526
+52056 Dark Shard of Leng (broken) 123532 123526
+52057 Dark Sliver of Leng 123522 123523
+52059 Dark Sliver of Leng 123522 123523
+52060 Dark Sliver of Leng (broken) 123522 123523
+52061 Augmented Dark Shard of Leng 123532 123526
+52062 Augmented Dark Shard of Leng (uncharged) 123532 123526
+52063 Augmented Dark Sliver of Leng 123522 123523
+52064 Augmented Dark Sliver of Leng (uncharged) 123522 123523
+52065 Dark Shard of Leng (Barrows) 127567 123526
+52066 Dark Shard of Leng (Barrows) 127567 123526
+52067 Dark Shard of Leng (Barrows)(broken) 127567 123526
+52068 Dark Sliver of Leng (Barrows) 127562 123523
+52069 Dark Sliver of Leng (Barrows) 127562 123523
+52070 Dark Sliver of Leng (Barrows)(broken) 127562 123523
+52071 Augmented Dark Shard of Leng (Barrows) 127567 123526
+52072 Augmented Dark Shard of Leng (Barrows)(uncharged) 127567 123526
+52073 Augmented Dark Sliver of Leng (Barrows) 127562 123523
+52074 Augmented Dark Sliver of Leng (Barrows)(uncharged) 127562 123523
+52075 Dark Shard of Leng (blood) 127567 123526
+52076 Dark Shard of Leng (blood) 127567 123526
+52077 Dark Shard of Leng (blood)(broken) 127567 123526
+52078 Dark Sliver of Leng (blood) 127562 123523
+52079 Dark Sliver of Leng (blood) 127562 123523
+52080 Dark Sliver of Leng (blood)(broken) 127562 123523
+52081 Augmented Dark Shard of Leng (blood) 127567 123526
+52082 Augmented Dark Shard of Leng (blood)(uncharged) 127567 123526
+52083 Augmented Dark Sliver of Leng (blood) 127562 123523
+52084 Augmented Dark Sliver of Leng (blood)(uncharged) 127562 123523
+52085 Dark Shard of Leng (ice) 127567 123526
+52086 Dark Shard of Leng (ice) 127567 123526
+52087 Dark Shard of Leng (ice)(broken) 127567 123526
+52088 Dark Sliver of Leng (ice) 127562 123523
+52089 Dark Sliver of Leng (ice) 127562 123523
+52090 Dark Sliver of Leng (ice)(broken) 127562 123523
+52091 Augmented Dark Shard of Leng (ice) 127567 123526
+52092 Augmented Dark Shard of Leng (ice)(uncharged) 127567 123526
+52093 Augmented Dark Sliver of Leng (ice) 127562 123523
+52094 Augmented Dark Sliver of Leng (ice)(uncharged) 127562 123523
+52095 Dark Shard of Leng (shadow) 127567 123526
+52096 Dark shard of Leng (shadow) 127567 123526
+52097 Dark shard of Leng (shadow)(broken) 127567 123526
+52098 Dark sliver of Leng (shadow) 127562 123523
+52099 Dark sliver of Leng (shadow) 127562 123523
+52100 Dark sliver of Leng (shadow)(broken) 127562 123523
+52101 Augmented Dark Shard of Leng (shadow) 127567 123526
+52102 Augmented Dark Shard of Leng (shadow)(uncharged) 127567 123526
+52103 Augmented Dark Sliver of Leng (shadow) 127562 123523
+52104 Augmented Dark Sliver of Leng (shadow)(uncharged) 127562 123523
+52105 Dark Shard of Leng (Third Age) 127567 123526
+52106 Dark Shard of Leng (Third Age) 127567 123526
+52107 Dark Shard of Leng (Third Age)(broken) 127567 123526
+52108 Dark Sliver of Leng (Third Age) 127562 123523
+52109 Dark Sliver of Leng (Third Age) 127562 123523
+52110 Dark Sliver of Leng (Third Age)(broken) 127562 123523
+52111 Augmented Dark Shard of Leng (Third Age) 127567 123526
+52112 Augmented Dark Shard of Leng (Third Age)(uncharged) 127567 123526
+52113 Augmented Dark Sliver of Leng (Third Age) 127562 123523
+52114 Augmented Dark Sliver of Leng (Third Age)(uncharged) 127562 123523
+52931 Abyssal scourge 125022 125019
+52933 Abyssal scourge 125022 125019
+52934 Abyssal scourge (broken) 125022 125019
+52935 Augmented Abyssal scourge 125022 125019
+52936 Augmented Abyssal scourge (uncharged) 125022 125019
+54229 Noxious scythe (Aurora) 127479 127477
+54230 Noxious scythe (Aurora) 127479 127477
+54231 Noxious scythe (Aurora)(broken) 127479 127477
+54232 Augmented noxious scythe (Aurora) 127479 127477
+54233 Augmented noxious scythe (Aurora)(uncharged) 127479 127477
+54234 Noxious staff (Aurora) 127483 127481
+54235 Noxious staff (Aurora) 127483 127481
+54236 Noxious staff (Aurora)(broken) 127483 127481
+54237 Augmented noxious staff (Aurora) 127483 127481
+54238 Augmented noxious staff (Aurora)(uncharged) 127483 127481
+54326 Dark Shard of Leng (Aurora) 127567 127566
+54327 Dark Shard of Leng (Aurora) 127567 127566
+54328 Dark Shard of Leng (Aurora)(broken) 127567 127566
+54329 Augmented Dark Shard of Leng (Aurora) 127567 127566
+54330 Augmented Dark Shard of Leng (Aurora)(uncharged) 127567 127566
+54331 Dark Sliver of Leng (Aurora) 127562 127563
+54332 Dark Sliver of Leng (Aurora) 127562 127563
+54333 Dark Sliver of Leng (Aurora)(broken) 127562 127563
+54334 Augmented Dark Sliver of Leng (Aurora) 127562 127563
+54335 Augmented Dark Sliver of Leng (Aurora)(uncharged) 127562 127563
+55030 Noxious scythe (Soul) 128684 128465
+55031 Noxious scythe (Soul) 128684 128465
+55032 Noxious scythe (Soul)(broken) 128684 128465
+55033 Augmented noxious scythe (Soul) 128684 128465
+55034 Augmented noxious scythe (Soul)(uncharged) 128684 128465
+55035 Noxious staff (Soul) 128687 128466
+55036 Noxious staff (Soul) 128687 128466
+55037 Noxious staff (Soul)(broken) 128687 128466
+55038 Augmented noxious staff (Soul) 128687 128466
+55039 Augmented noxious staff (Soul)(uncharged) 128687 128466
+55127 Dark Shard of Leng (Soul) 128764 128763
+55128 Dark Shard of Leng (Soul) 128764 128763
+55129 Dark Shard of Leng (Soul)(broken) 128764 128763
+55130 Augmented Dark Shard of Leng (Soul) 128764 128763
+55131 Augmented Dark Shard of Leng (Soul)(uncharged) 128764 128763
+55132 Dark Sliver of Leng (Soul) 128759 128760
+55133 Dark Sliver of Leng (Soul) 128759 128760
+55134 Dark Sliver of Leng (Soul)(broken) 128759 128760
+55135 Augmented Dark Sliver of Leng (Soul) 128759 128760
+55136 Augmented Dark Sliver of Leng (Soul)(uncharged) 128759 128760
+57462 Masterwork 2h sword 73707 73192
+57464 Masterwork 2h sword 73707 73192
+57465 Broken Masterwork 2h sword 73707 73192
+57467 Augmented Masterwork 2h sword 73707 73192
+57468 Augmented Masterwork 2h sword (Uncharged) 73707 73192
+58112 Unstrung masterwork bow 135313 135312
+58113 Masterwork bow 135310 135309
+58114 Masterwork bow 135310 135309
+58223 Masterwork bow 135310 135309
+58225 Masterwork bow 135310 135309
+58226 Broken Masterwork bow 135310 135309
+58227 Augmented Masterwork bow 135310 135309
+58228 Augmented Masterwork bow (uncharged) 135310 135309
+58486 Masterwork staff 135665 135664
+58488 Masterwork staff 135665 135664
+58489 Broken Masterwork staff 135665 135664
+58491 Augmented Masterwork staff 135665 135664
+58492 Augmented Masterwork staff (uncharged) 135665 135664
+58494 Eternal magic staff (inert) 135671 135670
+58496 Eternal magic staff (meagre) 135671 135670
+58498 Eternal magic staff (weak) 135671 135670
+58499 Eternal magic staff (lesser) 135671 135670
+58500 Eternal magic staff (moderate) 135671 135670
+58501 Eternal magic staff (greater) 135671 135670
+58502 Eternal magic staff (saturated) 135671 135670
+58504 Eternal magic staff (ascended) 135671 135670
+58513 Eternal magic wand (saturated) 135674 135673
+58524 Eternal magic orb (saturated) 135668 135667
+58698 Golden chaotic staff 102015 101968
+59075 Masterwork white cloth 53840 56318
+59078 Masterwork blue cloth 53840 56318
+59081 Masterwork green cloth 53840 56318
+59091 Unfinished masterwork magic gloves 136450 136449
+59092 Unfinished masterwork magic boots 136448 136447
+59093 Unfinished masterwork magic hat 136451 136453
+59094 Unfinished masterwork magic robe bottom 136452 136454
+59095 Unfinished masterwork magic robe top 136456 136455
+59096 Masterwork magic boots 136448 136447
+59098 Masterwork magic boots 136448 136447
+59099 Broken masterwork magic boots 136448 136447
+59100 Masterwork magic gloves 136450 136449
+59102 Masterwork magic gloves 136450 136449
+59103 Broken masterwork magic gloves 136450 136449
+59104 Masterwork magic hat 136451 136453
+59106 Masterwork magic hat 136451 136453
+59107 Broken masterwork magic hat 136451 136453
+59108 Masterwork magic robe bottom 136452 136454
+59110 Masterwork magic robe bottom 136452 136454
+59111 Broken masterwork magic robe bottom 136452 136454
+59112 Augmented masterwork magic robe bottom 136452 136454
+59113 Augmented masterwork magic robe bottom (uncharged) 136452 136454
+59114 Masterwork magic robe top 136456 136455
+59116 Masterwork magic robe top 136456 136455
+59117 Broken masterwork magic robe top 136456 136455
+59118 Augmented masterwork magic robe top 136456 136455
+59119 Augmented masterwork magic robe top (uncharged) 136456 136455
+59390 Custom-fit masterwork magic boots 136448 136447
+59391 Custom-fit masterwork magic boots 136448 136447
+59392 Broken custom-fit masterwork magic boots 136448 136447
+59393 Custom-fit masterwork magic gloves 136450 136449
+59394 Custom-fit masterwork magic gloves 136450 136449
+59395 Broken custom-fit masterwork magic gloves 136450 136449
+59396 Custom-fit masterwork magic hat 136451 136453
+59397 Custom-fit masterwork magic hat 136451 136453
+59398 Broken custom-fit masterwork magic hat 136451 136453
+59399 Custom-fit masterwork magic robe bottom 136452 136454
+59400 Custom-fit masterwork magic robe bottom 136452 136454
+59401 Broken custom-fit masterwork magic robe bottom 136452 136454
+59402 Augmented custom-fit masterwork magic robe bottom 136452 136454
+59403 Augmented custom-fit masterwork magic robe bottom (uncharged) 136452 136454
+59404 Custom-fit masterwork magic robe top 136456 136455
+59405 Custom-fit masterwork magic robe top 136456 136455
+59406 Broken custom-fit masterwork magic robe top 136456 136455
+59407 Augmented custom-fit masterwork magic robe top 136456 136455
+59408 Augmented custom-fit masterwork magic robe top (uncharged) 136456 136455
+60529 Masterwork elasticated leather 2338 2338
+60532 Masterwork monochromatic dragon leather 2338 2338
+60535 Masterwork chromatic dragon leather 2338 2338
+60545 Unfinished masterwork ranged vambraces 139518 139525
+60546 Unfinished masterwork ranged boots 139516 139523
+60547 Unfinished masterwork ranged cowl 139519 139526
+60548 Unfinished masterwork ranged chaps 139520 139527
+60549 Unfinished masterwork ranged body 139541 139528
+60550 Unfinished masterwork ranged cape 139510 139521
+60551 Masterwork ranged boots 139516 139523
+60553 Masterwork ranged boots 139516 139523
+60554 Broken masterwork ranged boots 139516 139523
+60555 Custom-fit masterwork ranged boots 139516 139523
+60556 Custom-fit masterwork ranged boots 139516 139523
+60557 Broken custom-fit masterwork ranged boots 139516 139523
+60558 Masterwork ranged vambraces 139518 139525
+60560 Masterwork ranged vambraces 139518 139525
+60561 Broken masterwork ranged vambraces 139518 139525
+60562 Custom-fit masterwork ranged vambraces 139518 139525
+60563 Custom-fit masterwork ranged vambraces 139518 139525
+60564 Broken custom-fit masterwork ranged vambraces 139518 139525
+60565 Masterwork ranged cowl 139519 139526
+60567 Masterwork ranged cowl 139519 139526
+60568 Broken masterwork ranged cowl 139519 139526
+60569 Custom-fit masterwork ranged cowl 139519 139526
+60570 Custom-fit masterwork ranged cowl 139519 139526
+60571 Broken custom-fit masterwork ranged cowl 139519 139526
+60572 Masterwork ranged chaps 139520 139527
+60574 Masterwork ranged chaps 139520 139527
+60575 Broken masterwork ranged chaps 139520 139527
+60576 Augmented masterwork ranged chaps 139520 139527
+60577 Augmented masterwork ranged chaps (uncharged) 139520 139527
+60578 Custom-fit masterwork ranged chaps 139520 139527
+60579 Custom-fit masterwork ranged chaps 139520 139527
+60580 Broken custom-fit masterwork ranged chaps 139520 139527
+60581 Augmented custom-fit masterwork ranged chaps 139520 139527
+60582 Augmented custom-fit masterwork ranged chaps (uncharged) 139520 139527
+60583 Masterwork ranged body 139541 139528
+60585 Masterwork ranged body 139541 139528
+60586 Broken masterwork ranged body 139541 139528
+60587 Augmented masterwork ranged body 139541 139528
+60588 Augmented masterwork ranged body (uncharged) 139541 139528
+60589 Masterwork ranged cape 139510 139521
+60591 Custom-fit masterwork ranged body 139541 139528
+60592 Custom-fit masterwork ranged body 139541 139528
+60593 Broken custom-fit masterwork ranged body 139541 139528
+60594 Augmented custom-fit masterwork ranged body 139541 139528
+60595 Augmented custom-fit masterwork ranged body (uncharged) 139541 139528

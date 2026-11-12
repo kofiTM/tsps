@@ -1,0 +1,78 @@
+[
+    {
+        "id": 60001,
+        "baseId": 1481,
+        "modelId": 1000310,
+        "name": "Vorago red bomb"
+    },
+    {
+        "id": 60002,
+        "baseId": 1479,
+        "modelId": 1000311,
+        "name": "Vorago blue bomb"
+    },
+    {
+        "id": 60010,
+        "baseId": 1997,
+        "modelId": 6402,
+        "widthScale": 218,
+        "heightScale": 218,
+        "_note": "Nex: Angel of Death smoke (Nex 1997 at 1.7x)"
+    },
+    {
+        "id": 60011,
+        "baseId": 1999,
+        "modelId": 35031,
+        "widthScale": 82,
+        "heightScale": 82,
+        "_note": "shadow (1999 at 1.7x of its 48)"
+    },
+    {
+        "id": 60012,
+        "baseId": 2000,
+        "modelId": 6379,
+        "widthScale": 218,
+        "heightScale": 218,
+        "_note": "blood (2000 at 1.7x)"
+    },
+    {
+        "id": 60013,
+        "baseId": 2004,
+        "modelId": 6388,
+        "widthScale": 218,
+        "heightScale": 218,
+        "_note": "ice (2004 at 1.7x)"
+    },
+    {
+        "id": 60014,
+        "baseId": 1997,
+        "modelId": 6402,
+        "widthScale": 384,
+        "heightScale": 384,
+        "_note": "Nex: Angel of Death's Lockdown throw, smoke (Nex's at 3x, kofi 2026-11-11)"
+    },
+    {
+        "id": 60015,
+        "baseId": 1999,
+        "modelId": 35031,
+        "widthScale": 144,
+        "heightScale": 144,
+        "_note": "Nex: Angel of Death's Lockdown throw, shadow (Nex's at 3x, kofi 2026-11-11)"
+    },
+    {
+        "id": 60016,
+        "baseId": 2000,
+        "modelId": 6379,
+        "widthScale": 384,
+        "heightScale": 384,
+        "_note": "Nex: Angel of Death's Lockdown throw, blood (Nex's at 3x, kofi 2026-11-11)"
+    },
+    {
+        "id": 60017,
+        "baseId": 2004,
+        "modelId": 6388,
+        "widthScale": 384,
+        "heightScale": 384,
+        "_note": "Nex: Angel of Death's Lockdown throw, ice (Nex's at 3x, kofi 2026-11-11)"
+    }
+]
