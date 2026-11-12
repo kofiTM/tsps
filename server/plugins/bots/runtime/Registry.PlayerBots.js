@@ -1,11 +1,14 @@
 const { Location } = require("../../../src/main/typescript/elvarg/game/model/Location");
 const { Wilderness } = require("../../../src/main/typescript/elvarg/game/content/wilderness/Wilderness");
 const { isMembersArea } = require("../../../src/main/typescript/elvarg/game/definition/WorldDefinition");
+const { World } = require("../../../src/main/typescript/elvarg/game/World");
+const { realisticName } = require("../ai/Names.PlayerBots");
 const {
   getEnabledWildernessHotspots,
   getWildernessHotspot,
   createHotspotAnchorLocation,
   isOutsideWildernessHotspots,
+  touchesNoBotArea,
 } = require("../behaviours/pvp/WildernessHotspotRegistry.PlayerBots");
 const {
   ATTR_BOT_PVP_PROFILE_ID,
@@ -28,6 +31,18 @@ const WILDERNESS_REGION_DESPAWN_DELAY_MS = 30000;
 const UNDERGROUND_MIN_Y = 6400;
 /** RsmodRouteFinding searches 128x128 tiles centred on its source. */
 const ROUTE_SEARCH_RADIUS = 63;
+
+/**
+ * Server custom (kofi, 2026-11-09): content that runs its own Wilderness population (the Deadman
+ * Tournament) pauses the regional roamers that fill a real player's Wilderness regions; while any
+ * pause is on no regional plans are made, so the roamers already out despawn on their usual timer.
+ */
+const regionalWildernessPauses = new Set();
+
+function pauseRegionalWilderness(key, paused) {
+  if (paused) regionalWildernessPauses.add(key);
+  else regionalWildernessPauses.delete(key);
+}
 
 function createBotRegistry(options) {
   const {
@@ -319,6 +334,12 @@ function createBotRegistry(options) {
     );
   }
 
+  /** Server custom (kofi): a region touching a Wilderness boss's area gets no PvP bots. */
+  function regionTouchesNoBotArea(region) {
+    const bounds = createRegionBounds(region);
+    return !!bounds && touchesNoBotArea(bounds.minX, bounds.maxX, bounds.minY, bounds.maxY);
+  }
+
   function getRegionKeyForLocation(location) {
     if (!location) {
       return null;
@@ -368,6 +389,7 @@ function createBotRegistry(options) {
 
   function buildRegionalWildernessPlans(snapshot, hotspotCountsByRegion = null) {
     if (
+      regionalWildernessPauses.size > 0 ||
       wildernessRoamerBotCount <= 0 ||
       !pvpAllowed() ||
       !Array.isArray(snapshot?.regions) ||
@@ -379,6 +401,7 @@ function createBotRegistry(options) {
     const targetRegions = resolveRegionalTargetRegions(snapshot);
     const activeRegions = targetRegions
       .filter((region) => regionIntersectsWilderness(region))
+      .filter((region) => !regionTouchesNoBotArea(region))
       .sort(sortRegions);
 
     if (activeRegions.length === 0) {
@@ -390,7 +413,13 @@ function createBotRegistry(options) {
       const hotspotCount = hotspotCountsByRegion?.get?.(region.key) ?? 0;
       // One target for every PvP region, levelled Wilderness or not, so the setting means what it says.
       const target = regionalTargets[region.key] ?? wildernessActiveRegionBotsPerRegion;
-      const desiredCount = Math.max(0, target - hotspotCount);
+      // A hotspot marked noRoamers keeps its region to its own bots only (kofi).
+      const regionBox = createRegionBounds(region);
+      const blocksRoamers = regionBox && getEnabledWildernessHotspots().some((hotspot) =>
+        hotspot.noRoamers === true && hotspot.area.z === regionBox.z &&
+        hotspot.area.minX <= regionBox.maxX && hotspot.area.maxX >= regionBox.minX &&
+        hotspot.area.minY <= regionBox.maxY && hotspot.area.maxY >= regionBox.minY);
+      const desiredCount = blocksRoamers ? 0 : Math.max(0, target - hotspotCount);
       desiredCountsByRegion.set(region.key, desiredCount);
       totalDesired += desiredCount;
     }
@@ -453,6 +482,13 @@ function createBotRegistry(options) {
     return plans;
   }
 
+  // Server custom (kofi, 2026-11-09): Wilderness bots get realistic names, not WildyBotN.
+  function isWildernessNameFree(username) {
+    return !wildernessHotspotAssignments.has(username) && !wildernessRegionalAssignments.has(username) &&
+      !wildernessRegionalPendingDespawn.has(username) && !entriesByUsername.has(username) &&
+      !World.getPlayerByName?.(username);
+  }
+
   /** Whether a bot may not show `name`: an account's name or save, or an online player's name. */
   function botNameTaken(username, name) {
     if (botApi.core.DisplayNames.refusal(username, name)) return true;
@@ -465,6 +501,16 @@ function createBotRegistry(options) {
   }
 
   function claimAvailableWildernessUsername() {
+    if (entriesByUsername.size < wildernessRoamerBotCount + 500) {
+      for (let attempt = 0; attempt < 25; attempt += 1) {
+        const name = realisticName();
+        if (name && isWildernessNameFree(name)) return name;
+      }
+    }
+    return claimNumberedWildernessUsername();
+  }
+
+  function claimNumberedWildernessUsername() {
     for (let i = 1; i <= wildernessRoamerBotCount; i += 1) {
       const username = `WildyBot${i}`;
       if (wildernessHotspotAssignments.has(username)) {
@@ -1268,4 +1314,5 @@ function createBotRegistry(options) {
 
 module.exports = {
   createBotRegistry,
+  pauseRegionalWilderness,
 };

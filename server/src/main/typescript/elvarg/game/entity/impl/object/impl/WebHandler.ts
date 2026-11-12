@@ -42,6 +42,13 @@ export class WebHandler {
         return false;
     }
 
+    /** Server custom (kofi, 2026-11-09): Mage Bank lever-house webs stay slashed. */
+    public static respawnTicks(web: GameObject): number {
+        const loc = web.getLocation();
+        const mageBankHouse = loc.getX() >= 3070 && loc.getX() <= 3115 && loc.getY() >= 3940 && loc.getY() <= 3975;
+        return mageBankHouse ? 2_000_000_000 : WEB_RESPAWN;
+    }
+
     public static handleSlashWeb(player: Player, web: GameObject, itemOnWeb: boolean) {
         if (web == null) return;
 
@@ -56,7 +63,7 @@ export class WebHandler {
         if (successfulSlashChance < 2) {
             player.sendMessage("You slash the web apart.");
             Sounds.sendSound(player, SLASH_SOUND);
-            TaskManager.submit(new TimedObjectReplacementTask(web, new GameObject(ObjectIdentifiers.SLASHED_WEB, web.getLocation(), web.getType(), web.getFace(), player.getPrivateArea()), WEB_RESPAWN));
+            TaskManager.submit(new TimedObjectReplacementTask(web, new GameObject(ObjectIdentifiers.SLASHED_WEB, web.getLocation(), web.getType(), web.getFace(), player.getPrivateArea()), WebHandler.respawnTicks(web)));
         } else {
             Sounds.sendSound(player, FAIL_SLASH_SOUND);
             player.sendMessage("You fail to slash the web.");

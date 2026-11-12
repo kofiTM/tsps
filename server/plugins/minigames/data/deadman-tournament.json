@@ -1,0 +1,2305 @@
+{
+  "$comment": "Deadman Tournament (server custom, kofi 2026-11-09): a Deadman-style battle royale over the whole Wilderness for one real player and N bots, then a 1v1 bracket for the last 128 in copies of the Deadman finale arena. Items are [id, name, amount?]; the names are checked against the cache at startup (logs/deadman-tournament.log).",
+  "lobby": {
+    "$comment": "Where everyone waits (Edgeville, south of the ditch): players within spread tiles, bots within botSpread, all frozen until the start scatters them over the Wilderness (a player's ::dmrecruit clan starts beside them). How long the countdown runs, and how many bots spawn a tick. Bots mill about and say one of `chat` now and then.",
+    "tile": [
+      3094,
+      3491,
+      0
+    ],
+    "spread": 4,
+    "botSpread": 14,
+    "startDelayTicks": 50,
+    "countdownTicks": 200,
+    "botsPerTick": 10,
+    "chat": [
+      "Who's teaming? Need a clan for this.",
+      "Bloody keys or bust",
+      "Anyone know where the safe zone's gonna be?",
+      "I'm going straight for the generals",
+      "Last Deadman I got skulled at the ditch lol",
+      "Gl everyone, see you in the arena",
+      "Top 128 or nothing",
+      "Rune scim and a dream",
+      "If I get an AGS off a chest it's over",
+      "Ice barrage pures stay away from me",
+      "Fog damage gets nasty late, don't get caught",
+      "Who's 1v1ing in the final?",
+      "Clan up with me, I've got snacks",
+      "Bosses drop full godswords this time",
+      "Deadman Reborn arena is back!",
+      "Kill me and you get a bloody key, try it",
+      "Is this permadeath? yikes",
+      "Spec weapon or no spec weapon...",
+      "I'm hiding in deep wildy till the final",
+      "Edgeville's never been this busy",
+      "Fog starts at the edges, don't spawn greedy",
+      "Two minute head start, chests first then fight",
+      "Barrows brothers drop the full set, go farm them",
+      "My clan's going for Graardor, who's in?",
+      "Bloodier key or I log",
+      "Anyone seen where the chests spawn?",
+      "Pray mage near the Nex mages, trust me",
+      "Remember, no smite in this one",
+      "Saving my brews for the top 128",
+      "Last tournament I lost to a guy in rune lol",
+      "Whoever gets Kree, bring a crossbow",
+      "Deadman rules: lose it all, take it all",
+      "Bet I make top 10",
+      "Who wants to third party a boss with me?",
+      "I'm camping the safe zone edge",
+      "Gonna steal a godsword off someone's boss kill",
+      "Ancestral or bust",
+      "One bloody key each, use it early",
+      "Watch out for clans of ten",
+      "The 1v1 arena is the real test",
+      "I've got a dragon claw spec waiting for someone",
+      "If you see me in the final, it's GG",
+      "Dharok's set and a dream",
+      "Hope the circle lands near me this time",
+      "Running to the chests the second it starts",
+      "Who's the favourite to win?",
+      "Never trust a clan of five",
+      "Need someone to help me on Callisto",
+      "Keep your keys, the bloodier chests are better",
+      "Edgeville bank looking like a Deadman finale"
+    ]
+  },
+  "wilderness": {
+    "$comment": "The battle's ground: the surface Wilderness, without Ferox Enclave and the ditch's edge.",
+    "minX": 2950,
+    "maxX": 3385,
+    "minY": 3528,
+    "maxY": 3962,
+    "z": 0,
+    "exclude": [
+      {
+        "_description": "Ferox Enclave",
+        "minX": 3110,
+        "maxX": 3170,
+        "minY": 3605,
+        "maxY": 3660
+      },
+      {
+        "_description": "Mage Arena: a walled ring with the lever the only way out",
+        "minX": 3080,
+        "maxX": 3128,
+        "minY": 3912,
+        "maxY": 3958
+      },
+      {
+        "_description": "Resource Area: a fenced pen, in and out only through its fee gate",
+        "minX": 3172,
+        "maxX": 3198,
+        "minY": 3922,
+        "maxY": 3946
+      }
+    ]
+  },
+  "fog": {
+    "$comment": "The square safe zone closes from covering the whole Wilderness to finalRadius over battleTicks, or faster with the fighting: it is fully closed as the field falls to bracket.at alive (never a full close in under 300 ticks). Outside it a hit every damageEvery ticks: base rises from damageStart to damageMax as the zone shrinks, plus one per depthPerExtra tiles into the fog, capped at damageCap.",
+    "battleTicks": 900,
+    "finalRadius": 12,
+    "centreInset": 60,
+    "damageEvery": 2,
+    "damageStart": 1,
+    "damageMax": 10,
+    "depthPerExtra": 8,
+    "damageCap": 25,
+    "warnEvery": 100
+  },
+  "stats": {
+    "$comment": "Everyone fights at 99 in every combat skill (combat level 126).",
+    "ATTACK": 99,
+    "STRENGTH": 99,
+    "DEFENCE": 99,
+    "HITPOINTS": 99,
+    "RANGED": 99,
+    "MAGIC": 99,
+    "PRAYER": 99
+  },
+  "kits": {
+    "hybrid_mage": {
+      "style": "magic",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          4089,
+          "Mystic hat"
+        ],
+        [
+          1704,
+          "Amulet of glory"
+        ],
+        [
+          4091,
+          "Mystic robe top"
+        ],
+        [
+          4093,
+          "Mystic robe bottom"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          3842,
+          "Unholy book"
+        ],
+        [
+          4095,
+          "Mystic gloves"
+        ],
+        [
+          4097,
+          "Mystic boots"
+        ],
+        [
+          2412,
+          "Saradomin cape"
+        ],
+        [
+          6731,
+          "Seers ring"
+        ],
+        [
+          9243,
+          "Diamond bolts (e)",
+          150
+        ]
+      ],
+      "inventory": [
+        [
+          4587,
+          "Dragon scimitar"
+        ],
+        [
+          9185,
+          "Rune crossbow"
+        ],
+        [
+          2503,
+          "Black d'hide body"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          11
+        ]
+      ]
+    },
+    "hybrid_melee": {
+      "style": "melee",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          10828,
+          "Helm of Neitiznot"
+        ],
+        [
+          1704,
+          "Amulet of glory"
+        ],
+        [
+          1127,
+          "Rune platebody"
+        ],
+        [
+          1079,
+          "Rune platelegs"
+        ],
+        [
+          4587,
+          "Dragon scimitar"
+        ],
+        [
+          8850,
+          "Rune defender"
+        ],
+        [
+          7458,
+          "Mithril gloves"
+        ],
+        [
+          4131,
+          "Rune boots"
+        ],
+        [
+          2414,
+          "Zamorak cape"
+        ],
+        [
+          6737,
+          "Berserker ring"
+        ],
+        [
+          892,
+          "Rune arrow",
+          250
+        ]
+      ],
+      "inventory": [
+        [
+          861,
+          "Magic shortbow"
+        ],
+        [
+          2503,
+          "Black d'hide body"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          4091,
+          "Mystic robe top"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          10
+        ]
+      ]
+    },
+    "hybrid_ranged": {
+      "style": "ranged",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          10828,
+          "Helm of Neitiznot"
+        ],
+        [
+          1704,
+          "Amulet of glory"
+        ],
+        [
+          2503,
+          "Black d'hide body"
+        ],
+        [
+          2497,
+          "Black d'hide chaps"
+        ],
+        [
+          9185,
+          "Rune crossbow"
+        ],
+        [
+          1201,
+          "Rune kiteshield"
+        ],
+        [
+          2491,
+          "Black d'hide vambraces"
+        ],
+        [
+          6328,
+          "Snakeskin boots"
+        ],
+        [
+          2412,
+          "Saradomin cape"
+        ],
+        [
+          6733,
+          "Archers ring"
+        ],
+        [
+          9243,
+          "Diamond bolts (e)",
+          150
+        ]
+      ],
+      "inventory": [
+        [
+          4587,
+          "Dragon scimitar"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          4091,
+          "Mystic robe top"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          11
+        ]
+      ]
+    },
+    "lms_tribrid": {
+      "style": "magic",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          10828,
+          "Helm of Neitiznot"
+        ],
+        [
+          12002,
+          "Occult necklace"
+        ],
+        [
+          4712,
+          "Ahrim's robetop"
+        ],
+        [
+          4714,
+          "Ahrim's robeskirt"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          6889,
+          "Mage's book"
+        ],
+        [
+          7462,
+          "Barrows gloves"
+        ],
+        [
+          6920,
+          "Infinity boots"
+        ],
+        [
+          21791,
+          "Imbued saradomin cape"
+        ],
+        [
+          6731,
+          "Seers ring"
+        ],
+        [
+          9244,
+          "Dragonstone bolts (e)",
+          150
+        ]
+      ],
+      "inventory": [
+        [
+          4151,
+          "Abyssal whip"
+        ],
+        [
+          12954,
+          "Dragon defender"
+        ],
+        [
+          11785,
+          "Armadyl crossbow"
+        ],
+        [
+          2503,
+          "Black d'hide body"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          10
+        ]
+      ]
+    },
+    "lms_melee": {
+      "style": "melee",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          10828,
+          "Helm of Neitiznot"
+        ],
+        [
+          1704,
+          "Amulet of glory"
+        ],
+        [
+          10551,
+          "Fighter torso"
+        ],
+        [
+          4087,
+          "Dragon platelegs"
+        ],
+        [
+          4151,
+          "Abyssal whip"
+        ],
+        [
+          12954,
+          "Dragon defender"
+        ],
+        [
+          7462,
+          "Barrows gloves"
+        ],
+        [
+          11840,
+          "Dragon boots"
+        ],
+        [
+          6570,
+          "Fire cape"
+        ],
+        [
+          6737,
+          "Berserker ring"
+        ],
+        [
+          9244,
+          "Dragonstone bolts (e)",
+          150
+        ]
+      ],
+      "inventory": [
+        [
+          11785,
+          "Armadyl crossbow"
+        ],
+        [
+          2503,
+          "Black d'hide body"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          4712,
+          "Ahrim's robetop"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          10
+        ]
+      ]
+    },
+    "lms_ranged": {
+      "style": "ranged",
+      "spellbook": "ANCIENT",
+      "worn": [
+        [
+          10828,
+          "Helm of Neitiznot"
+        ],
+        [
+          1704,
+          "Amulet of glory"
+        ],
+        [
+          4736,
+          "Karil's leathertop"
+        ],
+        [
+          4738,
+          "Karil's leatherskirt"
+        ],
+        [
+          11785,
+          "Armadyl crossbow"
+        ],
+        [
+          1201,
+          "Rune kiteshield"
+        ],
+        [
+          7462,
+          "Barrows gloves"
+        ],
+        [
+          6328,
+          "Snakeskin boots"
+        ],
+        [
+          10499,
+          "Ava's accumulator"
+        ],
+        [
+          6733,
+          "Archers ring"
+        ],
+        [
+          9244,
+          "Dragonstone bolts (e)",
+          200
+        ]
+      ],
+      "inventory": [
+        [
+          4151,
+          "Abyssal whip"
+        ],
+        [
+          4675,
+          "Ancient staff"
+        ],
+        [
+          4712,
+          "Ahrim's robetop"
+        ],
+        [
+          555,
+          "Water rune",
+          1200
+        ],
+        [
+          560,
+          "Death rune",
+          400
+        ],
+        [
+          565,
+          "Blood rune",
+          400
+        ],
+        [
+          562,
+          "Chaos rune",
+          400
+        ],
+        [
+          12695,
+          "Super combat potion(4)",
+          1
+        ],
+        [
+          2444,
+          "Ranging potion(4)",
+          1
+        ],
+        [
+          6685,
+          "Saradomin brew(4)",
+          4
+        ],
+        [
+          3024,
+          "Super restore(4)",
+          4
+        ],
+        [
+          385,
+          "Shark",
+          11
+        ]
+      ]
+    },
+    "$comment": "Starter kits: every one a hybrid - a main style worn, switches for the other two carried (a weapon and a body, ammo in the quiver, runes for Ancients), so drops and chests upgrade each style. Drawn by kitWeights. style is the worn (main) style. worn: items by equipment slot; inventory fills 28 slots."
+  },
+  "supplies": {
+    "$comment": "What bots pick up off the floor as supplies (they take runes only if they use that rune), and the most food/potions they carry.",
+    "food": [
+      [
+        385,
+        "Shark"
+      ],
+      [
+        13441,
+        "Anglerfish"
+      ],
+      [
+        3144,
+        "Cooked karambwan"
+      ]
+    ],
+    "potions": [
+      [
+        6685,
+        "Saradomin brew(4)"
+      ],
+      [
+        3024,
+        "Super restore(4)"
+      ],
+      [
+        12695,
+        "Super combat potion(4)"
+      ],
+      [
+        2444,
+        "Ranging potion(4)"
+      ]
+    ],
+    "runes": [
+      [
+        554,
+        "Fire rune"
+      ],
+      [
+        555,
+        "Water rune"
+      ],
+      [
+        556,
+        "Air rune"
+      ],
+      [
+        557,
+        "Earth rune"
+      ],
+      [
+        560,
+        "Death rune"
+      ],
+      [
+        562,
+        "Chaos rune"
+      ],
+      [
+        565,
+        "Blood rune"
+      ]
+    ],
+    "maxSupplies": 28
+  },
+  "keys": {
+    "$comment": "Every kill gives the killer a bloody key; with bloodierAtOrBelow or fewer alive, a bloodier key. A key opens one chest.",
+    "bloody": [
+      20526,
+      "Bloody key"
+    ],
+    "bloodier": [
+      20608,
+      "Bloodier key"
+    ],
+    "bloodierAtOrBelow": 150
+  },
+  "chests": {
+    "$comment": "Loot chests (the LMS chest loc) spread over the safe zone; one opened is gone and another appears somewhere else respawnTicks later. A chest gives rolls.offensive + rolls.defensive + rolls.supplies items from its key's tables, and with a bloody key each roll has upgradeChance of coming from the bloodier tables instead.",
+    "loc": "br_loot_chest_closed",
+    "count": 120,
+    "respawnTicks": 20,
+    "rolls": {
+      "offensive": 2,
+      "defensive": 4,
+      "supplies": 3
+    },
+    "upgradeChance": 0.15
+  },
+  "loot": {
+    "$comment": "Chest tables: a bloody key rolls one offensive and one defensive item plus supplies; a bloodier key rolls from the upgraded tables. [id, name, amount?], with ammo given alongside its weapon.",
+    "bloody": {
+      "offensive": [
+        [
+          [
+            4151,
+            "Abyssal whip"
+          ]
+        ],
+        [
+          [
+            4587,
+            "Dragon scimitar"
+          ]
+        ],
+        [
+          [
+            5698,
+            "Dragon dagger(p++)"
+          ]
+        ],
+        [
+          [
+            9185,
+            "Rune crossbow"
+          ],
+          [
+            9244,
+            "Dragonstone bolts (e)",
+            100
+          ]
+        ],
+        [
+          [
+            9185,
+            "Rune crossbow"
+          ],
+          [
+            9243,
+            "Diamond bolts (e)",
+            100
+          ]
+        ],
+        [
+          [
+            4718,
+            "Dharok's greataxe"
+          ]
+        ],
+        [
+          [
+            4675,
+            "Ancient staff"
+          ],
+          [
+            560,
+            "Death rune",
+            200
+          ],
+          [
+            565,
+            "Blood rune",
+            200
+          ],
+          [
+            555,
+            "Water rune",
+            600
+          ]
+        ]
+      ],
+      "defensive": [
+        [
+          [
+            11840,
+            "Dragon boots"
+          ]
+        ],
+        [
+          [
+            10828,
+            "Helm of Neitiznot"
+          ]
+        ],
+        [
+          [
+            10551,
+            "Fighter torso"
+          ]
+        ],
+        [
+          [
+            12954,
+            "Dragon defender"
+          ]
+        ],
+        [
+          [
+            1704,
+            "Amulet of glory"
+          ]
+        ],
+        [
+          [
+            2503,
+            "Black d'hide body"
+          ]
+        ],
+        [
+          [
+            2497,
+            "Black d'hide chaps"
+          ]
+        ],
+        [
+          [
+            7462,
+            "Barrows gloves"
+          ]
+        ],
+        [
+          [
+            6570,
+            "Fire cape"
+          ]
+        ],
+        [
+          [
+            3751,
+            "Berserker helm"
+          ]
+        ],
+        [
+          [
+            4720,
+            "Dharok's platebody"
+          ]
+        ],
+        [
+          [
+            4722,
+            "Dharok's platelegs"
+          ]
+        ],
+        [
+          [
+            6737,
+            "Berserker ring"
+          ]
+        ],
+        [
+          [
+            6733,
+            "Archers ring"
+          ]
+        ],
+        [
+          [
+            6731,
+            "Seers ring"
+          ]
+        ],
+        [
+          [
+            4716,
+            "Dharok's helm"
+          ]
+        ],
+        [
+          [
+            28307,
+            "Ultor ring"
+          ]
+        ],
+        [
+          [
+            28310,
+            "Venator ring"
+          ]
+        ],
+        [
+          [
+            21892,
+            "Dragon platebody"
+          ]
+        ]
+      ],
+      "supplies": [
+        [
+          [
+            385,
+            "Shark",
+            4
+          ]
+        ],
+        [
+          [
+            6685,
+            "Saradomin brew(4)",
+            1
+          ]
+        ],
+        [
+          [
+            3024,
+            "Super restore(4)",
+            1
+          ]
+        ],
+        [
+          [
+            13441,
+            "Anglerfish",
+            3
+          ]
+        ]
+      ]
+    },
+    "bloodier": {
+      "offensive": [
+        [
+          [
+            11802,
+            "Armadyl godsword"
+          ]
+        ],
+        [
+          [
+            13652,
+            "Dragon claws"
+          ]
+        ],
+        [
+          [
+            22324,
+            "Ghrazi rapier"
+          ]
+        ],
+        [
+          [
+            11785,
+            "Armadyl crossbow"
+          ],
+          [
+            9244,
+            "Dragonstone bolts (e)",
+            150
+          ]
+        ],
+        [
+          [
+            19481,
+            "Heavy ballista"
+          ],
+          [
+            19484,
+            "Dragon javelin",
+            100
+          ]
+        ],
+        [
+          [
+            21006,
+            "Kodai wand"
+          ],
+          [
+            560,
+            "Death rune",
+            300
+          ],
+          [
+            565,
+            "Blood rune",
+            300
+          ],
+          [
+            555,
+            "Water rune",
+            900
+          ]
+        ],
+        [
+          [
+            26374,
+            "Zaryte crossbow"
+          ],
+          [
+            9244,
+            "Dragonstone bolts (e)",
+            100
+          ]
+        ],
+        [
+          [
+            27690,
+            "Voidwaker"
+          ]
+        ],
+        [
+          [
+            24417,
+            "Inquisitor's mace"
+          ]
+        ],
+        [
+          [
+            34715,
+            "Obligator"
+          ]
+        ]
+      ],
+      "defensive": [
+        [
+          [
+            21018,
+            "Ancestral hat"
+          ]
+        ],
+        [
+          [
+            21021,
+            "Ancestral robe top"
+          ]
+        ],
+        [
+          [
+            21024,
+            "Ancestral robe bottom"
+          ]
+        ],
+        [
+          [
+            11832,
+            "Bandos chestplate"
+          ]
+        ],
+        [
+          [
+            11834,
+            "Bandos tassets"
+          ]
+        ],
+        [
+          [
+            11828,
+            "Armadyl chestplate"
+          ]
+        ],
+        [
+          [
+            11830,
+            "Armadyl chainskirt"
+          ]
+        ],
+        [
+          [
+            19553,
+            "Amulet of torture"
+          ]
+        ],
+        [
+          [
+            19547,
+            "Necklace of anguish"
+          ]
+        ],
+        [
+          [
+            12002,
+            "Occult necklace"
+          ]
+        ],
+        [
+          [
+            13239,
+            "Primordial boots"
+          ]
+        ],
+        [
+          [
+            13237,
+            "Pegasian boots"
+          ]
+        ],
+        [
+          [
+            13235,
+            "Eternal boots"
+          ]
+        ],
+        [
+          [
+            21295,
+            "Infernal cape"
+          ]
+        ],
+        [
+          [
+            22322,
+            "Avernic defender"
+          ]
+        ],
+        [
+          [
+            24271,
+            "Neitiznot faceguard"
+          ]
+        ],
+        [
+          [
+            31097,
+            "Avernic treads (max)"
+          ]
+        ],
+        [
+          [
+            28307,
+            "Ultor ring"
+          ]
+        ],
+        [
+          [
+            28310,
+            "Venator ring"
+          ]
+        ]
+      ],
+      "supplies": [
+        [
+          [
+            13441,
+            "Anglerfish",
+            4
+          ]
+        ],
+        [
+          [
+            6685,
+            "Saradomin brew(4)",
+            2
+          ]
+        ],
+        [
+          [
+            3024,
+            "Super restore(4)",
+            2
+          ]
+        ]
+      ]
+    },
+    "$despawnTicks": "Tournament drops (deaths, chests, bosses) vanish after despawnTicks, so piles never grow past what the client can be sent.",
+    "despawnTicks": 100
+  },
+  "bosses": {
+    "$comment": "Deadman-style boss spawns over the Wilderness (never Ferox, the lobby or the arena). One every [min, max] ticks, at most maxActive alive; nearCircleChance of them a few tiles either side of the safe zone's edge. Bosses that the fog reaches stay. npc: the boss's id; guards: its bodyguards; announce: drops worth at least that much are broadcast (bones never). uniques: every kill also gives one of these, whole (a godsword, never its shards or hilt), to whoever of the killer and their clan nearby it helps most; a new boss is one more pool entry.",
+    "everyTicks": [
+      100,
+      160
+    ],
+    "firstAfterTicks": 30,
+    "maxActive": 8,
+    "nearCircleChance": 0.5,
+    "nearCircleBand": 12,
+    "announceValue": 10000,
+    "pool": [
+      {
+        "name": "General Graardor",
+        "npc": 2215,
+        "guards": [
+          2216,
+          2217,
+          2218
+        ],
+        "uniques": [
+          [
+            [
+              11804,
+              "Bandos godsword"
+            ]
+          ],
+          [
+            [
+              11832,
+              "Bandos chestplate"
+            ]
+          ],
+          [
+            [
+              11834,
+              "Bandos tassets"
+            ]
+          ],
+          [
+            [
+              11836,
+              "Bandos boots"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Kree'arra",
+        "npc": 3162,
+        "hitBy": [
+          "ranged",
+          "magic"
+        ],
+        "guards": [
+          3163,
+          3164,
+          3165
+        ],
+        "uniques": [
+          [
+            [
+              11802,
+              "Armadyl godsword"
+            ]
+          ],
+          [
+            [
+              11826,
+              "Armadyl helmet"
+            ]
+          ],
+          [
+            [
+              11828,
+              "Armadyl chestplate"
+            ]
+          ],
+          [
+            [
+              11830,
+              "Armadyl chainskirt"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Commander Zilyana",
+        "npc": 2205,
+        "guards": [
+          2206,
+          2207,
+          2208
+        ],
+        "uniques": [
+          [
+            [
+              11806,
+              "Saradomin godsword"
+            ]
+          ],
+          [
+            [
+              11838,
+              "Saradomin sword"
+            ]
+          ],
+          [
+            [
+              11785,
+              "Armadyl crossbow"
+            ],
+            [
+              9244,
+              "Dragonstone bolts (e)",
+              150
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "K'ril Tsutsaroth",
+        "npc": 3129,
+        "guards": [
+          3130,
+          3131,
+          3132
+        ],
+        "uniques": [
+          [
+            [
+              11808,
+              "Zamorak godsword"
+            ]
+          ],
+          [
+            [
+              11824,
+              "Zamorakian spear"
+            ]
+          ],
+          [
+            [
+              11791,
+              "Staff of the Dead"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Callisto",
+        "npc": 6609,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              12603,
+              "Tyrannical ring"
+            ]
+          ],
+          [
+            [
+              7158,
+              "Dragon 2h sword"
+            ]
+          ],
+          [
+            [
+              22545,
+              "Viggora's chainmace"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Venenatis",
+        "npc": 6610,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              12605,
+              "Treasonous ring"
+            ]
+          ],
+          [
+            [
+              7158,
+              "Dragon 2h sword"
+            ]
+          ],
+          [
+            [
+              22550,
+              "Craw's bow"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Vet'ion",
+        "npc": 6611,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              12601,
+              "Ring of the gods"
+            ]
+          ],
+          [
+            [
+              7158,
+              "Dragon 2h sword"
+            ]
+          ],
+          [
+            [
+              22555,
+              "Thammaron's sceptre"
+            ]
+          ]
+        ],
+        "shieldedBy": [
+          6613,
+          6614
+        ]
+      },
+      {
+        "name": "Scorpia",
+        "npc": 6615,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              11926,
+              "Odium ward"
+            ]
+          ],
+          [
+            [
+              11924,
+              "Malediction ward"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Chaos Elemental",
+        "npc": 2054,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              7158,
+              "Dragon 2h sword"
+            ]
+          ],
+          [
+            [
+              4087,
+              "Dragon platelegs"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "King Black Dragon",
+        "npc": 239,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              11283,
+              "Dragonfire shield"
+            ]
+          ],
+          [
+            [
+              11335,
+              "Dragon full helm"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Fumus",
+        "npc": 11283,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              26374,
+              "Zaryte crossbow"
+            ],
+            [
+              9244,
+              "Dragonstone bolts (e)",
+              150
+            ]
+          ],
+          [
+            [
+              26235,
+              "Zaryte vambraces"
+            ]
+          ],
+          [
+            [
+              26233,
+              "Ancient godsword"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Umbra",
+        "npc": 11284,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              26241,
+              "Virtus mask"
+            ]
+          ],
+          [
+            [
+              26243,
+              "Virtus robe top"
+            ]
+          ],
+          [
+            [
+              26245,
+              "Virtus robe bottom"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Cruor",
+        "npc": 11285,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              26382,
+              "Torva full helm"
+            ]
+          ],
+          [
+            [
+              26384,
+              "Torva platebody"
+            ]
+          ],
+          [
+            [
+              26386,
+              "Torva platelegs"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Glacies",
+        "npc": 11286,
+        "guards": [],
+        "uniques": [
+          [
+            [
+              26233,
+              "Ancient godsword"
+            ]
+          ],
+          [
+            [
+              26235,
+              "Zaryte vambraces"
+            ]
+          ],
+          [
+            [
+              26374,
+              "Zaryte crossbow"
+            ],
+            [
+              9244,
+              "Dragonstone bolts (e)",
+              150
+            ]
+          ]
+        ]
+      }
+    ],
+    "shareRange": 25,
+    "common": {
+      "$comment": "The Barrows brothers: common Wilderness bosses on their own faster timer (more of them at once), announced in the kill feed rather than broadcast. Each kill drops that brother's whole set on the floor where it died, for the killer and their clan to take what each needs.",
+      "everyTicks": [
+        60,
+        100
+      ],
+      "firstAfterTicks": 40,
+      "maxActive": 10,
+      "pool": [
+        {
+          "name": "Ahrim the Blighted",
+          "npc": 1672,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4708,
+                "Ahrim's hood"
+              ],
+              [
+                4710,
+                "Ahrim's staff"
+              ],
+              [
+                4712,
+                "Ahrim's robetop"
+              ],
+              [
+                4714,
+                "Ahrim's robeskirt"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        },
+        {
+          "name": "Dharok the Wretched",
+          "npc": 1673,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4716,
+                "Dharok's helm"
+              ],
+              [
+                4718,
+                "Dharok's greataxe"
+              ],
+              [
+                4720,
+                "Dharok's platebody"
+              ],
+              [
+                4722,
+                "Dharok's platelegs"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        },
+        {
+          "name": "Guthan the Infested",
+          "npc": 1674,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4724,
+                "Guthan's helm"
+              ],
+              [
+                4726,
+                "Guthan's warspear"
+              ],
+              [
+                4728,
+                "Guthan's platebody"
+              ],
+              [
+                4730,
+                "Guthan's chainskirt"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        },
+        {
+          "name": "Karil the Tainted",
+          "npc": 1675,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4732,
+                "Karil's coif"
+              ],
+              [
+                4734,
+                "Karil's crossbow"
+              ],
+              [
+                4740,
+                "Bolt rack",
+                150
+              ],
+              [
+                4736,
+                "Karil's leathertop"
+              ],
+              [
+                4738,
+                "Karil's leatherskirt"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        },
+        {
+          "name": "Torag the Corrupted",
+          "npc": 1676,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4745,
+                "Torag's helm"
+              ],
+              [
+                4747,
+                "Torag's hammers"
+              ],
+              [
+                4749,
+                "Torag's platebody"
+              ],
+              [
+                4751,
+                "Torag's platelegs"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        },
+        {
+          "name": "Verac the Defiled",
+          "npc": 1677,
+          "guards": [],
+          "uniques": [
+            [
+              [
+                4753,
+                "Verac's helm"
+              ],
+              [
+                4755,
+                "Verac's flail"
+              ],
+              [
+                4757,
+                "Verac's brassard"
+              ],
+              [
+                4759,
+                "Verac's plateskirt"
+              ]
+            ]
+          ],
+          "dropWholeSet": true
+        }
+      ]
+    },
+    "pile": {
+      "$comment": "Every boss kill: a shared pile on the floor where it died, for everyone (bots and players) - `chestRolls` bloodier chests' worth of loot plus one whole set from `sets` (the Barrows brothers' sets join these). The unique still goes to the killer's clan.",
+      "chestRolls": 1,
+      "sets": [
+        [
+          [
+            11832,
+            "Bandos chestplate"
+          ],
+          [
+            11834,
+            "Bandos tassets"
+          ],
+          [
+            11836,
+            "Bandos boots"
+          ]
+        ],
+        [
+          [
+            11826,
+            "Armadyl helmet"
+          ],
+          [
+            11828,
+            "Armadyl chestplate"
+          ],
+          [
+            11830,
+            "Armadyl chainskirt"
+          ]
+        ],
+        [
+          [
+            21018,
+            "Ancestral hat"
+          ],
+          [
+            21021,
+            "Ancestral robe top"
+          ],
+          [
+            21024,
+            "Ancestral robe bottom"
+          ]
+        ],
+        [
+          [
+            22326,
+            "Justiciar faceguard"
+          ],
+          [
+            22327,
+            "Justiciar chestguard"
+          ],
+          [
+            22328,
+            "Justiciar legguards"
+          ]
+        ],
+        [
+          [
+            24419,
+            "Inquisitor's great helm"
+          ],
+          [
+            24420,
+            "Inquisitor's hauberk"
+          ],
+          [
+            24421,
+            "Inquisitor's plateskirt"
+          ]
+        ],
+        [
+          [
+            26241,
+            "Virtus mask"
+          ],
+          [
+            26243,
+            "Virtus robe top"
+          ],
+          [
+            26245,
+            "Virtus robe bottom"
+          ]
+        ],
+        [
+          [
+            26382,
+            "Torva full helm"
+          ],
+          [
+            26384,
+            "Torva platebody"
+          ],
+          [
+            26386,
+            "Torva platelegs"
+          ]
+        ]
+      ]
+    }
+  },
+  "clans": {
+    "$comment": "share of the bots are put in clans at the start, each of a size drawn by weight from sizes ([size, weight]: 5s and 10s), after any special teams ({ name, size } - a 40 or a 50 later); clanmates never fight each other. A clan decides whether to go for a boss: more likely the more of them are alive and the nearer it is. A player's ::dmclan takes up to playerRecruits bots within recruitRange.",
+    "share": 0.6,
+    "decideEveryTicks": 25,
+    "bossRange": 140,
+    "pileRange": 40,
+    "thirdPartyChance": 0.5,
+    "baseChance": 0.55,
+    "playerRecruits": 10,
+    "recruitRange": 20,
+    "sizes": [
+      [
+        5,
+        3
+      ],
+      [
+        10,
+        1
+      ]
+    ],
+    "special": [],
+    "fullSize": 10
+  },
+  "bracket": {
+    "$comment": "At `at` alive (or ::dmskip) everyone goes to the Deadman finale arena (cache: loc 56375 barriers at x 3674 and 3685, y 8607-8608): the field waits on the real map, each duel runs in a copy of the arena. Chunks are the copy's source; sides are where the two start. unlimitedPrayer keeps fighters' prayer points full in the duels.",
+    "at": 128,
+    "holding": {
+      "$comment": "The waiting room between rounds: the middle fenced square of the finale arena (barriers at x 3674 and 3685).",
+      "minX": 3676,
+      "maxX": 3683,
+      "minY": 8603,
+      "maxY": 8612,
+      "z": 0,
+      "centre": [
+        3679,
+        8607
+      ]
+    },
+    "chunks": {
+      "minX": 458,
+      "minY": 1074,
+      "width": 4,
+      "height": 3,
+      "planes": 2
+    },
+    "sides": [
+      [
+        3677,
+        8607,
+        0
+      ],
+      [
+        3682,
+        8607,
+        0
+      ]
+    ],
+    "countdownTicks": 5,
+    "maxDuelTicks": 0,
+    "betweenRoundsTicks": 15,
+    "shutdownAfterTicks": 50,
+    "unlimitedPrayer": true,
+    "chat": [
+      "gl everyone in the {stage}",
+      "top {left} baby",
+      "last {left}, nobody's safe",
+      "{left} left, I'm still breathing",
+      "round {round}, let's go",
+      "who's got the best gear left?",
+      "I'm not losing to a pure",
+      "pray mage on me if you dare",
+      "saving my spec for the {next}",
+      "anyone else run out of brews?",
+      "that fog nearly got me back there",
+      "GG to whoever I fight next",
+      "I looted an AGS off a chest lol",
+      "bracket's stacked this year",
+      "just need a few more wins",
+      "rapier or claws for the {next}?",
+      "the Barrows set carried me",
+      "winner takes the loser's stash, love it",
+      "twenty seconds to loot, grab the good stuff",
+      "prayer never runs out in here, use it",
+      "I picked up a full Dharok set off a brother",
+      "kept my bloodier key for nothing lol",
+      "no fog in here, it's pure skill now",
+      "one round at a time",
+      "spectators are watching, don't choke",
+      "ancestral vs armadyl, who wins?",
+      "my runes got topped up, I'm barraging",
+      "I farmed Graardor for this gear",
+      "the winner's gonna be stacked",
+      "see you in the {next}",
+      "who's watching the {stage}?",
+      "that last duel was close",
+      "{left} of us out of 500, mad",
+      "whoever wins this gets a firework show",
+      "I just want to make the {next}",
+      "my hands are shaking ngl",
+      "eat, pray, kill, repeat",
+      "first time making the {stage}",
+      "I've been top killer all game",
+      "these bots got good gear",
+      "that guy stepped under me, filthy",
+      "tank or spec, which is it",
+      "only {left} names left on the board",
+      "wish me luck",
+      "they topped my food up, nice",
+      "anyone want to swap spec weapons? no? ok",
+      "rooting for the underdog",
+      "the arena smells like blood",
+      "GL to my clan if any of you are left"
+    ],
+    "$chat": "Waiting-room chat between duels. {left}: how many are still in; {round}: the round number; {stage}: this round (the final, the semi-finals, the quarter-finals, the round of 16...); {next}: the round after it.",
+    "finalChat": [
+      "it's the final, let's go",
+      "gl in the final",
+      "one more fight",
+      "this is it",
+      "whoever wins, gg",
+      "for the fireworks"
+    ],
+    "outChat": [
+      "gf",
+      "gg",
+      "gg wp",
+      "I'm out",
+      "gg, good luck in the {next}",
+      "unlucky, gg",
+      "I'll get you next time",
+      "gf, you earned that",
+      "that's me done",
+      "gg, go win it",
+      "rip my loot",
+      "so close",
+      "gg, my food ran out",
+      "gf, take my stuff"
+    ],
+    "winChat": [
+      "gg",
+      "gf",
+      "gg wp",
+      "on to the {next}",
+      "ez... jk gf",
+      "gf, ty",
+      "good fight",
+      "sit",
+      "gg, close one",
+      "next",
+      "see you in the {next}",
+      "that was a scrap, gg"
+    ],
+    "finalWaitChat": [
+      "it's the final, let's go",
+      "just you and me left",
+      "one more fight for the whole thing",
+      "gl in the final",
+      "whoever wins, gg",
+      "fireworks are mine",
+      "500 in, two left, mad",
+      "I didn't come this far to lose now",
+      "been waiting all game for this",
+      "no clans, no fog, just us",
+      "let's give them a show",
+      "see you in the arena"
+    ],
+    "championChat": [
+      "GG! Deadman champion!",
+      "500 in, I'm the one walking out",
+      "ez... jk that was hard",
+      "thanks for the loot everyone",
+      "fireworks for me!",
+      "who's next?",
+      "gg to everyone in the bracket",
+      "I told you the bracket was mine",
+      "undefeated",
+      "the fog couldn't stop me",
+      "that final was close, gg",
+      "champion of the Wilderness",
+      "see you all next tournament",
+      "all that loot was worth it",
+      "no clan, no problem",
+      "sit, all 499 of you"
+    ]
+  },
+  "perf": {
+    "$comment": "Tick timing logged every windowTicks (logs/deadman-tournament.log): the load test.",
+    "windowTicks": 100
+  },
+  "kitWeights": {
+    "hybrid_mage": 3,
+    "hybrid_melee": 3,
+    "hybrid_ranged": 3,
+    "lms_tribrid": 1,
+    "lms_melee": 1,
+    "lms_ranged": 1
+  },
+  "botSkill": {
+    "veteran": 6,
+    "elite": 4
+  },
+  "$botSkill": "Bots' PvP skill (the bot runtime's profiles), drawn by weight: standard and veteran pray and switch; elite are the high-risk experts (prayer flicks, combo eating, tight switches). All use protection prayers; Smite is disabled for everyone in the tournament.",
+  "setWeapons": {
+    "$comment": "A weapon only worth using with its whole set (bots won't take or wield it without every piece, worn or carried).",
+    "4718": [
+      4716,
+      4720,
+      4722
+    ]
+  },
+  "battle": {
+    "$comment": "graceTicks: the looting head start - for this long after the start nobody can attack another fighter (bosses yes) and the fog doesn't hurt; everyone gets startingKeys bloody keys (in place of food).",
+    "graceTicks": 200,
+    "startingKeys": 1
+  },
+  "fightChat": [
+    "Your bloody key is mine",
+    "Thanks for the upgrade",
+    "Deadman takes all",
+    "Nice gear, I'll take it",
+    "Should have stayed in the safe zone",
+    "The fog's coming for you anyway",
+    "Your loot, my bracket run",
+    "Go back to Edgeville",
+    "Key me, coward",
+    "Another one for the top 128",
+    "That's going in my chest haul",
+    "You won't make the arena",
+    "Bloodier key incoming",
+    "Pray all you want",
+    "No smite needed",
+    "See you never",
+    "GG, thanks for the key",
+    "Deadman is permadeath, sorry",
+    "My clan's right behind me",
+    "Run to the fog then",
+    "That rapier looks better on me",
+    "Eat faster",
+    "You're my upgrade",
+    "Top 128 calling",
+    "Free bloody key",
+    "One more for the clan",
+    "Nice try",
+    "sit",
+    "gf",
+    "ez key"
+  ],
+  "duelChat": [
+    "Just you and me now",
+    "No clan to save you here",
+    "Ten seconds to loot you, can't wait",
+    "Your gear's coming with me to the {next}",
+    "Bracket's mine",
+    "Prayer's unlimited, still won't save you",
+    "Spec incoming",
+    "Is that your best switch?",
+    "Arena's too small to run",
+    "Should have stayed in the fog",
+    "The crowd's watching, don't choke",
+    "I didn't loot this far to lose now",
+    "Thanks for the free upgrade",
+    "Eat faster",
+    "sit",
+    "gl {opponent}",
+    "{opponent}, you're done",
+    "I've seen your gear {opponent}",
+    "This is the {stage}, no mistakes",
+    "See you never, {opponent}",
+    "I'm making the {next}",
+    "Round {round}, here we go",
+    "Nice prayer flick",
+    "Stop eating",
+    "Barrage incoming",
+    "That hit hurt",
+    "Food check?",
+    "Brew up",
+    "You're low",
+    "Run if you want, no exits",
+    "Gf so far",
+    "Not today",
+    "Come on then",
+    "Big hit",
+    "Freeze!",
+    "Out of food yet?",
+    "My spec's ready",
+    "Pray what you want",
+    "Step under me again",
+    "Close one"
+  ],
+  "$duelChat": "What bots say in a 1v1 (their fight chatter). {opponent}: who they're fighting; {stage}: this round; {next}: the round after; {round}: the round number."
+}

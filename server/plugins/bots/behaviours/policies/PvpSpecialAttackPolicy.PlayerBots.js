@@ -4,6 +4,7 @@ const { equipStyleGear } = require("./PvpCombatRuntimeCache.PlayerBots");
 
 const { CombatSpecial } = require("../../../../src/main/typescript/elvarg/game/content/combat/CombatSpecial");
 const { CombatType } = require("../../../../src/main/typescript/elvarg/game/content/combat/CombatType");
+const { TimerKey } = require("../../../../src/main/typescript/elvarg/util/timers/TimerKey");
 const { DamageFormulas } = require("../../../../src/main/typescript/elvarg/game/content/combat/formula/DamageFormulas");
 const { ItemDefinition } = require("../../../../src/main/typescript/elvarg/game/definition/ItemDefinition");
 const { PrayerHandler } = require("../../../../src/main/typescript/elvarg/game/content/PrayerHandler");
@@ -31,8 +32,9 @@ const SWITCHBACK_RETRY_COOLDOWN_MS = 450;
 // A bot that pulls its KO weapon out keeps it only while a KO looks possible; after
 // this long without the fight ending it stows the weapon and goes back to the main
 // DPS weapon (issue #441).
-const SPEC_WEAPON_HOLD_MIN_MS = 15000;
-const SPEC_WEAPON_HOLD_MAX_MS = 20000;
+// Server custom (kofi, 2026-11-09): spec weapons only come out to spec, then straight back.
+const SPEC_WEAPON_HOLD_MIN_MS = 1800;
+const SPEC_WEAPON_HOLD_MAX_MS = 2600;
 
 function markSpecUsed(pvp, nowMs) {
   pvp.lastSpecAt = nowMs;
@@ -153,7 +155,35 @@ function resolveInventoryWeapon(player, weaponId, snapshot = null) {
   };
 }
 
+// Server custom (kofi, 2026-11-10): a bot can be told never to spec with some weapons
+// (attribute player-bots:banned-specs, an array of item ids), e.g. the magic shortbow.
+function bannedSpecIds(player) {
+  const banned = player?.getAttribute?.("player-bots:banned-specs");
+  return Array.isArray(banned) ? banned : null;
+}
+
+function isBannedSpecial(player, special) {
+  const banned = bannedSpecIds(player);
+  if (!banned || !special) return false;
+  const ids = special.getIdentifiers?.() ?? [];
+  return ids.some((id) => banned.includes(id));
+}
+
 function resolveInventorySpecWeapon(player, state, snapshot = null) {
+  const found = resolveInventorySpecWeaponAny(player, state, snapshot);
+  const banned = bannedSpecIds(player);
+  if (!found || !banned || !banned.includes(found.weaponId)) return found;
+  const inventory = player?.getInventory?.();
+  if (!inventory) return null;
+  for (const weaponId of SUPPORTED_SPEC_WEAPONS) {
+    if (banned.includes(weaponId)) continue;
+    const slot = inventory.getSlotForItemId?.(weaponId) ?? -1;
+    if (slot >= 0) return { weaponId, slot, special: getSpecialForWeaponId(weaponId) };
+  }
+  return null;
+}
+
+function resolveInventorySpecWeaponAny(player, state, snapshot = null) {
   const cachedPreferred = snapshot?.preferredSpecCandidate ?? null;
   const preferredSlot = resolveInventorySlotByItemId(
     player,
@@ -206,9 +236,16 @@ function shouldPressureSpec(player, state, profile) {
 
 function canSpecTarget(player, target, special) {
   if (!target || !special) return false;
+  if (isBannedSpecial(player, special)) return false;
   const hp = Number(target.getHitpoints());
   if (hp <= 0) return false;
   const protection = PrayerHandler.getProtectingPrayer(special.getCombatMethod().type());
+  // No melee spec while frozen out of reach (it would queue and whiff, wasting the spec).
+  if (special.getCombatMethod().type() === CombatType.MELEE && player.getTimers?.()?.has?.(TimerKey.FREEZE)) {
+    const a = player.getLocation();
+    const b = target.getLocation();
+    if (Math.max(Math.abs(a.getX() - b.getX()), Math.abs(a.getY() - b.getY())) > 1) return false;
+  }
   return target.getPrayerActive?.()?.[protection] !== true &&
     player.getSpecialPercentage() >= special.getDrainAmount();
 }
@@ -501,7 +538,9 @@ function maybeUseSpecialAttack(context) {
   const currentWeaponId = getWeaponId(player);
   const currentSpecial = player?.getCombatSpecial?.() ?? getSpecialForWeaponId(currentWeaponId);
 
-  if (shouldUseSpecNow(player, target, state, profile, currentSpecial, currentWeaponId)) {
+  // Only listed spec weapons spec (never the whip/tentacle or other main weapons).
+  if (SUPPORTED_SPEC_WEAPONS.includes(currentWeaponId) &&
+      shouldUseSpecNow(player, target, state, profile, currentSpecial, currentWeaponId)) {
     const activated = tryActivateSpecial(player, target);
     if (activated) {
       markSpecUsed(pvp, nowMs);

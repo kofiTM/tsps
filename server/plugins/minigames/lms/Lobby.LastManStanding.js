@@ -344,7 +344,7 @@ function tick() {
  * come back, as they would through the barrier.
  */
 function returnBelongings(player) {
-  if (!Stash.stashed(player) || waitingMode(player) || Match.gameOf(player) || player.isDyingReturn?.() === true) return;
+  if (!Stash.stashed(player) || Stash.heldBy(player) !== "lms" || waitingMode(player) || Match.gameOf(player) || player.isDyingReturn?.() === true) return;
   Stash.restore(player);
 }
 

@@ -33,10 +33,15 @@ function stashed(player) {
   return player.getAttribute(Common.ATTRIBUTES.stash) ?? null;
 }
 
-/** Saves everything the game replaces; a second call while one is held keeps the first. */
-function save(player) {
+/**
+ * Saves everything the game replaces; a second call while one is held keeps the first. `holder`
+ * names who holds it (Last Man Standing, or another minigame borrowing the stash, such as the
+ * Deadman Tournament), so the lobby only hands back what it took itself.
+ */
+function save(player, holder = "lms") {
   if (stashed(player)) return;
   player.setAttribute(Common.ATTRIBUTES.stash, {
+    holder,
     inventory: itemsOf(player.getInventory()),
     equipment: itemsOf(player.getEquipment()),
     skills: skillsOf(player),
@@ -121,6 +126,12 @@ function fill(container, items) {
 function restore(player) {
   const stash = stashed(player);
   if (!stash) return false;
+  // Diagnostic: who restores a stash, and from where (Deadman Tournament inventory mystery).
+  try {
+    const where = (new Error().stack ?? "").split("\n").slice(2, 5).map((l) => l.trim()).join(" < ");
+    console.info(`[lms] stash restore: ${player.getUsername?.()} holder ${stash.holder ?? "lms"} via ${where}`);
+    require("fs").appendFileSync(require("path").join(process.cwd(), "logs", "deadman-tournament.log"), `[${new Date().toISOString()}] stash restore: ${player.getUsername?.()} holder ${stash.holder ?? "lms"} via ${where}\n`);
+  } catch (_error) {}
   const { Skill, MagicSpellbook, Flag, WeaponInterfaceManager, BonusManager, CombatSpecial } = Common.core;
   fill(player.getInventory(), stash.inventory);
   fill(player.getEquipment(), stash.equipment);
@@ -164,4 +175,9 @@ function attachStash(api) {
   api.onPlayerLogin(login);
 }
 
-module.exports = { attachStash, save, restore, stashed, clear, COMBAT_SKILLS };
+/** Who holds the stash ("lms" for one saved before holders were recorded). */
+function heldBy(player) {
+  return stashed(player)?.holder ?? "lms";
+}
+
+module.exports = { attachStash, save, restore, stashed, heldBy, clear, COMBAT_SKILLS };

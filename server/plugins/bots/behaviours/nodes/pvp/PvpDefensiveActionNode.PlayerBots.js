@@ -16,7 +16,8 @@ const RETREAT_STEP_TILES = 12;
 const RETREAT_TELEPORT_LEVEL = 20;
 // A retreating bot runs before it teleports. The grace window is what gives the player
 // who has nearly killed it a chance to land the kill instead of it vanishing mid-fight.
-const RETREAT_RUN_GRACE_MS = 5000;
+// Server custom (kofi, 2026-11-09): retreating bots teleport straight away, no run first.
+const RETREAT_RUN_GRACE_MS = 0;
 
 class PvpDefensiveActionNode {
   constructor(options = {}) {

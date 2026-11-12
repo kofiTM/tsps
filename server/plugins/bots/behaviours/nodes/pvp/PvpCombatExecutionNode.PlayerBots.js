@@ -13,6 +13,7 @@ const { TimerKey } = require("../../../../../src/main/typescript/elvarg/util/tim
 const { getPotionName } = require("../../../../items/Potions.plugin");
 const { usesSmiteOnlyPrayers } = require("../../pvp/WildernessHotspotRegistry.PlayerBots");
 const { randomInRange } = require("../../navigation/Navigation.PlayerBots");
+const { getPvpLoadout } = require("../../pvp/PvpLoadoutRegistry.PlayerBots");
 const {
   getPvpCombatSnapshot,
   getWeaponId,
@@ -50,6 +51,22 @@ const GAME_TICK_MS = Number(GameConstants.GAME_ENGINE_PROCESSING_CYCLE_RATE ?? 6
 
 /** Gear value that makes Smite or item protection worth considering. */
 const VALUABLE_GEAR_VALUE = 3_000_000;
+/** Bots at or above this combat level may choose to smite their opponent. */
+const HIGH_LEVEL_SMITE_COMBAT = 100;
+const HIGH_LEVEL_SMITE_CHANCE = 0.35;
+
+/** NH / tribrid bots switch protection prayers; other builds fight without overheads. */
+function isNhBot(state) {
+  const pvp = state?.pvp;
+  let tags = [];
+  try {
+    tags = getPvpLoadout(pvp?.loadoutId)?.tags ?? [];
+  } catch (_error) {
+    tags = [];
+  }
+  if (tags.includes("nh")) return true;
+  return /(^|_)(nh|tribrid)(_|$)/.test(String(pvp?.generatedArchetypeId ?? ""));
+}
 
 /** Grand Exchange wealth of what the target is wearing (issue #441: Smite only high risk). */
 function equipmentGrandExchangeValue(player) {
@@ -311,14 +328,15 @@ class PvpCombatExecutionNode {
       nowMs,
       resolvedProfile
     );
-    const smiting = (smiteOnly || this.shouldSmite(state, target, resolvedProfile, targetUsername)) &&
+    const smiting = (smiteOnly || this.shouldSmite(player, state, target, resolvedProfile, targetUsername)) &&
       this.PrayerHandler.canUse(player, this.core.PrayerData.prayerData.get(this.PrayerHandler.SMITE), false);
-    const desiredProtectionPrayer = smiting ? this.PrayerHandler.SMITE : smiteOnly ? null : this.resolveProtectionPrayer(
-      player,
-      target,
-      confidenceTier,
-      targetCombatType
-    );
+    const desiredProtectionPrayer = smiting
+      ? this.PrayerHandler.SMITE
+      : smiteOnly
+        ? null
+        : this.usesProtectionPrayers(state, player)
+          ? this.resolveProtectionPrayer(player, target, confidenceTier, targetCombatType)
+          : null;
     const flickPrayers = confidenceTier >= 3;
     const protectionStable =
       desiredProtectionPrayer != null
@@ -395,12 +413,46 @@ class PvpCombatExecutionNode {
     }
   }
 
+  /** Only NHers, and bots that don't want this fight (escaping or retreating), pray protection. */
+  usesProtectionPrayers(state, player = null) {
+    if (player?.getAttribute?.("player-bots:protection-prayers") === true) return true;
+    const pvp = state?.pvp;
+    if (!pvp) return false;
+    return isNhBot(state) || pvp.retreat != null || pvp.phase === "retreating" || pvp.avoidingFight === true;
+  }
+
   /**
-   * Smite is worth the overhead only while the opponent is protecting an item and is
-   * risking enough for the drain to matter (issue #441). The choice sticks for that
-   * target until they stop protecting the item or stop risking.
+   * Smite: a bot whose opponent is smiting it smites back. High levels (100+) decide once
+   * per opponent whether to smite; others only smite an opponent protecting an item while
+   * risking enough for the drain to matter (issue #441).
    */
-  shouldSmite(state, target, profile, targetUsername) {
+  shouldSmite(player, state, target, profile, targetUsername) {
+    const pvp = state?.pvp;
+    if (!pvp || !target || !targetUsername) {
+      return false;
+    }
+    // High-risk bots always keep a protection prayer up instead of smiting (kofi, 2026-11-09).
+    try {
+      if (getPvpLoadout(pvp.loadoutId)?.tags?.includes("highrisk")) return false;
+    } catch (_error) {
+      // unknown loadout: fall through
+    }
+    if (target.getPrayerActive?.()?.[this.PrayerHandler.SMITE] === true) {
+      return true;
+    }
+    const combatLevel = Number(player?.getSkillManager?.()?.getCombatLevel?.() ?? 0);
+    if (combatLevel >= HIGH_LEVEL_SMITE_COMBAT) {
+      if (pvp.smiteTargetUsername !== targetUsername) {
+        pvp.smiteTargetUsername = targetUsername;
+        const chance = Math.max(HIGH_LEVEL_SMITE_CHANCE, Number(profile?.smiteUseChance ?? 0));
+        pvp.smiteActive = Math.random() < chance;
+      }
+      return pvp.smiteActive === true;
+    }
+    return this.shouldSmiteProtectedItem(state, target, profile, targetUsername);
+  }
+
+  shouldSmiteProtectedItem(state, target, profile, targetUsername) {
     const pvp = state?.pvp;
     if (!pvp || !target || !targetUsername || Number(profile?.confidenceTier ?? 0) < 2) {
       return false;

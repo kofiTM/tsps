@@ -37,6 +37,11 @@ function createPvpCombatAction(spec, controller) {
       if (state.pvp.retreat) {
         return "running";
       }
+      // Generic switch (kofi, 2026-11-11): content that drives a bot itself for a while (the Deadman
+      // Tournament, while a bot is on a boss) holds the PvP loop, so it never resets that combat.
+      if (player.getAttribute?.("player-bots:hold-pvp") === true) {
+        return "running";
+      }
       const combat = player.getCombat?.();
       const targetAlive = [combat?.getAttacker?.(), combat?.getTarget?.(), state.pvp.targetPlayer].some((target) =>
         !!target &&

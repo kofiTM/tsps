@@ -112,6 +112,97 @@ function matchesHotspotCombatBand(stats, state) {
   return level >= band.min && level <= band.max;
 }
 
+/** SkillManager.getCombatLevel over a preset's [attack, defence, strength, hp, ranged, prayer, magic]. */
+function presetCombatLevel(stats) {
+  const [attack, defence, strength, hp, ranged, prayer, magic] = stats;
+  const base = Math.floor((defence + hp + Math.floor(prayer / 2)) * 0.2535) + 1;
+  return Math.min(126, Math.max(3, Math.floor(base + Math.max(
+    (attack + strength) * 0.325,
+    Math.floor(ranged * 1.5) * 0.325,
+    Math.floor(magic * 1.5) * 0.325
+  ))));
+}
+
+function hotspotCombatBand(state) {
+  return state?.pvp?.combatLevelRange ?? getWildernessHotspot(state?.pvp?.hotspotId)?.combatLevelRange ?? null;
+}
+
+const PRESET_PRAYER_INDEX = 5;
+const PRESET_HP_INDEX = 3;
+/** Tuning never takes prayer below this (unless the build already has less), so protect prayers stay. */
+const MIN_TUNED_PRAYER = 44;
+/** Tuning never takes more than this much hitpoints off a build. */
+const MAX_TUNED_HP_LOSS = 20;
+
+/**
+ * Nudges prayer, then hitpoints, so the build lands as close to `target` as it can.
+ * Archetypes only exist at a few combat levels; this lets a hotspot's crowd cover every
+ * level in its band, so a player of any level near it has someone in wilderness range.
+ */
+function tuneStatsToLevel(stats, target) {
+  const limits = [
+    [PRESET_PRAYER_INDEX, Math.min(stats[PRESET_PRAYER_INDEX], MIN_TUNED_PRAYER)],
+    [PRESET_HP_INDEX, Math.max(10, Math.min(stats[PRESET_HP_INDEX], stats[PRESET_HP_INDEX] - MAX_TUNED_HP_LOSS))],
+  ];
+  for (const [index, floor] of limits) {
+    const original = stats[index];
+    let best = original;
+    let bestGap = Math.abs(presetCombatLevel(stats) - target);
+    if (bestGap === 0) return stats;
+    for (let value = floor; value <= 99; value++) {
+      stats[index] = value;
+      const gap = Math.abs(presetCombatLevel(stats) - target);
+      if (gap < bestGap || (gap === bestGap && Math.abs(value - original) < Math.abs(best - original))) {
+        best = value;
+        bestGap = gap;
+      }
+    }
+    stats[index] = best;
+  }
+  return stats;
+}
+
+function canReachCombatLevel(stats, target) {
+  return presetCombatLevel(tuneStatsToLevel([...stats], target)) === target;
+}
+
+function canFitHotspotCombatBand(stats, state) {
+  const band = hotspotCombatBand(state);
+  if (!band) return true;
+  const level = presetCombatLevel(stats);
+  const tuned = presetCombatLevel(tuneStatsToLevel([...stats], Math.min(band.max, Math.max(band.min, level))));
+  return tuned >= band.min && tuned <= band.max;
+}
+
+/** The exact combat level this bot aims for inside its band; kept across regears. */
+function resolveTargetCombatLevel(state) {
+  const band = hotspotCombatBand(state);
+  if (!band) return null;
+  let target = Number(state?.pvp?.targetCombatLevel);
+  if (!Number.isFinite(target) || target < band.min || target > band.max) {
+    target = band.min + Math.floor(Math.random() * (band.max - band.min + 1));
+    if (state?.pvp) state.pvp.targetCombatLevel = target;
+  }
+  return target;
+}
+
+function fitStatsToHotspotBand(stats, state, target) {
+  const band = hotspotCombatBand(state);
+  if (!band) return stats;
+  if (target != null) tuneStatsToLevel(stats, target);
+  const level = presetCombatLevel(stats);
+  if (level < band.min || level > band.max) {
+    tuneStatsToLevel(stats, Math.min(band.max, Math.max(band.min, level)));
+  }
+  return stats;
+}
+
+/** Low-tier bots carry a little less hitpoints; never raises a build's hitpoints. */
+function lowerTierHitpoints(stats) {
+  if (stats[PRESET_HP_INDEX] > 80) stats[PRESET_HP_INDEX] = Math.max(80, stats[PRESET_HP_INDEX] - 5);
+  return stats;
+}
+
 function item(id, amount = 1) {
   return id == null ? null : new Item(id, amount);
 }
@@ -353,8 +444,8 @@ function buildGeneratedPreset(player, state) {
   // bypassing the profile gate and handing low-tier bots expensive gear.
   const eligible = (entry) => {
     const stats = [...entry.stats];
-    if ((profile?.confidenceTier ?? 2) <= 1) stats[3] = Math.max(80, stats[3] - 5);
-    return profileAllowedForArchetype(entry, profile) && matchesHotspotCombatBand(stats, state);
+    if ((profile?.confidenceTier ?? 2) <= 1) lowerTierHitpoints(stats);
+    return profileAllowedForArchetype(entry, profile) && canFitHotspotCombatBand(stats, state);
   };
   const allChoices = getArchetypeChoices(loadoutId);
   const gatedChoices = allChoices.filter((entry) =>
@@ -367,16 +458,28 @@ function buildGeneratedPreset(player, state) {
     : getArchetypeChoices("budget_pk");
   const choices = gatedChoices.length > 0 ? gatedChoices : fallbackChoices;
   const savedArchetypeId = state?.pvp?.generatedArchetypeId ?? null;
+  // Prefer builds that can be tuned to exactly this bot's target level.
+  const targetCombatLevel = resolveTargetCombatLevel(state);
+  const tierStats = (entry) => {
+    const stats = [...entry.stats];
+    if ((profile?.confidenceTier ?? 2) <= 1) lowerTierHitpoints(stats);
+    return stats;
+  };
+  const reachable = targetCombatLevel == null
+    ? []
+    : choices.filter((entry) => canReachCombatLevel(tierStats(entry), targetCombatLevel));
+  const pickFrom = reachable.length > 0 ? reachable : choices;
   const archetype =
-    choices.find((entry) => entry.id === savedArchetypeId) ?? weightedPick(choices);
+    pickFrom.find((entry) => entry.id === savedArchetypeId) ?? weightedPick(pickFrom);
   if (!archetype) {
     return null;
   }
 
   const stats = [...(archetype.stats ?? [99, 99, 99, 99, 99, 99, 99])];
   if ((profile?.confidenceTier ?? 2) <= 1) {
-    stats[3] = Math.max(80, stats[3] - 5);
+    lowerTierHitpoints(stats);
   }
+  fitStatsToHotspotBand(stats, state, targetCombatLevel);
   const magicPackage =
     typeof archetype.resolveMagicPackage === "function"
       ? archetype.resolveMagicPackage(profile, state, player)
@@ -419,6 +522,12 @@ function hasNoEquipment(player) {
 
 function applyGeneratedPvpLoadout(player, state, options = {}) {
   if (!player || player.isPlayerBot?.() !== true) {
+    return false;
+  }
+  // Server custom (kofi, 2026-11-09): "player-bots:fixed-loadout" bots (the Deadman Tournament's)
+  // fight with what they have; nothing is generated for them, even when they're stripped.
+  if (player.getAttribute?.("player-bots:fixed-loadout") === true) {
+    if (state?.pvp) state.pvp.loadoutPending = false;
     return false;
   }
   const combat = player.getCombat?.();

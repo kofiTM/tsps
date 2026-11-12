@@ -26,6 +26,8 @@ const {
   clearBotDeathLootPlan,
   handleBotDeathItemDrop,
 } = require("./DeathLoot.PlayerBots");
+const { registerBotLooting } = require("./BotLooting.PlayerBots");
+const { registerBotWebs } = require("./BotWebs.PlayerBots");
 
 const CLAN_ASSIST_DURATION_MS = 30000;
 const BOT_RESPAWN_REACQUIRE_DELAY_MIN_MS = 3500;
@@ -297,6 +299,10 @@ function registerBotEvents(options) {
   api.onPlayerDeathItemDrop((event) => {
     handleBotDeathItemDrop(event, runtime);
   });
+
+  // Bots loot their kills; bot-owned floor items are deleted instead of left lying around.
+  registerBotLooting(api, runtime);
+  registerBotWebs(api);
 
   api.onPlayerAttack(({ player, target }) => {
     const followed = target;

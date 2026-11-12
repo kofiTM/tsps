@@ -63,6 +63,27 @@ const PVP_BOT_SETTINGS = Object.freeze({
   activeRegionInset: Math.max(0, Math.floor(Number(PVP_BOT_CONFIG.activeRegionInset ?? 0))),
 });
 
+/**
+ * Server custom (kofi, 2026-11-08): the Wilderness bosses' areas ("pvp.noBotAreas" in bot-sites.json:
+ * { id, minX, maxX, minY, maxY }, any plane). No PvP bot spawns in a 64x64 region touching one
+ * (Registry), and a PvP bot never picks a real player standing in one (PvpController).
+ */
+const NO_BOT_AREAS = Object.freeze((Array.isArray(PVP_BOT_CONFIG.noBotAreas) ? PVP_BOT_CONFIG.noBotAreas : [])
+  .filter((area) => [area?.minX, area?.maxX, area?.minY, area?.maxY].every(Number.isFinite))
+  .map((area) => Object.freeze({ id: String(area.id ?? ""), minX: area.minX, maxX: area.maxX, minY: area.minY, maxY: area.maxY })));
+
+/** Whether the box minX..maxX, minY..maxY overlaps a Wilderness boss's area. */
+function touchesNoBotArea(minX, maxX, minY, maxY) {
+  return NO_BOT_AREAS.some((area) => minX <= area.maxX && maxX >= area.minX && minY <= area.maxY && maxY >= area.minY);
+}
+
+/** Whether `location` is in a Wilderness boss's area. */
+function isInNoBotArea(location) {
+  const x = location?.getX?.() ?? location?.x;
+  const y = location?.getY?.() ?? location?.y;
+  return Number.isFinite(x) && Number.isFinite(y) && touchesNoBotArea(x, x, y, y);
+}
+
 /** A bot-sites.json PvP site in the hotspot shape the PvP brain reads. */
 function siteToHotspot(site, loadouts) {
   const { pvp } = site;
@@ -106,6 +127,10 @@ function siteToHotspot(site, loadouts) {
     allowedProfiles: pvp.profiles ?? listPvpProfiles().map((profile) => profile.id),
     allowedLoadouts,
     activityWeights: pvp.weights,
+    // Server custom (kofi, 2026-11-09): no regional roamer top-up in this spot's region.
+    noRoamers: pvp.noRoamers === true,
+    // Server custom (kofi, 2026-11-09): only fights its own spot's bots unless attacked first.
+    pairOnly: pvp.pairOnly === true,
   };
 }
 
@@ -178,8 +203,11 @@ function isOutsideWildernessHotspots(location) {
 }
 
 module.exports = {
+  NO_BOT_AREAS,
   _test: { siteToHotspot },
   PVP_BOT_SETTINGS,
+  isInNoBotArea,
+  touchesNoBotArea,
   WILDERNESS_HOTSPOT_IDS,
   WILDERNESS_HOTSPOTS,
   createHotspotAnchorLocation,

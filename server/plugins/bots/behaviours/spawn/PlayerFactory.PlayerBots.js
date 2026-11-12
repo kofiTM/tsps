@@ -41,8 +41,9 @@ function randomFromRange([min, max]) {
   return randomInclusive(Math.min(min, max), Math.max(min, max));
 }
 
-function buildRandomAppearanceLook() {
-  const gender = Math.random() < 0.5 ? 0 : 1;
+/** A random look; `gender` 0 (male) or 1 (female) to choose one, random otherwise. */
+function buildRandomAppearanceLook(chosen) {
+  const gender = chosen === 0 || chosen === 1 ? chosen : Math.random() < 0.5 ? 0 : 1;
   const look = new Array(13).fill(0);
   const ranges = gender === 0 ? MALE_RANGES : FEMALE_RANGES;
 
@@ -64,7 +65,22 @@ function buildRandomAppearanceLook() {
   return look;
 }
 
+/**
+ * Server custom (kofi, 2026-11-09): spawn gates. Content that needs the world to itself (the Deadman
+ * Tournament) adds a gate; while any gate says no, no bot is created - every bot system (the
+ * Wilderness, skilling sites, the GE, dice, raids) spawns through here, and gets null back.
+ */
+const spawnGates = new Map();
+
+function setBotSpawnGate(key, gate) {
+  if (gate) spawnGates.set(key, gate);
+  else spawnGates.delete(key);
+}
+
 function createBotPlayer(username, spawn, options = {}) {
+  for (const gate of spawnGates.values()) {
+    if (gate(username, options) === false) return null;
+  }
   const loadPersistence = options.loadPersistence !== false;
   const saveRandomizedAppearance = options.saveRandomizedAppearance !== false;
   const World = options.api.getWorld();
@@ -111,7 +127,7 @@ function createBotPlayer(username, spawn, options = {}) {
   // Older bot saves often have empty/missing appearance arrays; randomize once
   // so bots don't collapse to the same default look.
   if (!appliedPersistence || !hasValidSavedAppearance) {
-    bot.getAppearance().setLookArray(buildRandomAppearanceLook());
+    bot.getAppearance().setLookArray(buildRandomAppearanceLook(options.gender));
     if (saveRandomizedAppearance) {
       try {
         GameConstants.PLAYER_PERSISTENCE?.save?.(bot);
@@ -132,4 +148,5 @@ function createBotPlayer(username, spawn, options = {}) {
 
 module.exports = {
   createBotPlayer,
+  setBotSpawnGate,
 };

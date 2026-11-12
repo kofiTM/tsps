@@ -85,6 +85,9 @@ function getRandomLine(category, data = {}) {
 }
 
 function chatterLinesFor(player) {
+  // A bot may carry its own lines (an event's chatter, e.g. the Deadman Tournament's; kofi).
+  const own = player.getAttribute?.("player-bots:chatter-lines");
+  if (Array.isArray(own) && own.length > 0) return own;
   const opponents = fights.get(player).opponents;
   const combat = player.getCombat();
   const opponent = [combat.getTarget(), combat.getAttacker(), ...opponents.keys()].find(candidate => {

@@ -22,7 +22,13 @@
       "recolorTo": [],
       "retextureFrom": [],
       "retextureTo": [],
-      "inventoryActions": ["Wield", null, null, null, "Drop"],
+      "inventoryActions": [
+        "Wield",
+        null,
+        null,
+        null,
+        "Drop"
+      ],
       "isTradable": false,
       "note": -1,
       "noteTemplate": -1,
@@ -31,10 +37,31 @@
       "placeholder": -1,
       "placeholderTemplate": -1
     },
-    "itemDef": { "tradeable": false },
+    "itemDef": {
+      "tradeable": false
+    },
     "models": {
       "1000000": "dragonic-katana/drop.dat",
       "1000001": "dragonic-katana/equip.dat"
+    }
+  },
+  {
+    "id": 50009,
+    "baseItemId": 5518,
+    "objType": {
+      "name": "Spectator orb",
+      "examine": "Deadman Tournament: watch the fights still going.",
+      "inventoryActions": [
+        "Next fight",
+        "Top killer",
+        null,
+        null,
+        "Drop"
+      ],
+      "isTradable": false
+    },
+    "itemDef": {
+      "tradeable": false
     }
   }
 ]

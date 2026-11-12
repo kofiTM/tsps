@@ -25,6 +25,7 @@ const {
   needsLoadoutRestore,
 } = require("../../behaviours/policies/PvpLoadoutPolicy.PlayerBots");
 const { pickPvpOpponent } = require("../../behaviours/policies/PvpTargetSelectionPolicy.PlayerBots");
+const { isInNoBotArea } = require("../../behaviours/pvp/WildernessHotspotRegistry.PlayerBots");
 const {
   scheduleCombatAction,
   scheduleFreezeReview,
@@ -68,8 +69,8 @@ const PVP_DURATION_DEFAULT_MIN_MS = 18000;
 const PVP_DURATION_DEFAULT_MAX_MS = 50000;
 const POST_PVP_DECISION_MIN_MS = 3500;
 const POST_PVP_DECISION_MAX_MS = 9000;
-const POST_PVP_COOLDOWN_MIN_MS = 35000;
-const POST_PVP_COOLDOWN_MAX_MS = 110000;
+const POST_PVP_COOLDOWN_MIN_MS = 15000;
+const POST_PVP_COOLDOWN_MAX_MS = 45000;
 const SEEK_RETRY_MIN_MS = 1200;
 const SEEK_RETRY_MAX_MS = 3500;
 const HOTSPOT_DECISION_JITTER_MS = 2600;
@@ -85,6 +86,15 @@ const DITCH_NON_WILD_STRIP_MAX_Y = 3524;
 const DITCH_WILDERNESS_RETURN_Y = 3525;
 const REAL_PLAYER_OPPONENT_VALIDATION_POOL_SIZE = 4;
 const MULTI_REAL_PLAYER_ATTACKER_CAP = 2;
+
+/** Server custom (kofi, 2026-11-09): pairOnly spots fight only each other unless attacked first. */
+function isPairOnlyState(state) {
+  return getWildernessHotspot(state?.pvp?.hotspotId)?.pairOnly === true;
+}
+function pairOnlyAllows(sourceEntry, candidate) {
+  if (!isPairOnlyState(sourceEntry?.state) && !isPairOnlyState(candidate?.state)) return true;
+  return (sourceEntry?.state?.pvp?.hotspotId ?? null) === (candidate?.state?.pvp?.hotspotId ?? null);
+}
 
 const PVP_PHASE = Object.freeze({
   IDLE: "idle",
@@ -521,6 +531,8 @@ class PvpController {
       pick("bait", bait) ||
       pick("fight", fight) ||
       "escape";
+    // A bot that chose to escape doesn't want a fight; if one finds it, it prays.
+    if (state?.pvp) state.pvp.avoidingFight = activity === "escape";
     if (activity === "fight" || activity === "seek") {
       return true;
     }
@@ -624,6 +636,7 @@ class PvpController {
 
     if (sourceState?.pvp) {
       sourceState.pvp.phase = PVP_PHASE.COMBAT;
+      sourceState.pvp.avoidingFight = false;
       scheduleCombatAction(sourceState, nowMs);
       scheduleReviewTimers(sourceState, nowMs);
     }
@@ -692,7 +705,7 @@ class PvpController {
 
     const isInCombatCheck = (candidate) => this.isInCombat(candidate);
 
-    const realPlayerOpponent = this.ServerPerf.measurePhase(
+    const realPlayerOpponent = isPairOnlyState(sourceState) ? null : this.ServerPerf.measurePhase(
       "bot.pvp.try_start.real_player_scan",
       () =>
         this.resolvePreferredRealPlayerOpponent({
@@ -762,7 +775,8 @@ class PvpController {
       () =>
         pickPvpOpponent({
           sourceEntry: entry,
-          candidateEntries: nearby(index.botBuckets, sourcePlayer, pvpMaxDistanceTiles),
+          candidateEntries: [...nearby(index.botBuckets, sourcePlayer, pvpMaxDistanceTiles)]
+            .filter((candidate) => pairOnlyAllows(entry, candidate)),
           index,
           nowMs,
           pvpMaxDistanceTiles,
@@ -827,6 +841,7 @@ class PvpController {
 
     if (sourceState?.pvp) {
       sourceState.pvp.phase = PVP_PHASE.COMBAT;
+      sourceState.pvp.avoidingFight = false;
       scheduleCombatAction(sourceState, nowMs);
       scheduleReviewTimers(sourceState, nowMs);
     }
@@ -990,6 +1005,9 @@ class PvpController {
       if (candidatePlayer.isPlayerBot?.() === true) {
         return;
       }
+      if (candidatePlayer.getAttribute?.("admin:invisible") === true) {
+        return;
+      }
       if (!this.World.isPlayerSessionConnected(candidatePlayer)) {
         return;
       }
@@ -1000,6 +1018,10 @@ class PvpController {
         return;
       }
       if (!Wilderness.isIn(candidatePlayer)) {
+        return;
+      }
+      // Server custom (kofi): a player at a Wilderness boss is left alone.
+      if (isInNoBotArea(candidatePlayer.getLocation?.())) {
         return;
       }
       if (!canAttackByWildernessLevel(sourcePlayer, candidatePlayer)) {

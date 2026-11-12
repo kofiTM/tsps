@@ -11,6 +11,7 @@ function isVisibleRealPlayer(sourcePlayer, candidate) {
     candidate &&
     candidate !== sourcePlayer &&
     candidate.isPlayerBot?.() !== true &&
+    candidate.getAttribute?.("admin:invisible") !== true &&
     candidate.isRegistered?.() === true &&
     (candidate.getHitpoints?.() ?? 0) > 0 &&
     candidate.getPrivateArea?.() === sourcePlayer.getPrivateArea?.() &&

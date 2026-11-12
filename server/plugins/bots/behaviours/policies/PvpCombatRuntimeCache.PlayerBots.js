@@ -12,6 +12,15 @@ const { PVP_LOADOUT_DEFINITIONS } = require("../pvp/PvpLoadoutRegistry.PlayerBot
 
 const CURRENT_PRESET_ATTRIBUTE = "pvp:current-preset";
 
+// Runes in the pack or a rune pouch (the core's own check, Spell.canCast): an inventory-only check
+// leaves a pouch mage with no spell, so it drops magic and swings its staff.
+function hasSpellRunes(player, spell) {
+  const { Spell } = require("../../../../src/main/typescript/elvarg/game/content/combat/magic/Spell");
+  const { PluginManager } = require("../../../../src/main/typescript/elvarg/plugins/PluginManager");
+  const short = Spell.inventoryShortfall(player, spell.itemsToConsume(player) ?? []);
+  return short.length === 0 || PluginManager.checkSpellRuneSource(player, short) === true;
+}
+
 // Resolve from the loadout, not autocast: Wilderness weapon switches clear autocast.
 function resolveOffensiveSpell(player) {
   const { CombatSpells } = require("../../../../src/main/typescript/elvarg/game/content/combat/magic/CombatSpells");
@@ -21,7 +30,7 @@ function resolveOffensiveSpell(player) {
     : [];
   return spells.find((spell) => spell.getSpellbook() === player.getSpellbook() &&
     spell.levelRequired() <= player.getSkillManager().getCurrentLevel(Skill.MAGIC) &&
-    player.getInventory().containsAllItem(spell.itemsToConsume(player)) &&
+    hasSpellRunes(player, spell) &&
     player.getEquipment().containsAllItem(spell.equipmentRequired(player) ?? [])) ?? null;
 }
 
