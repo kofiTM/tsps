@@ -1,5 +1,7 @@
 import { CustomDefinitionLoader } from "../../../custom/definitions/CustomDefinitionStore";
 import { CustomObjTypeLoader } from "../../../custom/items/CustomObjTypeLoader";
+import { CustomSpotAnimTypeLoader } from "../../../custom/spotanims/CustomSpotAnimTypeLoader";
+import { CustomSeqBaseLoader, CustomSeqFrameLoader, CustomSeqTypeLoader } from "../../../custom/seqs/CustomSeqLoaders";
 import { CustomNpcTypeLoader } from "../../../custom/npcs/CustomNpcTypeLoader";
 import { createDefinitionArchiveView } from "../../../custom/archives/ArchivedDefinitionStore";
 import { ArchivedTypeLoader } from "../../config/ArchivedTypeLoader";
@@ -274,15 +276,17 @@ export class Dat2CacheLoaderFactory implements CacheLoaderFactory {
     getSeqTypeLoader(): SeqTypeLoader {
         if (this.seqTypeLoader) return this.seqTypeLoader;
         if (this.cacheInfo.game === "oldschool") {
-            return this.seqTypeLoader = this.getArchivedLoaders().seq;
+            // kofi's custom sequences (client/custom/seqs: the Angel of Death's fall 60100 and the rest) sit
+            // over the archived loader, as they did over the plain one before the merge.
+            return this.seqTypeLoader = new CustomSeqTypeLoader(this.getArchivedLoaders().seq);
         }
         if (this.isIndexConfigs()) {
             const seqIndex = this.cacheSystem.getIndex(IndexType.RS2.seqs);
-            return (this.seqTypeLoader = new IndexSeqTypeLoader(this.cacheInfo, seqIndex));
+            return (this.seqTypeLoader = new CustomSeqTypeLoader(new IndexSeqTypeLoader(this.cacheInfo, seqIndex)));
         } else {
             const configIndex = this.cacheSystem.getIndex(IndexType.DAT2.configs);
             const seqsArchive = configIndex.getArchive(ConfigType.DAT2.seqs);
-            return (this.seqTypeLoader = new ArchiveSeqTypeLoader(this.cacheInfo, seqsArchive));
+            return (this.seqTypeLoader = new CustomSeqTypeLoader(new ArchiveSeqTypeLoader(this.cacheInfo, seqsArchive)));
         }
     }
 
@@ -290,17 +294,17 @@ export class Dat2CacheLoaderFactory implements CacheLoaderFactory {
         if (this.spotAnimTypeLoader) return this.spotAnimTypeLoader;
         if (this.isIndexConfigs()) {
             const spotIndex = this.cacheSystem.getIndex(IndexType.RS2.spotAnims);
-            return (this.spotAnimTypeLoader = new IndexSpotAnimTypeLoader(
+            return (this.spotAnimTypeLoader = new CustomSpotAnimTypeLoader(new IndexSpotAnimTypeLoader(
                 this.cacheInfo,
                 spotIndex,
-            ));
+            )));
         } else {
             const configIndex = this.cacheSystem.getIndex(IndexType.DAT2.configs);
             const spotArchive = configIndex.getArchive(ConfigType.DAT2.spotAnims);
-            return (this.spotAnimTypeLoader = new ArchiveSpotAnimTypeLoader(
+            return (this.spotAnimTypeLoader = new CustomSpotAnimTypeLoader(new ArchiveSpotAnimTypeLoader(
                 this.cacheInfo,
                 spotArchive,
-            ));
+            )));
         }
     }
 
@@ -413,17 +417,19 @@ export class Dat2CacheLoaderFactory implements CacheLoaderFactory {
     getSeqBaseLoader(): SeqBaseLoader {
         if (this.seqBaseLoader) return this.seqBaseLoader;
         const index = this.cacheSystem.getIndex(IndexType.DAT2.skeletons);
-        return (this.seqBaseLoader = new IndexSeqBaseLoader(this.cacheInfo, index));
+        // Custom skeletons (custom/seqs, e.g. RS3 ports): the cache's own otherwise.
+        return (this.seqBaseLoader = new CustomSeqBaseLoader(new IndexSeqBaseLoader(this.cacheInfo, index), this.cacheInfo));
     }
 
     getSeqFrameLoader(): SeqFrameLoader {
         if (this.seqFrameLoader) return this.seqFrameLoader;
         const index = this.cacheSystem.getIndex(IndexType.DAT2.animations);
-        return (this.seqFrameLoader = new Dat2SeqFrameLoader(
+        // Custom sequences' frames (custom/seqs): the cache's own frames otherwise.
+        return (this.seqFrameLoader = new CustomSeqFrameLoader(new Dat2SeqFrameLoader(
             this.cacheInfo,
             index,
             this.getSeqBaseLoader(),
-        ));
+        ), this.cacheInfo, this.getSeqBaseLoader()));
     }
 
     getSkeletalSeqLoader(): SkeletalSeqLoader | undefined {

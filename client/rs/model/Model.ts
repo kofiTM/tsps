@@ -1158,7 +1158,8 @@ export class Model extends Entity {
 
     /** The signed shortest step from one 0-255 angle to another. */
     private static angleDelta(from: number, to: number): number {
-        const delta = (to - from) & 0xff;
+        // Modulo, not & 0xff: fine-rotation skeletons (custom/seqs) have fractional angles.
+        const delta = (((to - from) % 256) + 256) % 256;
         return delta >= 128 ? delta - 256 : delta;
     }
 
@@ -1259,7 +1260,10 @@ export class Model extends Entity {
         tz: number,
         op14: boolean,
     ) {
-        if (this.fractionalAnimation && type <= SeqTransformType.SCALE) {
+        // Fractional rotations (custom fine-rotation skeletons, custom/seqs) need the float path too.
+        const fineRotation = type === SeqTransformType.ROTATE &&
+            ((tx | 0) !== tx || (ty | 0) !== ty || (tz | 0) !== tz);
+        if ((this.fractionalAnimation && type <= SeqTransformType.SCALE) || fineRotation) {
             this.transformFractional(type, labels, tx, ty, tz);
             return;
         }

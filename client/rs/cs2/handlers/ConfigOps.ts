@@ -9,6 +9,7 @@ import {
     getLeagueTaskStructParam,
     getRelicOrMasteryStructParam,
     getReplacedChallengeStructIds,
+    getObjParamOverride,
     getStructOverride,
 } from "../../../common/gamemode/GamemodeContentStore";
 import { isNpcSearch, isNpcSearchResult, setNpcSearchResults } from "../spawnSearch";
@@ -17,6 +18,7 @@ import { Opcodes } from "../Opcodes";
 import { SPECIAL_ATTACK_ENUM, customSpecialAttackCost } from "../../../custom/items/CustomSpecialAttacks";
 import { PostProcessedObjTypeLoader } from "../../config/objtype/ObjTypeLoader";
 import type { HandlerContext, HandlerMap, ItemNameIndexEntry } from "./HandlerTypes";
+import { CustomItemRegistry } from "../../../custom/items/CustomItemRegistry";
 import { GAMEFRAME_LAYOUT_ENUM, GAMEFRAME_317_OPTION, GAMEFRAME_317_LABEL, GAMEFRAME_317_FIXED_OPTION, GAMEFRAME_317_FIXED_LABEL } from "../../../common/ui/gameframeLayout";
 
 /** Item ids 0-65535 cover every standard item. */
@@ -57,11 +59,50 @@ function itemNameIndex(ctx: HandlerContext): ItemNameIndexEntry[] {
     return entries;
 }
 
+/** Cache enum: weapon -> special attack energy x10. The spec bar and orb (proc 3648) read it. */
+const SPECIAL_ENERGY_ENUM = 906;
+let specialEnergyEnum: { revision: number; base: unknown; merged: any } | null = null;
+
+/**
+ * Enum 906 with the server's custom items added (their `specialAttackEnergy`): the cache's has no
+ * custom ids, so a custom weapon with a special got no spec bar. Cached until the item list changes.
+ */
+function withCustomSpecialEnergy(type: any) {
+    const revision = CustomItemRegistry.revision;
+    if (specialEnergyEnum && specialEnergyEnum.revision === revision && specialEnergyEnum.base === type) {
+        return specialEnergyEnum.merged;
+    }
+    const keys: number[] = [...(type?.keys ?? [])];
+    const intValues: number[] = [...(type?.intValues ?? [])];
+    for (const { definition } of CustomItemRegistry.getAll()) {
+        const energy = Number(definition.specialAttackEnergy);
+        if (!Number.isFinite(energy) || energy <= 0) continue;
+        const value = Math.round(energy * 10);
+        const index = keys.indexOf(definition.id);
+        if (index >= 0) intValues[index] = value;
+        else {
+            keys.push(definition.id);
+            intValues.push(value);
+        }
+    }
+    const merged = {
+        keys,
+        intValues,
+        stringValues: undefined,
+        defaultInt: type?.defaultInt ?? -1,
+        defaultString: type?.defaultString ?? "null",
+        outputCount: keys.length,
+    };
+    specialEnergyEnum = { revision, base: type, merged };
+    return merged;
+}
+
 function loadEnum(ctx: HandlerContext, enumId: number) {
     // A server-defined enum (a league's relic tiers, say) stands in for the cache's, or for none.
     const override = getEnumOverride(enumId);
     if (override) return override as any;
     const type = ctx.enumTypeLoader?.load(enumId);
+    if (enumId === SPECIAL_ENERGY_ENUM) return withCustomSpecialEnergy(type);
     if (enumId === GAMEFRAME_LAYOUT_ENUM && type?.stringValues) {
         for (const [key, label] of [
             [GAMEFRAME_317_OPTION, GAMEFRAME_317_LABEL],
@@ -306,6 +347,13 @@ export function registerConfigOps(handlers: HandlerMap): void {
         const paramId = ctx.intStack[--ctx.intStackSize];
         const itemId = ctx.intStack[--ctx.intStackSize];
         const param = ctx.paramTypeLoader?.load(paramId);
+        // A server-sent param (GamemodeContentStore objParamOverrides) stands in for the cache's.
+        const override = getObjParamOverride(itemId, paramId);
+        if (override !== undefined) {
+            if (typeof override === "string") ctx.pushString(override);
+            else ctx.pushInt(override);
+            return;
+        }
         const obj = ctx.objTypeLoader?.load(itemId);
         if (param && obj && obj.params) {
             const val = obj.params.get(paramId);

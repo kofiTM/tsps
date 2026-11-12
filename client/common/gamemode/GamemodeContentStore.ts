@@ -56,6 +56,12 @@ export type StructOverrideRow = {
     params: Record<string, number | string>;
 };
 
+/** A cache item's params as the server has them (a spell item's name, read by the spellbook's scripts). */
+export type ObjParamOverrideRow = {
+    objId: number;
+    params: Record<string, number | string>;
+};
+
 /**
  * A server-defined enum (a new id, or a cache enum replaced whole), read by the enum ops before
  * the cache. `valueType` is "s" for strings, anything else for ints; entries are [key, value].
@@ -88,6 +94,7 @@ export type EnumOverride = {
 };
 
 let structOverrides: Map<number, Record<string, number | string>> | null = null;
+let objParamOverrides: Map<number, Record<string, number | string>> | null = null;
 let enumOverrides: Map<number, EnumOverride> | null = null;
 let dbRowOverrides: Map<number, DbRowOverrideRow> | null = null;
 
@@ -173,6 +180,13 @@ export function loadFromPayload(payload: {
                 for (const row of dataset.rows as StructOverrideRow[]) {
                     if (row?.structId == null || !row.params || typeof row.params !== "object") continue;
                     structOverrides.set(row.structId | 0, row.params);
+                }
+                break;
+            case "objParamOverrides":
+                objParamOverrides = new Map();
+                for (const row of dataset.rows as ObjParamOverrideRow[]) {
+                    if (row?.objId == null || !row.params || typeof row.params !== "object") continue;
+                    objParamOverrides.set(row.objId | 0, row.params);
                 }
                 break;
             case "dbRowOverrides":
@@ -282,6 +296,18 @@ export function loadFromPayload(payload: {
                     console.log("[GamemodeContentStore] failed to register custom items", err);
                 }
                 break;
+            case "customSpotAnims": {
+                const { CustomSpotAnimRegistry } = require("../../custom/spotanims/CustomSpotAnimRegistry");
+                CustomSpotAnimRegistry.clear();
+                for (const row of dataset.rows) CustomSpotAnimRegistry.register(row);
+                break;
+            }
+            case "customSeqs": {
+                const { CustomSeqRegistry } = require("../../custom/seqs/CustomSeqRegistry");
+                CustomSeqRegistry.clear();
+                for (const row of dataset.rows) CustomSeqRegistry.register(row);
+                break;
+            }
             case "customModels": {
                 const { CustomModelRegistry } = require("../../custom/items/CustomModelRegistry");
                 if (dataset.rows.length === 0) CustomModelRegistry.clear();
@@ -332,6 +358,11 @@ export function loadFromPayload(payload: {
 /** A server-sent struct param, or undefined to read the cache. */
 export function getStructOverride(structId: number, paramId: number): number | string | undefined {
     return structOverrides?.get(structId | 0)?.[paramId | 0];
+}
+
+/** A server-sent item param, or undefined to read the cache. */
+export function getObjParamOverride(objId: number, paramId: number): number | string | undefined {
+    return objParamOverrides?.get(objId | 0)?.[paramId | 0];
 }
 
 /** A server-sent enum, or undefined to read the cache. */

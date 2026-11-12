@@ -1,5 +1,6 @@
 import { markWidgetInteractionDirty } from "../../widgets/WidgetInteraction";
 import { EMOTE_SHORTCUT_SCRIPT_ID, isEmoteShortcut } from "./EmoteShortcuts";
+import { INSTANCE_CHECK_SCRIPT_ID, isStaticInstance } from "./StaticInstances";
 import { GAMEFRAME_LAYOUT_SETTING, GAMEFRAME_317_OPTION, GAMEFRAME_317_FIXED_OPTION, SETTINGS_GET_SELECTED_SCRIPT, VARP_GAMEFRAME_317 } from "../../common/ui/gameframeLayout";
 import type { FriendsChatAction } from "../../common/social/FriendsChat";
 import type { ClanChannel, ClanSettings } from "./handlers/HandlerTypes";
@@ -1763,6 +1764,12 @@ export class Cs2Vm {
                             this.context.varManager.getVarp(VARP_GAMEFRAME_317) === 1) {
                             this.intStack[this.intStackSize - 1] = this.context.widgetManager?.rootInterface === 548
                                 ? GAMEFRAME_317_FIXED_OPTION : GAMEFRAME_317_OPTION;
+                            break;
+                        }
+                        // Content this server runs on the static map counts as an instance (the Theatre of
+                        // Blood's party HUD only shows its health orbs inside one): 1935's one int in, 1 out.
+                        if (scriptId === INSTANCE_CHECK_SCRIPT_ID && isStaticInstance(this.intStack[this.intStackSize - 1])) {
+                            this.intStack[this.intStackSize - 1] = 1;
                             break;
                         }
                         const subScript = this.context.loadScript(scriptId);

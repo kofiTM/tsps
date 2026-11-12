@@ -141,6 +141,13 @@ export interface CustomItemDefinition {
     itemDef?: CustomItemDefProps;
 
     /**
+     * Special attack energy (percent) of the special the server has for this item, its own or its
+     * base item's; filled in by the server when it sends the list. Cache enum 906 (weapon -> energy
+     * x10, read by the spec bar and orb) has no custom ids, so the client adds them from this.
+     */
+    specialAttackEnergy?: number;
+
+    /**
      * A special attack bar in Combat Options (at least one field). `from` uses that item's special
      * attack; without it a plugin registers the weapon's own (plugins/combat/specials). `energy` is
      * the cost in percent; without it, `from`'s own cost.
