@@ -1,0 +1,292 @@
+{
+  "$comment": "Gathering bots (plugins/bots/skilling/Gatherers.PlayerBots.js). Each route: count bots, levels (all/skill/combat bands), outfit tier (novice/mid/advanced/elite), tools (best they can use, with its animation), bank (booths or chest found near x,y), resource (trees/rocks by id or name near x,y; items per inventory, secondsPerItem), out/back steps. ::gatherbots (owner) shows them.",
+  "id": "wc_guild",
+  "enabled": true,
+  "routes": [
+    {
+      "id": "yews",
+      "title": "WC Guild yews",
+      "count": 1,
+      "levels": {
+        "all": [
+          50,
+          80
+        ],
+        "woodcutting": [
+          60,
+          85
+        ],
+        "combat": [
+          40,
+          110
+        ]
+      },
+      "outfit": "advanced",
+      "toolSkill": "woodcutting",
+      "tools": [
+        {
+          "item": "MITHRIL_AXE",
+          "animation": 871,
+          "minLevel": 21,
+          "animationTicks": 4
+        },
+        {
+          "item": "ADAMANT_AXE",
+          "animation": 869,
+          "minLevel": 31,
+          "animationTicks": 4
+        },
+        {
+          "item": "RUNE_AXE",
+          "animation": 867,
+          "minLevel": 41,
+          "animationTicks": 4
+        },
+        {
+          "item": "DRAGON_AXE",
+          "animation": 2846,
+          "minLevel": 61,
+          "animationTicks": 4
+        }
+      ],
+      "bank": {
+        "ids": [
+          28861
+        ],
+        "x": 1592,
+        "y": 3475,
+        "radius": 3,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "resource": {
+        "ids": [
+          10822
+        ],
+        "x": 1590,
+        "y": 3489,
+        "radius": 9,
+        "items": 27,
+        "secondsPerItem": [
+          14,
+          24
+        ],
+        "xp": 175,
+        "spotsPerObject": 2
+      },
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ]
+    },
+    {
+      "id": "magics",
+      "title": "WC Guild magics",
+      "count": 2,
+      "levels": {
+        "all": [
+          60,
+          90
+        ],
+        "woodcutting": [
+          75,
+          95
+        ],
+        "combat": [
+          60,
+          120
+        ]
+      },
+      "outfit": "elite",
+      "toolSkill": "woodcutting",
+      "tools": [
+        {
+          "item": "MITHRIL_AXE",
+          "animation": 871,
+          "minLevel": 21,
+          "animationTicks": 4
+        },
+        {
+          "item": "ADAMANT_AXE",
+          "animation": 869,
+          "minLevel": 31,
+          "animationTicks": 4
+        },
+        {
+          "item": "RUNE_AXE",
+          "animation": 867,
+          "minLevel": 41,
+          "animationTicks": 4
+        },
+        {
+          "item": "DRAGON_AXE",
+          "animation": 2846,
+          "minLevel": 61,
+          "animationTicks": 4
+        }
+      ],
+      "bank": {
+        "ids": [
+          28861
+        ],
+        "x": 1592,
+        "y": 3475,
+        "radius": 3,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "resource": {
+        "ids": [
+          10834
+        ],
+        "x": 1579,
+        "y": 3487,
+        "radius": 8,
+        "items": 27,
+        "secondsPerItem": [
+          16,
+          28
+        ],
+        "xp": 250,
+        "spotsPerObject": 3,
+        "spotArea": {
+          "minX": 1579,
+          "maxX": 1579
+        }
+      },
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ]
+    },
+    {
+      "id": "redwoods",
+      "title": "WC Guild redwoods",
+      "count": 2,
+      "levels": {
+        "all": [
+          70,
+          99
+        ],
+        "woodcutting": [
+          90,
+          99
+        ],
+        "combat": [
+          80,
+          126
+        ]
+      },
+      "outfit": "elite",
+      "toolSkill": "woodcutting",
+      "tools": [
+        {
+          "item": "MITHRIL_AXE",
+          "animation": 871,
+          "minLevel": 21,
+          "animationTicks": 4
+        },
+        {
+          "item": "ADAMANT_AXE",
+          "animation": 869,
+          "minLevel": 31,
+          "animationTicks": 4
+        },
+        {
+          "item": "RUNE_AXE",
+          "animation": 867,
+          "minLevel": 41,
+          "animationTicks": 4
+        },
+        {
+          "item": "DRAGON_AXE",
+          "animation": 2846,
+          "minLevel": 61,
+          "animationTicks": 4
+        }
+      ],
+      "bank": {
+        "ids": [
+          28861
+        ],
+        "x": 1592,
+        "y": 3475,
+        "radius": 3,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "out": [
+        {
+          "climb": {
+            "ids": [
+              28857
+            ],
+            "x": 1575,
+            "y": 3483,
+            "z": 0,
+            "toZ": 1,
+            "animation": 828
+          }
+        }
+      ],
+      "resource": {
+        "ids": [
+          29668,
+          29670
+        ],
+        "x": 1570,
+        "y": 3488,
+        "z": 1,
+        "radius": 8,
+        "items": 27,
+        "secondsPerItem": [
+          14,
+          24
+        ],
+        "xp": 380,
+        "spotsPerObject": 4,
+        "near": {
+          "x": 1574,
+          "y": 3483,
+          "radius": 3
+        }
+      },
+      "back": [
+        {
+          "climb": {
+            "ids": [
+              28858
+            ],
+            "x": 1575,
+            "y": 3483,
+            "z": 1,
+            "toZ": 0,
+            "animation": 827
+          }
+        }
+      ],
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ]
+    }
+  ]
+}

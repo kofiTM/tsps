@@ -1057,6 +1057,20 @@ module.exports = {
   isWoodcuttingLog(itemId) {
     return LIGHTABLE_LOGS.some((log) => log.itemId === itemId);
   },
+  // Bots (the GE campfire): the fire this module tracks on `location`, if any, and tending
+  // it with the inventory's one log type, as Tend-to or a log on the fire does.
+  botFireAt(location) {
+    for (const [object, state] of activeFires) {
+      if (!state.expired && state.location.equals(location) && MapObjects.exists(object)) return object;
+    }
+    return null;
+  },
+  startBotTending(player, object) {
+    if (!activeSessionsRef || !player || !object) return false;
+    stopFiremaking(activeSessionsRef, player, false);
+    selectTendingLog(player, object, activeSessionsRef);
+    return activeSessionsRef.has(player);
+  },
   // Exposed for tests and other plugins.
   LIGHTABLE_LOGS,
   LIGHTABLE_LOGS_BY_ID,

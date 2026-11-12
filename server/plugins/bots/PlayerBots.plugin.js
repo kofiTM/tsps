@@ -14,6 +14,9 @@ const { createBotPluginLogging } = require("./runtime/PluginLogging.PlayerBots")
 const { bootPlayerBotsRuntime } = require("./runtime/PluginBoot.PlayerBots");
 const { createBotBenchmark } = require("./runtime/Benchmark.PlayerBots");
 const { startBotSites } = require("./brain/SiteSpawner.PlayerBots");
+const { startGeHub } = require("./ge/GeHub.PlayerBots");
+const { startDiceBot } = require("./gamble/DiceBot.PlayerBots");
+const { startFlowerBot } = require("./gamble/FlowerBot.PlayerBots");
 const { setActiveBotRuntime } = require("./runtime/RuntimeRegistry.PlayerBots");
 const { PVP_BOT_SETTINGS } = require("./behaviours/pvp/WildernessHotspotRegistry.PlayerBots");
 const {
@@ -261,6 +264,67 @@ module.exports = {
     });
 
     startBotSites({
+      api,
+      botApi,
+      runtime: boot.runtime,
+      registry: boot.brainRegistry,
+      world: boot.brainWorld,
+      resetMovementState,
+    });
+
+    // Grand Exchange life: bank-standers, skillers, the campfire, chat groups and
+    // teleporting visitors (data/definitions/bot-ge.json).
+    startGeHub({
+      api,
+      botApi,
+      runtime: boot.runtime,
+      registry: boot.brainRegistry,
+      world: boot.brainWorld,
+      resetMovementState,
+    });
+
+    // Bank life around the map (Varrock West...), separate from the GE: every
+    // data/definitions/bot-bank-*.json is one bank, started on its own (plugins/bots/skilling).
+    try {
+      require("./skilling/BankLife.PlayerBots").startAllBanks({
+        api,
+        botApi,
+        runtime: boot.runtime,
+        registry: boot.brainRegistry,
+        world: boot.brainWorld,
+        resetMovementState,
+      });
+    } catch (error) {
+      botApi?.log?.("bank_life_failed", { error: String(error?.message ?? error) });
+    }
+
+    // Gathering bots (woodcutters, miners, essence runners) walking between a bank and their
+    // trees or rocks: every data/definitions/bot-gather-*.json (plugins/bots/skilling).
+    try {
+      require("./skilling/Gatherers.PlayerBots").startGatherers({
+        api,
+        botApi,
+        runtime: boot.runtime,
+        registry: boot.brainRegistry,
+        world: boot.brainWorld,
+        resetMovementState,
+      });
+    } catch (error) {
+      botApi?.log?.("gatherers_failed", { error: String(error?.message ?? error) });
+    }
+
+    // The 55x2 dicing host: ::dicebot puts it on your tile (data/definitions/bot-dice.json).
+    startDiceBot({
+      api,
+      botApi,
+      runtime: boot.runtime,
+      registry: boot.brainRegistry,
+      world: boot.brainWorld,
+      resetMovementState,
+    });
+
+    // The hot/cold flower host: ::flowerbot puts it on your tile (data/definitions/bot-flowers.json).
+    startFlowerBot({
       api,
       botApi,
       runtime: boot.runtime,

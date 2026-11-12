@@ -1,0 +1,201 @@
+{
+  "$comment": "The hot/cold flower host (plugins/bots/gamble/FlowerBot.PlayerBots.js). Stand where you want it and type ::flowerbot (owner); ::flowerbot off removes it, ::flowerbot status shows what it's doing. Trade it a bet (coins or platinum tokens), then say hot or cold in public chat; it plants a mithril seed and the colour decides: a right call pays multiplier x the bet, by trade. No call within callSeconds: the bet is traded back. Flower weights are the OSRS Wiki's mithril seed rates; object is the cache's flower object (2980 assorted, 2981 red, 2982 blue, 2983 yellow, 2984 purple, 2985 orange, 2986 mixed, 2987 white, 2988 black). side is hot, cold or house.",
+  "enabled": true,
+  "name": "HotCold Host",
+  "startDelaySeconds": 14,
+  "game": {
+    "multiplier": 2,
+    "callSeconds": 60,
+    "flowerSeconds": 25,
+    "coins": {
+      "min": 100000,
+      "max": 1000000000
+    },
+    "tokens": {
+      "min": 1,
+      "max": 1000000000
+    },
+    "playerQuietSeconds": 5,
+    "reactSeconds": [
+      1.5,
+      3
+    ],
+    "plantSeconds": [
+      1.5,
+      3
+    ]
+  },
+  "flowers": [
+    {
+      "name": "Red",
+      "object": 2981,
+      "side": "hot",
+      "weight": 14.08
+    },
+    {
+      "name": "Orange",
+      "object": 2985,
+      "side": "hot",
+      "weight": 15.39
+    },
+    {
+      "name": "Yellow",
+      "object": 2983,
+      "side": "hot",
+      "weight": 14.65
+    },
+    {
+      "name": "Blue",
+      "object": 2982,
+      "side": "cold",
+      "weight": 15.3
+    },
+    {
+      "name": "Purple",
+      "object": 2984,
+      "side": "cold",
+      "weight": 14.85
+    },
+    {
+      "name": "Assorted",
+      "object": 2980,
+      "side": "cold",
+      "weight": 10.78
+    },
+    {
+      "name": "Mixed",
+      "object": 2986,
+      "side": "house",
+      "weight": 14.66
+    },
+    {
+      "name": "Black",
+      "object": 2988,
+      "side": "house",
+      "weight": 0.2
+    },
+    {
+      "name": "White",
+      "object": 2987,
+      "side": "house",
+      "weight": 0.1
+    }
+  ],
+  "trade": {
+    "settleSeconds": 1.2,
+    "timeoutSeconds": 90,
+    "payoutRetrySeconds": 20
+  },
+  "outfit": {
+    "head": [
+      "RED_PARTYHAT"
+    ],
+    "cape": [
+      "INFERNAL_CAPE"
+    ],
+    "amulet": [
+      "_3RD_AGE_AMULET"
+    ],
+    "weapon": [
+      "_3RD_AGE_WAND"
+    ],
+    "body": [
+      "_3RD_AGE_ROBE_TOP"
+    ],
+    "shield": [
+      "ELYSIAN_SPIRIT_SHIELD"
+    ],
+    "legs": [
+      "_3RD_AGE_ROBE"
+    ],
+    "hands": [
+      "BARROWS_GLOVES"
+    ],
+    "feet": [
+      "AVERNIC_TREADS_MAX_"
+    ],
+    "ring": [
+      "RING_OF_WEALTH"
+    ]
+  },
+  "chat": {
+    "adSeconds": [
+      14,
+      28
+    ],
+    "ads": [
+      "hot/cold | trade me then say hot or cold | x2",
+      "hot or cold? | 100k - 1b | instant payouts",
+      "hosting hot/cold | red orange yellow = hot | blue purple pastel = cold",
+      "hot/cold x2 | rainbow black white = host | trade me",
+      "hot/cold open | coins or plat tokens | legit host",
+      "hot/cold | coins 100k - 1b or plat up to 1b | paid in kind"
+    ],
+    "askCall": [
+      "{name} - hot or cold? ({bet})",
+      "got {bet} from {name}, hot or cold?",
+      "{name} say hot or cold"
+    ],
+    "called": [
+      "{name} called {call}, planting",
+      "{call} for {name}, here we go",
+      "planting for {name} ({call})"
+    ],
+    "win": [
+      "{colour} - {side}! {name} wins {payout}",
+      "{colour} flowers, {side}! gz {name}, paying {payout}",
+      "{colour}! {name} called it, {payout}"
+    ],
+    "lose": [
+      "{colour} - {side}, unlucky {name}",
+      "{colour} flowers, {side}. gl next time {name}",
+      "{colour} - {side}. house wins"
+    ],
+    "house": [
+      "{colour} - house flower, gl next time {name}",
+      "{colour}, host wins that one",
+      "{colour} flowers - house"
+    ],
+    "paid": [
+      "paid {name} {payout}, gz",
+      "{name} paid {payout}, ty for playing",
+      "paid. gz {name}"
+    ],
+    "noCall": [
+      "{name} didn't call, trading your {bet} back",
+      "no call from {name} - refunding {bet}"
+    ],
+    "busy": [
+      "one at a time pls",
+      "busy with someone, trade me in a sec",
+      "1 sec, mid round"
+    ],
+    "coinsOnly": [
+      "coins or plat tokens only pls",
+      "only coins/plat tokens"
+    ],
+    "tooLow": [
+      "min bet is {min} coins",
+      "{min} minimum on coins"
+    ],
+    "tooHigh": [
+      "max bet is {max} coins or {maxTokens} plat",
+      "{max} coins / {maxTokens} plat max sorry"
+    ],
+    "roomFirst": [
+      "{name} your stack is too big for the payout, bank some and trade me",
+      "bank some gp first {name}, then trade me for your payout"
+    ],
+    "queued": [
+      "{name} you're #{position}, 1 sec",
+      "in line {name} (#{position}), trade coming after this one",
+      "1 sec {name}, you're next up"
+    ],
+    "next": [
+      "{name} your turn, accept the trade",
+      "ok {name}, sending trade",
+      "{name} you're up"
+    ]
+  },
+  "$bankroll": "The host keeps 2,147m coins and 2,147m platinum tokens in its inventory, topped back up after every game. Bets: coins 100k-1b and/or platinum tokens 1-1b; a win pays multiplier x each, in the same kind (tokens back as tokens)."
+}

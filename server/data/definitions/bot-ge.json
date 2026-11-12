@@ -1,0 +1,3168 @@
+{
+  "$comment": "Grand Exchange bot life (plugins/bots/ge/GeHub.PlayerBots.js). Counts are how many bots of each role stand around the GE bank booths. Teleporters arrive at the GE teleport landing, bank, step away and teleport out (then despawn). Turn things down here: counts, teleporters.everySeconds / maxActive, chatter.chancePerMinute, social.groups. Set enabled false to switch it all off.",
+  "enabled": true,
+  "approxCenter": {
+    "x": 3164,
+    "y": 3488,
+    "z": 0
+  },
+  "boothSearchRadius": 18,
+  "$extraBooths": "The GE's bank booth rows (west side x 3162, east side x 3167), added to whatever is found; out is the direction players stand. A booth whose standing tile is blocked is skipped.",
+  "extraBooths": [
+    {
+      "x": 3162,
+      "y": [
+        3488,
+        3491
+      ],
+      "out": [
+        -1,
+        0
+      ]
+    },
+    {
+      "x": 3167,
+      "y": [
+        3488,
+        3491
+      ],
+      "out": [
+        1,
+        0
+      ]
+    }
+  ],
+  "startDelaySeconds": 8,
+  "randomLooks": true,
+  "counts": {
+    "bankstander": 14,
+    "alcher": [
+      1,
+      3
+    ],
+    "glassblower": 4,
+    "gemcutter": 4,
+    "fletcher": 4,
+    "stringer": 4,
+    "bonfire": 5,
+    "social": 6
+  },
+  "layout": {
+    "bankstanderMaxShareOfBoothFronts": 0.45,
+    "$skillers": "skillers take the closest tiles to the bank: free booth fronts first (keepBoothFrontsFree of all fronts stay open for real players), then the tiles around the bankers, sharing a tile only when nothing close is left",
+    "keepBoothFrontsFree": 0.25,
+    "$distances": "socialDistance and bonfireDistance are tiles from the nearest bank booth, on the plaza side",
+    "socialDistance": [
+      4,
+      7
+    ],
+    "bonfireDistance": [
+      5,
+      8
+    ],
+    "maxFromCenterBeyondBooths": 8
+  },
+  "stationary": {
+    "lifetimeMinutes": [
+      25,
+      70
+    ],
+    "replaceAfterSeconds": [
+      10,
+      40
+    ],
+    "bankTripSeconds": [
+      2,
+      4
+    ]
+  },
+  "teleporters": {
+    "enabled": true,
+    "everySeconds": [
+      5,
+      12
+    ],
+    "maxActive": 14,
+    "bankSeconds": [
+      3,
+      9
+    ],
+    "regearChance": 0.6,
+    "stepAwayTiles": [
+      3,
+      6
+    ],
+    "walkTimeoutSeconds": 25,
+    "landingSpots": [
+      {
+        "x": 3163,
+        "y": 3478,
+        "z": 0,
+        "radius": 2
+      }
+    ],
+    "teleports": {
+      "standard": 6,
+      "ancient": 2,
+      "lunar": 1,
+      "arceuus": 1
+    },
+    "groupChance": 0.25,
+    "groupSize": [
+      2,
+      4
+    ]
+  },
+  "chatter": {
+    "chancePerMinute": 0.06,
+    "lines": [
+      "selling lobbies 250ea",
+      "buying gf",
+      "any1 doing toa?",
+      "lf cox team need 2",
+      "tob anyone? need a 4th",
+      "gz",
+      "lol",
+      "bruh",
+      "1 more lvl",
+      "this game man",
+      "alch prices tanked",
+      "price check tbow?",
+      "selling 2k magic logs",
+      "buying yew longbows",
+      "gl on drops",
+      "anyone know a good nex team",
+      "brb dinner",
+      "who's doing the new boss",
+      "just got a pet",
+      "zulrah is so boring",
+      "bank standing gang",
+      "what world is this",
+      "buying rune ess",
+      "selling sharks 900ea",
+      "hi",
+      "anyone selling ranarrs",
+      "my rng is cursed",
+      "finally 99",
+      "slayer task is gargs again",
+      "does anyone use the ge anymore lol",
+      "tick perfect or nothing",
+      "lf duo vorkath",
+      "cg is not worth it",
+      "how much is a fang now",
+      "lvl 3 skiller btw",
+      "gf 100m"
+    ],
+    "roleLines": {
+      "alcher": [
+        "alching to 99 mage",
+        "nat prices are crazy",
+        "high alch gang",
+        "how much xp for 99 mage?"
+      ],
+      "glassblower": [
+        "glassblowing is so boring",
+        "anyone selling molten glass?",
+        "vials for days"
+      ],
+      "gemcutter": [
+        "cutting gems for craft",
+        "2 ticks each lol",
+        "buying uncut dragonstones"
+      ],
+      "fletcher": [
+        "fletching is so afk",
+        "longbows for days",
+        "buying logs"
+      ],
+      "stringer": [
+        "stringing bows ez xp",
+        "buying bow strings",
+        "fletching 99 soon"
+      ],
+      "bonfire": [
+        "join the fire guys",
+        "keep it going",
+        "fm is the worst skill",
+        "campfire xp is decent"
+      ],
+      "social": [],
+      "bankstander": [
+        "any1 got a spare tele?",
+        "bank standing like a pro",
+        "what are we doing today"
+      ],
+      "teleporter_arrive": [
+        "back from vorkath",
+        "ok banking",
+        "dry streak continues",
+        "nice kc",
+        "rip supplies"
+      ],
+      "teleporter_leave": [
+        "gl",
+        "brb",
+        "off to tob",
+        "nex time",
+        "one more trip",
+        "cya"
+      ]
+    },
+    "levelLines": {
+      "$comment": "Arrival/leaving lines by combat level band (first band whose maxCombat fits)",
+      "teleporter_arrive": [
+        {
+          "maxCombat": 69,
+          "lines": [
+            "back from slayer",
+            "hill giants took forever",
+            "ok banking",
+            "just did a quest",
+            "moss giants are so slow",
+            "ran out of food lol",
+            "lvl up!",
+            "flesh crawlers are op xp"
+          ]
+        },
+        {
+          "maxCombat": 99,
+          "lines": [
+            "barrows run done",
+            "back from slayer",
+            "dks trip was ok",
+            "ok banking",
+            "got a dharok piece finally",
+            "rip supplies",
+            "kalphite queen is hard",
+            "green drags are good gp"
+          ]
+        },
+        {
+          "maxCombat": 126,
+          "lines": [
+            "back from vorkath",
+            "dry streak continues",
+            "nice kc",
+            "rip supplies",
+            "tob was rough",
+            "nex trip done",
+            "toa 300 is easy now",
+            "cox dry again",
+            "ok banking"
+          ]
+        }
+      ],
+      "teleporter_leave": [
+        {
+          "maxCombat": 69,
+          "lines": [
+            "gl",
+            "brb",
+            "off to slayer",
+            "cya",
+            "back to training",
+            "one more trip"
+          ]
+        },
+        {
+          "maxCombat": 99,
+          "lines": [
+            "gl",
+            "brb",
+            "off to barrows",
+            "dks time",
+            "slayer task",
+            "cya",
+            "one more trip"
+          ]
+        },
+        {
+          "maxCombat": 126,
+          "lines": [
+            "gl",
+            "brb",
+            "off to tob",
+            "nex time",
+            "vork trip",
+            "one more trip",
+            "cya",
+            "toa time"
+          ]
+        }
+      ]
+    }
+  },
+  "social": {
+    "groups": 1,
+    "groupSize": [
+      3,
+      5
+    ],
+    "pauseSeconds": [
+      8,
+      30
+    ],
+    "lineSeconds": [
+      2.5,
+      5.5
+    ],
+    "emoteChance": 0.25,
+    "emotes": [
+      855,
+      856,
+      857,
+      858,
+      861,
+      862,
+      863,
+      865,
+      866
+    ],
+    "$trips": "A conversation ending in a boss trip sends the whole group out (bank, gear up, teleport, gone); a new group forms tripReplaceSeconds later, one bot every joinGapSeconds.",
+    "tripReplaceSeconds": [
+      240,
+      360
+    ],
+    "joinGapSeconds": [
+      30,
+      90
+    ],
+    "tripMinCombat": 90
+  },
+  "bonfire": {
+    "x": null,
+    "y": null,
+    "logs": [
+      "LOGS",
+      "OAK_LOGS",
+      "WILLOW_LOGS",
+      "MAPLE_LOGS",
+      "YEW_LOGS",
+      "MAGIC_LOGS",
+      "REDWOOD_LOGS"
+    ]
+  },
+  "alching": {
+    "spellLevel": 55,
+    "xp": 65,
+    "intervalTicks": 5,
+    "animation": 713,
+    "graphic": 113,
+    "staffs": [
+      "STAFF_OF_FIRE",
+      "MYSTIC_FIRE_STAFF",
+      "FIRE_BATTLESTAFF"
+    ],
+    "items": [
+      "RUNE_2H_SWORD",
+      "RUNE_PLATEBODY",
+      "RUNE_PLATELEGS",
+      "RUNE_FULL_HELM",
+      "MAGIC_LONGBOW",
+      "YEW_LONGBOW",
+      "MAGIC_SHORTBOW",
+      "RUNE_CROSSBOW",
+      "BLACK_DHIDE_BODY",
+      "GREEN_DHIDE_BODY",
+      "ADAMANT_PLATEBODY",
+      "DRAGON_DAGGER",
+      "RUNE_SCIMITAR"
+    ]
+  },
+  "archetypes": {
+    "maxed": {
+      "levels": {
+        "all": 99
+      }
+    },
+    "main": {
+      "levels": {
+        "all": [
+          70,
+          99
+        ],
+        "combat": [
+          105,
+          126
+        ]
+      }
+    },
+    "midlevel": {
+      "levels": {
+        "all": [
+          45,
+          80
+        ],
+        "combat": [
+          70,
+          104
+        ]
+      }
+    },
+    "lowlevel": {
+      "levels": {
+        "all": [
+          10,
+          50
+        ],
+        "combat": [
+          20,
+          69
+        ]
+      }
+    },
+    "pure": {
+      "levels": {
+        "all": [
+          1,
+          60
+        ],
+        "attack": [
+          60,
+          75
+        ],
+        "strength": [
+          85,
+          99
+        ],
+        "defence": 1,
+        "hitpoints": [
+          75,
+          99
+        ],
+        "ranged": [
+          70,
+          99
+        ],
+        "magic": [
+          70,
+          94
+        ],
+        "prayer": [
+          44,
+          52
+        ]
+      }
+    },
+    "zerker": {
+      "levels": {
+        "all": [
+          30,
+          80
+        ],
+        "attack": [
+          60,
+          80
+        ],
+        "strength": [
+          85,
+          99
+        ],
+        "defence": 45,
+        "hitpoints": [
+          80,
+          99
+        ],
+        "ranged": [
+          80,
+          99
+        ],
+        "magic": [
+          80,
+          94
+        ],
+        "prayer": [
+          52,
+          70
+        ]
+      }
+    },
+    "skiller": {
+      "levels": {
+        "all": [
+          60,
+          99
+        ],
+        "attack": 1,
+        "strength": 1,
+        "defence": 1,
+        "hitpoints": 10,
+        "ranged": 1,
+        "magic": 1,
+        "prayer": 1
+      }
+    }
+  },
+  "roles": {
+    "bankstander": {
+      "archetypes": {
+        "maxed": 2,
+        "main": 5,
+        "midlevel": 4,
+        "lowlevel": 2,
+        "pure": 2,
+        "zerker": 1,
+        "skiller": 1
+      },
+      "outfits": {
+        "boss": 4,
+        "midgear": 3,
+        "fashion": 5,
+        "skilling": 1,
+        "low": 2
+      }
+    },
+    "alcher": {
+      "archetypes": {
+        "maxed": 1,
+        "main": 3,
+        "midlevel": 4,
+        "lowlevel": 1,
+        "pure": 1,
+        "skiller": 1
+      },
+      "outfits": {
+        "mage": 5,
+        "fashion": 3,
+        "midgear": 1
+      }
+    },
+    "glassblower": {
+      "archetypes": {
+        "main": 2,
+        "midlevel": 3,
+        "lowlevel": 2,
+        "skiller": 3
+      },
+      "outfits": {
+        "skilling": 3,
+        "fashion": 3,
+        "low": 2,
+        "midgear": 1
+      }
+    },
+    "gemcutter": {
+      "archetypes": {
+        "main": 2,
+        "midlevel": 3,
+        "lowlevel": 3,
+        "skiller": 2
+      },
+      "outfits": {
+        "skilling": 2,
+        "fashion": 3,
+        "low": 3,
+        "midgear": 1
+      }
+    },
+    "fletcher": {
+      "archetypes": {
+        "main": 2,
+        "midlevel": 3,
+        "lowlevel": 3,
+        "skiller": 2
+      },
+      "outfits": {
+        "skilling": 3,
+        "fashion": 3,
+        "low": 3,
+        "midgear": 1
+      }
+    },
+    "stringer": {
+      "archetypes": {
+        "main": 2,
+        "midlevel": 3,
+        "lowlevel": 2,
+        "skiller": 2
+      },
+      "outfits": {
+        "skilling": 3,
+        "fashion": 3,
+        "low": 2,
+        "midgear": 1
+      }
+    },
+    "bonfire": {
+      "archetypes": {
+        "main": 1,
+        "midlevel": 3,
+        "lowlevel": 3,
+        "skiller": 3
+      },
+      "outfits": {
+        "pyro": 4,
+        "skilling": 3,
+        "fashion": 2,
+        "low": 2
+      }
+    },
+    "social": {
+      "archetypes": {
+        "maxed": 2,
+        "main": 4,
+        "midlevel": 4,
+        "lowlevel": 3,
+        "pure": 2,
+        "zerker": 1,
+        "skiller": 1
+      },
+      "outfits": {
+        "boss": 3,
+        "midgear": 3,
+        "fashion": 6,
+        "skilling": 1,
+        "low": 2
+      }
+    },
+    "teleporter": {
+      "archetypes": {
+        "maxed": 3,
+        "main": 6,
+        "midlevel": 3,
+        "pure": 1,
+        "zerker": 1
+      },
+      "outfits": {
+        "boss": 8,
+        "midgear": 3,
+        "fashion": 1
+      }
+    }
+  },
+  "outfitGroups": {
+    "boss": [
+      "bandos_melee",
+      "torva_scythe",
+      "armadyl_range",
+      "masori_range",
+      "ancestral_staff",
+      "ancestral_kodai",
+      "void_range",
+      "void_melee",
+      "justiciar",
+      "inquisitor",
+      "godsword_flex",
+      "slayer",
+      "crystal"
+    ],
+    "midgear": [
+      "dragon_armour",
+      "dharok",
+      "karil",
+      "ahrim",
+      "rune_armour",
+      "saradomin_rune",
+      "zamorak_rune",
+      "guthix_rune",
+      "gilded",
+      "dhide_ranger",
+      "pure_pk",
+      "mystic_mage"
+    ],
+    "mage": [
+      "mystic_mage",
+      "infinity",
+      "ahrim",
+      "ancestral_kodai",
+      "wizard_robes"
+    ],
+    "fashion": [
+      "third_age_melee",
+      "third_age_mage",
+      "third_age_range",
+      "third_age_druid",
+      "partyhat_elegant",
+      "partyhat_rich",
+      "halloween",
+      "santa",
+      "skillcape_flex",
+      "graceful",
+      "gentleman",
+      "mime",
+      "pirate",
+      "gnome_scarf"
+    ],
+    "skilling": [
+      "angler",
+      "lumberjack",
+      "prospector",
+      "rogue",
+      "carpenter",
+      "farmer",
+      "smith",
+      "graceful",
+      "skillcape_flex"
+    ],
+    "pyro": [
+      "pyromancer"
+    ],
+    "low": [
+      "starter",
+      "low_mixed",
+      "adamant"
+    ]
+  },
+  "outfits": {
+    "bandos_melee": {
+      "head": [
+        "NEITIZNOT_FACEGUARD",
+        "HELM_OF_NEITIZNOT",
+        "SERPENTINE_HELM"
+      ],
+      "cape": [
+        "INFERNAL_CAPE",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE",
+        "AMULET_OF_FURY"
+      ],
+      "weapon": [
+        "ABYSSAL_TENTACLE",
+        "GHRAZI_RAPIER",
+        "ABYSSAL_WHIP",
+        "BLADE_OF_SAELDOR",
+        "OSMUMTENS_FANG"
+      ],
+      "body": [
+        "BANDOS_CHESTPLATE"
+      ],
+      "shield": [
+        "AVERNIC_DEFENDER",
+        "DRAGON_DEFENDER"
+      ],
+      "legs": [
+        "BANDOS_TASSETS"
+      ],
+      "hands": [
+        "FEROCIOUS_GLOVES",
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "PRIMORDIAL_BOOTS",
+        "DRAGON_BOOTS"
+      ],
+      "ring": [
+        "BERSERKER_RING_I_",
+        "ULTOR_RING"
+      ]
+    },
+    "torva_scythe": {
+      "head": [
+        "TORVA_FULL_HELM"
+      ],
+      "cape": [
+        "INFERNAL_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE"
+      ],
+      "weapon": [
+        "SCYTHE_OF_VITUR"
+      ],
+      "body": [
+        "TORVA_PLATEBODY"
+      ],
+      "legs": [
+        "TORVA_PLATELEGS"
+      ],
+      "hands": [
+        "FEROCIOUS_GLOVES"
+      ],
+      "feet": [
+        "PRIMORDIAL_BOOTS"
+      ],
+      "ring": [
+        "ULTOR_RING"
+      ]
+    },
+    "armadyl_range": {
+      "head": [
+        "ARMADYL_HELMET"
+      ],
+      "cape": [
+        "AVAS_ASSEMBLER"
+      ],
+      "amulet": [
+        "NECKLACE_OF_ANGUISH"
+      ],
+      "weapon": [
+        "TWISTED_BOW",
+        "TOXIC_BLOWPIPE"
+      ],
+      "body": [
+        "ARMADYL_CHESTPLATE"
+      ],
+      "legs": [
+        "ARMADYL_CHAINSKIRT"
+      ],
+      "hands": [
+        "ZARYTE_VAMBRACES",
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "PEGASIAN_BOOTS"
+      ]
+    },
+    "masori_range": {
+      "head": [
+        "MASORI_MASK_F_",
+        "MASORI_MASK"
+      ],
+      "cape": [
+        "MASORI_ASSEMBLER",
+        "AVAS_ASSEMBLER"
+      ],
+      "amulet": [
+        "NECKLACE_OF_ANGUISH"
+      ],
+      "weapon": [
+        "TWISTED_BOW"
+      ],
+      "body": [
+        "MASORI_BODY_F_",
+        "MASORI_BODY"
+      ],
+      "legs": [
+        "MASORI_CHAPS_F_",
+        "MASORI_CHAPS"
+      ],
+      "hands": [
+        "ZARYTE_VAMBRACES"
+      ],
+      "feet": [
+        "PEGASIAN_BOOTS"
+      ]
+    },
+    "ancestral_staff": {
+      "head": [
+        "ANCESTRAL_HAT"
+      ],
+      "cape": [
+        "IMBUED_SARADOMIN_CAPE",
+        "IMBUED_ZAMORAK_CAPE"
+      ],
+      "amulet": [
+        "OCCULT_NECKLACE"
+      ],
+      "weapon": [
+        "SANGUINESTI_STAFF",
+        "TUMEKENS_SHADOW"
+      ],
+      "body": [
+        "ANCESTRAL_ROBE_TOP"
+      ],
+      "legs": [
+        "ANCESTRAL_ROBE_BOTTOM"
+      ],
+      "hands": [
+        "TORMENTED_BRACELET"
+      ],
+      "feet": [
+        "ETERNAL_BOOTS"
+      ]
+    },
+    "ancestral_kodai": {
+      "head": [
+        "ANCESTRAL_HAT"
+      ],
+      "cape": [
+        "IMBUED_SARADOMIN_CAPE",
+        "IMBUED_ZAMORAK_CAPE"
+      ],
+      "amulet": [
+        "OCCULT_NECKLACE"
+      ],
+      "weapon": [
+        "KODAI_WAND",
+        "TRIDENT_OF_THE_SWAMP"
+      ],
+      "body": [
+        "ANCESTRAL_ROBE_TOP"
+      ],
+      "shield": [
+        "ELYSIAN_SPIRIT_SHIELD"
+      ],
+      "legs": [
+        "ANCESTRAL_ROBE_BOTTOM"
+      ],
+      "hands": [
+        "TORMENTED_BRACELET"
+      ],
+      "feet": [
+        "ETERNAL_BOOTS"
+      ]
+    },
+    "void_range": {
+      "head": [
+        "VOID_RANGER_HELM"
+      ],
+      "cape": [
+        "AVAS_ASSEMBLER",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "NECKLACE_OF_ANGUISH",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "TOXIC_BLOWPIPE",
+        "ARMADYL_CROSSBOW",
+        "RUNE_CROSSBOW"
+      ],
+      "body": [
+        "ELITE_VOID_TOP",
+        "VOID_KNIGHT_TOP"
+      ],
+      "legs": [
+        "ELITE_VOID_ROBE",
+        "VOID_KNIGHT_ROBE"
+      ],
+      "hands": [
+        "VOID_KNIGHT_GLOVES"
+      ],
+      "feet": [
+        "PEGASIAN_BOOTS",
+        "DRAGON_BOOTS"
+      ]
+    },
+    "void_melee": {
+      "head": [
+        "VOID_MELEE_HELM"
+      ],
+      "cape": [
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_FURY"
+      ],
+      "weapon": [
+        "ABYSSAL_WHIP",
+        "DRAGON_SCIMITAR"
+      ],
+      "body": [
+        "VOID_KNIGHT_TOP"
+      ],
+      "shield": [
+        "DRAGON_DEFENDER"
+      ],
+      "legs": [
+        "VOID_KNIGHT_ROBE"
+      ],
+      "hands": [
+        "VOID_KNIGHT_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "justiciar": {
+      "head": [
+        "JUSTICIAR_FACEGUARD"
+      ],
+      "cape": [
+        "INFERNAL_CAPE",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE",
+        "AMULET_OF_FURY"
+      ],
+      "weapon": [
+        "GHRAZI_RAPIER",
+        "BLADE_OF_SAELDOR"
+      ],
+      "body": [
+        "JUSTICIAR_CHESTGUARD"
+      ],
+      "shield": [
+        "AVERNIC_DEFENDER"
+      ],
+      "legs": [
+        "JUSTICIAR_LEGGUARDS"
+      ],
+      "hands": [
+        "FEROCIOUS_GLOVES"
+      ],
+      "feet": [
+        "PRIMORDIAL_BOOTS"
+      ]
+    },
+    "inquisitor": {
+      "head": [
+        "INQUISITORS_GREAT_HELM"
+      ],
+      "cape": [
+        "INFERNAL_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE"
+      ],
+      "weapon": [
+        "INQUISITORS_MACE"
+      ],
+      "body": [
+        "INQUISITORS_HAUBERK"
+      ],
+      "shield": [
+        "AVERNIC_DEFENDER"
+      ],
+      "legs": [
+        "INQUISITORS_PLATESKIRT"
+      ],
+      "hands": [
+        "FEROCIOUS_GLOVES"
+      ],
+      "feet": [
+        "PRIMORDIAL_BOOTS"
+      ],
+      "ring": [
+        "ULTOR_RING"
+      ]
+    },
+    "godsword_flex": {
+      "head": [
+        "HELM_OF_NEITIZNOT",
+        "SERPENTINE_HELM"
+      ],
+      "cape": [
+        "INFERNAL_CAPE",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_FURY",
+        "AMULET_OF_TORTURE"
+      ],
+      "weapon": [
+        "ARMADYL_GODSWORD",
+        "BANDOS_GODSWORD",
+        "SARADOMIN_GODSWORD",
+        "ZAMORAK_GODSWORD"
+      ],
+      "body": [
+        "BANDOS_CHESTPLATE",
+        "FIGHTER_TORSO"
+      ],
+      "legs": [
+        "BANDOS_TASSETS",
+        "DRAGON_PLATELEGS"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS",
+        "PRIMORDIAL_BOOTS"
+      ]
+    },
+    "slayer": {
+      "head": [
+        "SLAYER_HELMET_I_",
+        "BLACK_SLAYER_HELMET_I_",
+        "GREEN_SLAYER_HELMET_I_",
+        "HYDRA_SLAYER_HELMET_I_",
+        "ARAXYTE_SLAYER_HELMET_I_",
+        "HOODED_SLAYER_HELMET_I_"
+      ],
+      "cape": [
+        "SLAYER_CAPE_T_",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_FURY",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "ABYSSAL_WHIP",
+        "ABYSSAL_TENTACLE"
+      ],
+      "body": [
+        "FIGHTER_TORSO",
+        "BANDOS_CHESTPLATE"
+      ],
+      "shield": [
+        "DRAGON_DEFENDER",
+        "AVERNIC_DEFENDER"
+      ],
+      "legs": [
+        "BANDOS_TASSETS",
+        "DRAGON_PLATELEGS"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "crystal": {
+      "head": [
+        "CRYSTAL_HELM"
+      ],
+      "cape": [
+        "AVAS_ASSEMBLER"
+      ],
+      "amulet": [
+        "NECKLACE_OF_ANGUISH"
+      ],
+      "weapon": [
+        "BOW_OF_FAERDHINEN_C_"
+      ],
+      "body": [
+        "CRYSTAL_BODY"
+      ],
+      "legs": [
+        "CRYSTAL_LEGS"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "PEGASIAN_BOOTS"
+      ]
+    },
+    "dragon_armour": {
+      "head": [
+        "DRAGON_FULL_HELM",
+        "DRAGON_MED_HELM"
+      ],
+      "cape": [
+        "FIRE_CAPE",
+        "OBSIDIAN_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "DRAGON_SCIMITAR",
+        "DRAGON_DAGGER"
+      ],
+      "body": [
+        "DRAGON_PLATEBODY",
+        "DRAGON_CHAINBODY"
+      ],
+      "shield": [
+        "DRAGON_KITESHIELD"
+      ],
+      "legs": [
+        "DRAGON_PLATELEGS"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "dharok": {
+      "head": [
+        "DHAROKS_HELM"
+      ],
+      "cape": [
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_FURY",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "DHAROKS_GREATAXE"
+      ],
+      "body": [
+        "DHAROKS_PLATEBODY"
+      ],
+      "legs": [
+        "DHAROKS_PLATELEGS"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "karil": {
+      "head": [
+        "KARILS_COIF"
+      ],
+      "cape": [
+        "AVAS_ASSEMBLER",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "KARILS_CROSSBOW"
+      ],
+      "body": [
+        "KARILS_LEATHERTOP"
+      ],
+      "legs": [
+        "KARILS_LEATHERSKIRT"
+      ],
+      "hands": [
+        "BLACK_DHIDE_VAMBRACES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "ahrim": {
+      "head": [
+        "AHRIMS_HOOD"
+      ],
+      "cape": [
+        "IMBUED_SARADOMIN_CAPE",
+        "BLUE_CAPE"
+      ],
+      "amulet": [
+        "OCCULT_NECKLACE",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "AHRIMS_STAFF"
+      ],
+      "body": [
+        "AHRIMS_ROBETOP"
+      ],
+      "legs": [
+        "AHRIMS_ROBESKIRT"
+      ],
+      "hands": [
+        "MYSTIC_GLOVES"
+      ],
+      "feet": [
+        "MYSTIC_BOOTS"
+      ]
+    },
+    "rune_armour": {
+      "head": [
+        "RUNE_FULL_HELM"
+      ],
+      "cape": [
+        "TEAM_1_CAPE",
+        "TEAM_7_CAPE",
+        "TEAM_22_CAPE",
+        "TEAM_33_CAPE",
+        "BLACK_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY",
+        "AMULET_OF_STRENGTH"
+      ],
+      "weapon": [
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "RUNE_PLATEBODY"
+      ],
+      "shield": [
+        "RUNE_KITESHIELD"
+      ],
+      "legs": [
+        "RUNE_PLATELEGS"
+      ],
+      "hands": [
+        "LEATHER_GLOVES"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "saradomin_rune": {
+      "head": [
+        "SARADOMIN_FULL_HELM"
+      ],
+      "cape": [
+        "BLUE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "SARADOMIN_PLATEBODY"
+      ],
+      "shield": [
+        "SARADOMIN_KITESHIELD"
+      ],
+      "legs": [
+        "SARADOMIN_PLATELEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "zamorak_rune": {
+      "head": [
+        "ZAMORAK_FULL_HELM"
+      ],
+      "cape": [
+        "RED_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "ZAMORAK_PLATEBODY"
+      ],
+      "shield": [
+        "ZAMORAK_KITESHIELD"
+      ],
+      "legs": [
+        "ZAMORAK_PLATELEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "guthix_rune": {
+      "head": [
+        "GUTHIX_FULL_HELM"
+      ],
+      "cape": [
+        "GREEN_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "GUTHIX_PLATEBODY"
+      ],
+      "shield": [
+        "GUTHIX_KITESHIELD"
+      ],
+      "legs": [
+        "GUTHIX_PLATELEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "gilded": {
+      "head": [
+        "GILDED_FULL_HELM"
+      ],
+      "cape": [
+        "BLACK_CAPE",
+        "PURPLE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "GILDED_SCIMITAR"
+      ],
+      "body": [
+        "GILDED_PLATEBODY"
+      ],
+      "shield": [
+        "GILDED_KITESHIELD"
+      ],
+      "legs": [
+        "GILDED_PLATELEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "dhide_ranger": {
+      "cape": [
+        "AVAS_ASSEMBLER",
+        "GREEN_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "RUNE_CROSSBOW",
+        "MAGIC_SHORTBOW"
+      ],
+      "body": [
+        "BLACK_DHIDE_BODY"
+      ],
+      "legs": [
+        "BLACK_DHIDE_CHAPS"
+      ],
+      "hands": [
+        "BLACK_DHIDE_VAMBRACES"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "pure_pk": {
+      "cape": [
+        "TEAM_5_CAPE",
+        "TEAM_13_CAPE",
+        "TEAM_29_CAPE",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY",
+        "AMULET_OF_STRENGTH"
+      ],
+      "weapon": [
+        "DRAGON_SCIMITAR",
+        "GRANITE_MAUL",
+        "MAGIC_SHORTBOW",
+        "DRAGON_DAGGER"
+      ],
+      "body": [
+        "ZAMORAK_MONK_TOP",
+        "LEATHER_BODY"
+      ],
+      "legs": [
+        "BLACK_DHIDE_CHAPS",
+        "ZAMORAK_MONK_BOTTOM"
+      ],
+      "hands": [
+        "MITHRIL_GLOVES"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "mystic_mage": {
+      "head": [
+        "MYSTIC_HAT"
+      ],
+      "cape": [
+        "BLUE_CAPE",
+        "IMBUED_SARADOMIN_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY",
+        "AMULET_OF_MAGIC"
+      ],
+      "weapon": [
+        "MYSTIC_FIRE_STAFF",
+        "STAFF_OF_FIRE"
+      ],
+      "body": [
+        "MYSTIC_ROBE_TOP"
+      ],
+      "legs": [
+        "MYSTIC_ROBE_BOTTOM"
+      ],
+      "hands": [
+        "MYSTIC_GLOVES"
+      ],
+      "feet": [
+        "MYSTIC_BOOTS"
+      ]
+    },
+    "infinity": {
+      "head": [
+        "INFINITY_HAT"
+      ],
+      "cape": [
+        "IMBUED_SARADOMIN_CAPE",
+        "MAGIC_CAPE_T_"
+      ],
+      "amulet": [
+        "OCCULT_NECKLACE",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "MYSTIC_FIRE_STAFF"
+      ],
+      "body": [
+        "INFINITY_TOP"
+      ],
+      "legs": [
+        "INFINITY_BOTTOMS"
+      ],
+      "hands": [
+        "INFINITY_GLOVES"
+      ],
+      "feet": [
+        "INFINITY_BOOTS"
+      ]
+    },
+    "wizard_robes": {
+      "head": [
+        "BLUE_WIZARD_HAT",
+        "WIZARD_HAT"
+      ],
+      "cape": [
+        "BLUE_CAPE",
+        "PURPLE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_MAGIC"
+      ],
+      "weapon": [
+        "STAFF_OF_FIRE"
+      ],
+      "body": [
+        "BLUE_WIZARD_ROBE",
+        "ZAMORAK_ROBE_TOP"
+      ],
+      "legs": [
+        "BLUE_SKIRT",
+        "ZAMORAK_ROBE_LEGS"
+      ]
+    },
+    "third_age_melee": {
+      "head": [
+        "_3RD_AGE_FULL_HELMET"
+      ],
+      "cape": [
+        "_3RD_AGE_CLOAK",
+        "INFERNAL_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE",
+        "AMULET_OF_FURY"
+      ],
+      "weapon": [
+        "_3RD_AGE_LONGSWORD"
+      ],
+      "body": [
+        "_3RD_AGE_PLATEBODY"
+      ],
+      "shield": [
+        "_3RD_AGE_KITESHIELD"
+      ],
+      "legs": [
+        "_3RD_AGE_PLATELEGS",
+        "_3RD_AGE_PLATESKIRT"
+      ],
+      "hands": [
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "DRAGON_BOOTS",
+        "PRIMORDIAL_BOOTS"
+      ]
+    },
+    "third_age_mage": {
+      "head": [
+        "_3RD_AGE_MAGE_HAT"
+      ],
+      "cape": [
+        "_3RD_AGE_CLOAK"
+      ],
+      "amulet": [
+        "_3RD_AGE_AMULET"
+      ],
+      "weapon": [
+        "_3RD_AGE_WAND"
+      ],
+      "body": [
+        "_3RD_AGE_ROBE_TOP"
+      ],
+      "legs": [
+        "_3RD_AGE_ROBE"
+      ],
+      "feet": [
+        "ETERNAL_BOOTS",
+        "MYSTIC_BOOTS"
+      ]
+    },
+    "third_age_range": {
+      "head": [
+        "_3RD_AGE_RANGE_COIF"
+      ],
+      "cape": [
+        "_3RD_AGE_CLOAK",
+        "AVAS_ASSEMBLER"
+      ],
+      "amulet": [
+        "NECKLACE_OF_ANGUISH",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "_3RD_AGE_BOW"
+      ],
+      "body": [
+        "_3RD_AGE_RANGE_TOP"
+      ],
+      "legs": [
+        "_3RD_AGE_RANGE_LEGS"
+      ],
+      "hands": [
+        "_3RD_AGE_VAMBRACES"
+      ],
+      "feet": [
+        "PEGASIAN_BOOTS"
+      ]
+    },
+    "third_age_druid": {
+      "cape": [
+        "_3RD_AGE_DRUIDIC_CLOAK"
+      ],
+      "amulet": [
+        "_3RD_AGE_AMULET"
+      ],
+      "weapon": [
+        "_3RD_AGE_DRUIDIC_STAFF",
+        "_3RD_AGE_PICKAXE",
+        "_3RD_AGE_AXE"
+      ],
+      "body": [
+        "_3RD_AGE_DRUIDIC_ROBE_TOP"
+      ],
+      "legs": [
+        "_3RD_AGE_DRUIDIC_ROBE_BOTTOMS"
+      ],
+      "feet": [
+        "ETERNAL_BOOTS"
+      ]
+    },
+    "partyhat_elegant": {
+      "head": [
+        "RED_PARTYHAT",
+        "BLUE_PARTYHAT",
+        "GREEN_PARTYHAT",
+        "YELLOW_PARTYHAT",
+        "PURPLE_PARTYHAT",
+        "WHITE_PARTYHAT",
+        "BLACK_PARTYHAT",
+        "RAINBOW_PARTYHAT",
+        "SILVER_PARTYHAT"
+      ],
+      "cape": [
+        "MAX_CAPE",
+        "QUEST_POINT_CAPE",
+        "TEAM_1_CAPE",
+        "TEAM_40_CAPE",
+        "SPOTTIER_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY",
+        "AMULET_OF_FURY"
+      ],
+      "body": [
+        "RED_ELEGANT_SHIRT",
+        "BLUE_ELEGANT_SHIRT",
+        "GREEN_ELEGANT_SHIRT",
+        "BLACK_ELEGANT_SHIRT",
+        "PURPLE_ELEGANT_SHIRT",
+        "PINK_ELEGANT_SHIRT",
+        "GOLD_ELEGANT_SHIRT",
+        "WHITE_ELEGANT_BLOUSE",
+        "PINK_ELEGANT_BLOUSE"
+      ],
+      "legs": [
+        "RED_ELEGANT_LEGS",
+        "BLUE_ELEGANT_LEGS",
+        "GREEN_ELEGANT_LEGS",
+        "BLACK_ELEGANT_LEGS",
+        "PURPLE_ELEGANT_LEGS",
+        "GOLD_ELEGANT_LEGS",
+        "WHITE_ELEGANT_SKIRT",
+        "PINK_ELEGANT_SKIRT"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS",
+        "DRAGON_BOOTS"
+      ]
+    },
+    "partyhat_rich": {
+      "head": [
+        "RED_PARTYHAT",
+        "BLUE_PARTYHAT",
+        "WHITE_PARTYHAT",
+        "PURPLE_PARTYHAT",
+        "BLACK_PARTYHAT",
+        "RAINBOW_PARTYHAT"
+      ],
+      "cape": [
+        "INFERNAL_CAPE",
+        "MAX_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_TORTURE",
+        "_3RD_AGE_AMULET"
+      ],
+      "weapon": [
+        "SCYTHE_OF_VITUR",
+        "TWISTED_BOW",
+        "TUMEKENS_SHADOW"
+      ],
+      "body": [
+        "_3RD_AGE_PLATEBODY",
+        "TORVA_PLATEBODY",
+        "ANCESTRAL_ROBE_TOP"
+      ],
+      "legs": [
+        "_3RD_AGE_PLATELEGS",
+        "TORVA_PLATELEGS",
+        "ANCESTRAL_ROBE_BOTTOM"
+      ],
+      "hands": [
+        "FEROCIOUS_GLOVES",
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "PRIMORDIAL_BOOTS",
+        "ETERNAL_BOOTS"
+      ]
+    },
+    "halloween": {
+      "head": [
+        "RED_HALLOWEEN_MASK",
+        "BLUE_HALLOWEEN_MASK",
+        "GREEN_HALLOWEEN_MASK"
+      ],
+      "cape": [
+        "BLACK_CAPE",
+        "INFERNAL_CAPE",
+        "FIRE_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY",
+        "AMULET_OF_FURY"
+      ],
+      "weapon": [
+        "ABYSSAL_WHIP",
+        "SCYTHE_OF_VITUR",
+        "GRANITE_MAUL"
+      ],
+      "body": [
+        "BLACK_ELEGANT_SHIRT",
+        "ZAMORAK_ROBE_TOP",
+        "BANDOS_CHESTPLATE"
+      ],
+      "legs": [
+        "BLACK_ELEGANT_LEGS",
+        "ZAMORAK_ROBE_LEGS",
+        "BANDOS_TASSETS"
+      ],
+      "feet": [
+        "DRAGON_BOOTS"
+      ]
+    },
+    "santa": {
+      "head": [
+        "SANTA_HAT"
+      ],
+      "cape": [
+        "RED_CAPE",
+        "TEAM_1_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "body": [
+        "RED_ELEGANT_SHIRT",
+        "RED_ELEGANT_BLOUSE"
+      ],
+      "legs": [
+        "RED_ELEGANT_LEGS",
+        "RED_ELEGANT_SKIRT"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "skillcape_flex": {
+      "head": [
+        "GRACEFUL_HOOD",
+        "TOP_HAT",
+        "RED_BOATER",
+        "BLUE_BOATER",
+        "BLACK_BOATER",
+        "GREEN_BOATER",
+        "BLACK_HEADBAND",
+        "GOLD_HEADBAND",
+        "GNOME_SCARF"
+      ],
+      "cape": [
+        "MAX_CAPE",
+        "QUEST_POINT_CAPE",
+        "AGILITY_CAPE_T_",
+        "COOKING_CAPE_T_",
+        "CRAFTING_CAPE_T_",
+        "FIREMAKING_CAPE_T_",
+        "FISHING_CAPE_T_",
+        "FLETCHING_CAPE_T_",
+        "HERBLORE_CAPE_T_",
+        "HUNTER_CAPE_T_",
+        "MAGIC_CAPE_T_",
+        "MINING_CAPE_T_",
+        "PRAYER_CAPE_T_",
+        "RUNECRAFT_CAPE_T_",
+        "SLAYER_CAPE_T_",
+        "SMITHING_CAPE_T_",
+        "STRENGTH_CAPE_T_",
+        "THIEVING_CAPE_T_",
+        "WOODCUT_CAPE_T_",
+        "FARMING_CAPE_T_",
+        "CONSTRUCT_CAPE_T_",
+        "ATTACK_CAPE_T_",
+        "DEFENCE_CAPE_T_",
+        "HITPOINTS_CAPE_T_",
+        "RANGING_CAPE_T_",
+        "MUSIC_CAPE_T_"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "body": [
+        "GRACEFUL_TOP",
+        "BLACK_ELEGANT_SHIRT",
+        "BLUE_ELEGANT_SHIRT",
+        "FIGHTER_TORSO"
+      ],
+      "legs": [
+        "GRACEFUL_LEGS",
+        "BLACK_ELEGANT_LEGS",
+        "BLUE_ELEGANT_LEGS"
+      ],
+      "hands": [
+        "GRACEFUL_GLOVES",
+        "BARROWS_GLOVES"
+      ],
+      "feet": [
+        "GRACEFUL_BOOTS",
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "graceful": {
+      "head": [
+        "GRACEFUL_HOOD"
+      ],
+      "cape": [
+        "GRACEFUL_CAPE",
+        "AGILITY_CAPE_T_"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "body": [
+        "GRACEFUL_TOP"
+      ],
+      "legs": [
+        "GRACEFUL_LEGS"
+      ],
+      "hands": [
+        "GRACEFUL_GLOVES"
+      ],
+      "feet": [
+        "GRACEFUL_BOOTS"
+      ]
+    },
+    "gentleman": {
+      "head": [
+        "TOP_HAT"
+      ],
+      "cape": [
+        "BLACK_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "body": [
+        "BLACK_ELEGANT_SHIRT"
+      ],
+      "legs": [
+        "BLACK_ELEGANT_LEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "mime": {
+      "head": [
+        "MIME_MASK"
+      ],
+      "body": [
+        "MIME_TOP"
+      ],
+      "legs": [
+        "MIME_LEGS"
+      ],
+      "hands": [
+        "MIME_GLOVES"
+      ],
+      "feet": [
+        "MIME_BOOTS"
+      ]
+    },
+    "pirate": {
+      "head": [
+        "PIRATE_HAT"
+      ],
+      "cape": [
+        "BLACK_CAPE",
+        "RED_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "DRAGON_SCIMITAR",
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "BLACK_ELEGANT_SHIRT",
+        "STUDDED_BODY"
+      ],
+      "legs": [
+        "BLACK_ELEGANT_LEGS"
+      ],
+      "feet": [
+        "PIRATE_BOOTS"
+      ]
+    },
+    "gnome_scarf": {
+      "head": [
+        "GNOME_SCARF",
+        "BLUE_WIZARD_HAT"
+      ],
+      "cape": [
+        "SPOTTED_CAPE",
+        "SPOTTIER_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_GLORY"
+      ],
+      "body": [
+        "ZAMORAK_ROBE_TOP",
+        "SARADOMIN_ROBE_TOP",
+        "GREEN_ELEGANT_SHIRT"
+      ],
+      "legs": [
+        "ZAMORAK_ROBE_LEGS",
+        "SARADOMIN_ROBE_LEGS",
+        "GREEN_ELEGANT_LEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "angler": {
+      "head": [
+        "ANGLER_HAT"
+      ],
+      "cape": [
+        "FISHING_CAPE_T_",
+        "BLUE_CAPE"
+      ],
+      "body": [
+        "ANGLER_TOP"
+      ],
+      "legs": [
+        "ANGLER_WADERS"
+      ],
+      "feet": [
+        "ANGLER_BOOTS"
+      ]
+    },
+    "lumberjack": {
+      "head": [
+        "LUMBERJACK_HAT"
+      ],
+      "cape": [
+        "WOODCUT_CAPE_T_",
+        "GREEN_CAPE"
+      ],
+      "weapon": [
+        "DRAGON_AXE"
+      ],
+      "body": [
+        "LUMBERJACK_TOP"
+      ],
+      "legs": [
+        "LUMBERJACK_LEGS"
+      ],
+      "feet": [
+        "LUMBERJACK_BOOTS"
+      ]
+    },
+    "prospector": {
+      "head": [
+        "PROSPECTOR_HELMET"
+      ],
+      "cape": [
+        "MINING_CAPE_T_",
+        "BLACK_CAPE"
+      ],
+      "weapon": [
+        "DRAGON_PICKAXE"
+      ],
+      "body": [
+        "PROSPECTOR_JACKET"
+      ],
+      "legs": [
+        "PROSPECTOR_LEGS"
+      ],
+      "feet": [
+        "PROSPECTOR_BOOTS"
+      ]
+    },
+    "rogue": {
+      "head": [
+        "ROGUE_MASK"
+      ],
+      "cape": [
+        "THIEVING_CAPE_T_",
+        "BLACK_CAPE"
+      ],
+      "body": [
+        "ROGUE_TOP"
+      ],
+      "legs": [
+        "ROGUE_TROUSERS"
+      ],
+      "hands": [
+        "ROGUE_GLOVES"
+      ],
+      "feet": [
+        "ROGUE_BOOTS"
+      ]
+    },
+    "carpenter": {
+      "head": [
+        "CARPENTERS_HELMET"
+      ],
+      "cape": [
+        "CONSTRUCT_CAPE_T_"
+      ],
+      "body": [
+        "CARPENTERS_SHIRT"
+      ],
+      "legs": [
+        "CARPENTERS_TROUSERS"
+      ],
+      "feet": [
+        "CARPENTERS_BOOTS"
+      ]
+    },
+    "farmer": {
+      "head": [
+        "FARMERS_STRAWHAT"
+      ],
+      "cape": [
+        "FARMING_CAPE_T_",
+        "GREEN_CAPE"
+      ],
+      "body": [
+        "FARMERS_JACKET",
+        "FARMERS_SHIRT"
+      ],
+      "legs": [
+        "FARMERS_BORO_TROUSERS"
+      ],
+      "feet": [
+        "FARMERS_BOOTS"
+      ]
+    },
+    "smith": {
+      "cape": [
+        "SMITHING_CAPE_T_"
+      ],
+      "body": [
+        "SMITHS_TUNIC"
+      ],
+      "legs": [
+        "SMITHS_TROUSERS"
+      ],
+      "hands": [
+        "SMITHS_GLOVES"
+      ],
+      "feet": [
+        "SMITHS_BOOTS"
+      ]
+    },
+    "pyromancer": {
+      "head": [
+        "PYROMANCER_HOOD"
+      ],
+      "cape": [
+        "FIREMAKING_CAPE_T_",
+        "RED_CAPE"
+      ],
+      "body": [
+        "PYROMANCER_GARB"
+      ],
+      "legs": [
+        "PYROMANCER_ROBE"
+      ],
+      "feet": [
+        "PYROMANCER_BOOTS"
+      ]
+    },
+    "starter": {
+      "head": [
+        "BRONZE_MED_HELM",
+        "IRON_MED_HELM",
+        "WIZARD_HAT",
+        "LEATHER_COWL"
+      ],
+      "cape": [
+        "BLUE_CAPE",
+        "RED_CAPE",
+        "GREEN_CAPE",
+        "YELLOW_CAPE",
+        "ORANGE_CAPE",
+        "PURPLE_CAPE"
+      ],
+      "weapon": [
+        "BRONZE_SHORTSWORD",
+        "IRON_SCIMITAR",
+        "STAFF_OF_AIR",
+        "SHORTBOW"
+      ],
+      "body": [
+        "LEATHER_BODY",
+        "BRONZE_PLATEBODY",
+        "IRON_PLATEBODY",
+        "BLUE_WIZARD_ROBE"
+      ],
+      "legs": [
+        "LEATHER_CHAPS",
+        "BRONZE_PLATELEGS",
+        "IRON_PLATELEGS",
+        "BLUE_SKIRT"
+      ],
+      "hands": [
+        "LEATHER_GLOVES"
+      ],
+      "feet": [
+        "LEATHER_BOOTS"
+      ]
+    },
+    "low_mixed": {
+      "head": [
+        "STEEL_MED_HELM",
+        "MITHRIL_MED_HELM",
+        "COIF"
+      ],
+      "cape": [
+        "BLACK_CAPE",
+        "BLUE_CAPE",
+        "RED_CAPE",
+        "TEAM_9_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_STRENGTH",
+        "AMULET_OF_POWER"
+      ],
+      "weapon": [
+        "MITHRIL_SCIMITAR",
+        "STEEL_LONGSWORD",
+        "OAK_SHORTBOW",
+        "WILLOW_SHORTBOW"
+      ],
+      "body": [
+        "STUDDED_BODY",
+        "STEEL_PLATEBODY",
+        "MITHRIL_PLATEBODY",
+        "GREEN_DHIDE_BODY"
+      ],
+      "legs": [
+        "STUDDED_CHAPS",
+        "STEEL_PLATELEGS",
+        "MITHRIL_PLATELEGS",
+        "GREEN_DHIDE_CHAPS"
+      ],
+      "hands": [
+        "LEATHER_GLOVES"
+      ],
+      "feet": [
+        "LEATHER_BOOTS",
+        "CLIMBING_BOOTS"
+      ]
+    },
+    "adamant": {
+      "head": [
+        "ADAMANT_FULL_HELM",
+        "ADAMANT_MED_HELM"
+      ],
+      "cape": [
+        "BLACK_CAPE",
+        "GREEN_CAPE"
+      ],
+      "amulet": [
+        "AMULET_OF_POWER",
+        "AMULET_OF_GLORY"
+      ],
+      "weapon": [
+        "ADAMANT_SCIMITAR",
+        "RUNE_SCIMITAR"
+      ],
+      "body": [
+        "ADAMANT_PLATEBODY"
+      ],
+      "shield": [
+        "ADAMANT_KITESHIELD"
+      ],
+      "legs": [
+        "ADAMANT_PLATELEGS"
+      ],
+      "feet": [
+        "CLIMBING_BOOTS"
+      ]
+    }
+  },
+  "conversations": [
+    {
+      "lines": [
+        [
+          "A",
+          "anyone doing tob tonight?"
+        ],
+        [
+          "B",
+          "i'm down after this trip"
+        ],
+        [
+          "C",
+          "need a 3rd?"
+        ],
+        [
+          "A",
+          "yeah add me"
+        ]
+      ],
+      "trip": {
+        "boss": "tob",
+        "goers": [
+          "A",
+          "B",
+          "C"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    [
+      [
+        "A",
+        "how long till 99 fletching"
+      ],
+      [
+        "B",
+        "like 10 hours with longbows"
+      ],
+      [
+        "A",
+        "ugh"
+      ],
+      [
+        "B",
+        "just do darts lol"
+      ]
+    ],
+    [
+      [
+        "A",
+        "just got my first pet"
+      ],
+      [
+        "B",
+        "which one?"
+      ],
+      [
+        "A",
+        "baby mole"
+      ],
+      [
+        "B",
+        "lmaooo"
+      ],
+      [
+        "C",
+        "gz anyway"
+      ]
+    ],
+    [
+      [
+        "A",
+        "what's everyone's total?"
+      ],
+      [
+        "B",
+        "1850"
+      ],
+      [
+        "C",
+        "2100 lol"
+      ],
+      [
+        "A",
+        "flex"
+      ]
+    ],
+    [
+      [
+        "A",
+        "is the new boss worth it"
+      ],
+      [
+        "B",
+        "drops are decent"
+      ],
+      [
+        "A",
+        "worth over vorkath?"
+      ],
+      [
+        "B",
+        "for sure"
+      ]
+    ],
+    [
+      [
+        "A",
+        "brb grabbing food"
+      ],
+      [
+        "B",
+        "k"
+      ]
+    ],
+    [
+      [
+        "A",
+        "who's selling a fang?"
+      ],
+      [
+        "B",
+        "ge has loads"
+      ],
+      [
+        "A",
+        "price keeps going down"
+      ],
+      [
+        "C",
+        "crash incoming"
+      ]
+    ],
+    [
+      [
+        "A",
+        "anyone know a fast agility course?"
+      ],
+      [
+        "B",
+        "seers with diary"
+      ],
+      [
+        "C",
+        "ardy if you're 90"
+      ],
+      [
+        "A",
+        "ty"
+      ]
+    ],
+    [
+      [
+        "A",
+        "lf nex mass"
+      ],
+      [
+        "B",
+        "w330 usually"
+      ],
+      [
+        "A",
+        "ty"
+      ]
+    ],
+    [
+      [
+        "A",
+        "what do you guys train when afk"
+      ],
+      [
+        "B",
+        "fishing"
+      ],
+      [
+        "C",
+        "nmz"
+      ],
+      [
+        "D",
+        "i just alch"
+      ],
+      [
+        "A",
+        "classic"
+      ]
+    ],
+    [
+      [
+        "A",
+        "gz on the level"
+      ],
+      [
+        "B",
+        "ty!"
+      ],
+      [
+        "A",
+        "what lvl?"
+      ],
+      [
+        "B",
+        "80 slayer finally"
+      ]
+    ],
+    [
+      [
+        "A",
+        "my clue luck is insane today"
+      ],
+      [
+        "B",
+        "show"
+      ],
+      [
+        "A",
+        "3rd age range top"
+      ],
+      [
+        "B",
+        "no way"
+      ],
+      [
+        "C",
+        "liar"
+      ],
+      [
+        "A",
+        "haha ok it was a mime mask"
+      ]
+    ],
+    [
+      [
+        "A",
+        "do u guys think inferno is worth it"
+      ],
+      [
+        "B",
+        "for the cape yes"
+      ],
+      [
+        "C",
+        "took me 40 tries"
+      ],
+      [
+        "A",
+        "oof"
+      ]
+    ],
+    [
+      [
+        "A",
+        "zulrah or vorkath for money?"
+      ],
+      [
+        "B",
+        "vork is more chill"
+      ],
+      [
+        "C",
+        "zulrah if u can do jad phase"
+      ],
+      [
+        "A",
+        "vork it is"
+      ]
+    ],
+    [
+      [
+        "A",
+        "hey"
+      ],
+      [
+        "B",
+        "sup"
+      ],
+      [
+        "A",
+        "nm, just banking"
+      ],
+      [
+        "B",
+        "same"
+      ]
+    ],
+    [
+      [
+        "A",
+        "how much is a twisted bow now"
+      ],
+      [
+        "B",
+        "way too much"
+      ],
+      [
+        "C",
+        "like a bank for most of us"
+      ],
+      [
+        "A",
+        "lol true"
+      ]
+    ],
+    {
+      "lines": [
+        [
+          "A",
+          "anyone wanna duo cg?"
+        ],
+        [
+          "B",
+          "i'm bad at it"
+        ],
+        [
+          "A",
+          "same lets go"
+        ],
+        [
+          "B",
+          "haha ok"
+        ]
+      ],
+      "trip": {
+        "boss": "cg",
+        "goers": [
+          "A",
+          "B"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    {
+      "lines": [
+        [
+          "A",
+          "who's doing the raid with me"
+        ],
+        [
+          "B",
+          "which one"
+        ],
+        [
+          "A",
+          "toa, 300 invo"
+        ],
+        [
+          "C",
+          "count me in"
+        ],
+        [
+          "B",
+          "me too"
+        ]
+      ],
+      "trip": {
+        "boss": "toa",
+        "goers": [
+          "A",
+          "B",
+          "C"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    [
+      [
+        "A",
+        "what pray lvl for piety"
+      ],
+      [
+        "B",
+        "70"
+      ],
+      [
+        "A",
+        "and the quest"
+      ],
+      [
+        "B",
+        "knight waves"
+      ]
+    ],
+    [
+      [
+        "A",
+        "did u see that guy in full 3rd age"
+      ],
+      [
+        "B",
+        "yeah its fake lol"
+      ],
+      [
+        "C",
+        "nah it's real he's rich"
+      ]
+    ],
+    [
+      [
+        "A",
+        "nice outfit"
+      ],
+      [
+        "B",
+        "ty took ages"
+      ],
+      [
+        "A",
+        "drip"
+      ]
+    ],
+    [
+      [
+        "A",
+        "fm is so boring"
+      ],
+      [
+        "B",
+        "campfires help"
+      ],
+      [
+        "A",
+        "true theres one over there"
+      ]
+    ],
+    [
+      [
+        "A",
+        "any tips for jad"
+      ],
+      [
+        "B",
+        "turn prayer off when he's dead"
+      ],
+      [
+        "C",
+        "just watch the anims"
+      ],
+      [
+        "A",
+        "will try"
+      ]
+    ],
+    [
+      [
+        "A",
+        "i'm quitting after this trip"
+      ],
+      [
+        "B",
+        "no you're not"
+      ],
+      [
+        "A",
+        "...yeah i'm not"
+      ]
+    ],
+    [
+      [
+        "A",
+        "what world we on"
+      ],
+      [
+        "B",
+        "dunno"
+      ],
+      [
+        "C",
+        "1 probably"
+      ],
+      [
+        "A",
+        "classic"
+      ]
+    ],
+    [
+      [
+        "A",
+        "spec transfer anyone?"
+      ],
+      [
+        "B",
+        "need lunar"
+      ],
+      [
+        "A",
+        "ah"
+      ]
+    ],
+    [
+      [
+        "A",
+        "anyone done song of the elves?"
+      ],
+      [
+        "B",
+        "yeah took me 2 days"
+      ],
+      [
+        "C",
+        "prif is so worth it"
+      ]
+    ],
+    [
+      [
+        "A",
+        "100 kc no drop"
+      ],
+      [
+        "B",
+        "that's nothing"
+      ],
+      [
+        "C",
+        "i went 700 dry"
+      ],
+      [
+        "A",
+        "rip"
+      ]
+    ],
+    [
+      [
+        "A",
+        "buying gf"
+      ],
+      [
+        "B",
+        "no"
+      ],
+      [
+        "A",
+        "worth a try"
+      ]
+    ],
+    [
+      [
+        "A",
+        "how's everyone"
+      ],
+      [
+        "B",
+        "good"
+      ],
+      [
+        "C",
+        "tired"
+      ],
+      [
+        "D",
+        "grinding"
+      ],
+      [
+        "A",
+        "nice"
+      ]
+    ],
+    [
+      [
+        "A",
+        "anyone want a free ess"
+      ],
+      [
+        "B",
+        "lol sure"
+      ],
+      [
+        "A",
+        "jk"
+      ]
+    ],
+    [
+      [
+        "A",
+        "what's the best slayer master"
+      ],
+      [
+        "B",
+        "duradel"
+      ],
+      [
+        "C",
+        "konar for brimstone"
+      ],
+      [
+        "A",
+        "konar it is"
+      ]
+    ],
+    {
+      "lines": [
+        [
+          "A",
+          "wildy boss trip?"
+        ],
+        [
+          "B",
+          "callisto?"
+        ],
+        [
+          "A",
+          "yeah"
+        ],
+        [
+          "C",
+          "pkers everywhere tho"
+        ],
+        [
+          "B",
+          "we go anyway"
+        ]
+      ],
+      "trip": {
+        "boss": "callisto",
+        "goers": [
+          "A",
+          "B",
+          "C"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    [
+      [
+        "A",
+        "are you guys going to the party"
+      ],
+      [
+        "B",
+        "what party"
+      ],
+      [
+        "A",
+        "falador party room"
+      ],
+      [
+        "C",
+        "free stuff?"
+      ],
+      [
+        "A",
+        "probably not lol"
+      ]
+    ],
+    [
+      [
+        "A",
+        "gl on your raid"
+      ],
+      [
+        "B",
+        "ty you too"
+      ]
+    ],
+    {
+      "lines": [
+        [
+          "A",
+          "nex duo?"
+        ],
+        [
+          "B",
+          "ye let's go"
+        ],
+        [
+          "A",
+          "gear up, meet you there"
+        ]
+      ],
+      "trip": {
+        "boss": "nex",
+        "goers": [
+          "A",
+          "B"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    {
+      "lines": [
+        [
+          "A",
+          "cox 4 man anyone?"
+        ],
+        [
+          "B",
+          "in"
+        ],
+        [
+          "C",
+          "in"
+        ],
+        [
+          "D",
+          "me too"
+        ],
+        [
+          "A",
+          "gear up, leaving in a sec"
+        ]
+      ],
+      "trip": {
+        "boss": "cox",
+        "goers": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    {
+      "lines": [
+        [
+          "A",
+          "vorkath trip?"
+        ],
+        [
+          "B",
+          "sure why not"
+        ],
+        [
+          "C",
+          "i'll come"
+        ],
+        [
+          "A",
+          "grabbing my gear"
+        ]
+      ],
+      "trip": {
+        "boss": "vorkath",
+        "goers": [
+          "A",
+          "B",
+          "C"
+        ],
+        "outfits": [
+          "boss"
+        ]
+      }
+    },
+    [
+      [
+        "A",
+        "what's everyone's favourite skill"
+      ],
+      [
+        "B",
+        "slayer"
+      ],
+      [
+        "C",
+        "none lol"
+      ],
+      [
+        "D",
+        "agility... jk"
+      ],
+      [
+        "A",
+        "fair"
+      ]
+    ],
+    [
+      [
+        "A",
+        "rate my outfit"
+      ],
+      [
+        "B",
+        "7/10"
+      ],
+      [
+        "C",
+        "needs a partyhat"
+      ],
+      [
+        "D",
+        "drip"
+      ],
+      [
+        "A",
+        "ty ty"
+      ]
+    ],
+    [
+      [
+        "A",
+        "how much gp you guys got"
+      ],
+      [
+        "B",
+        "not enough"
+      ],
+      [
+        "C",
+        "like 40m"
+      ],
+      [
+        "D",
+        "just spent it all on a fang"
+      ],
+      [
+        "B",
+        "rip"
+      ]
+    ],
+    [
+      [
+        "A",
+        "longest dry streak?"
+      ],
+      [
+        "B",
+        "900 zulrah"
+      ],
+      [
+        "C",
+        "1200 corp"
+      ],
+      [
+        "D",
+        "i'm 400 dry at vork rn"
+      ],
+      [
+        "A",
+        "pain"
+      ]
+    ]
+  ],
+  "pets": {
+    "$comment": "Chance a GE bot (chance) or a teleporting visitor (teleporterChance) has a skilling or boss pet following it, from the Pets plugin list; excludePattern leaves out pets by name.",
+    "chance": 0.12,
+    "teleporterChance": 0.15,
+    "excludePattern": "KITTEN|CAT$|^CAT|DOG|HOUND",
+    "bossPetMinCombat": 90
+  },
+  "outfitMinCombat": {
+    "$comment": "boss gear only on bots this combat level or higher, mid gear (rune/dragon/barrows) from midgear up; low gear (bronze to adamant) only up to lowMaxCombat",
+    "boss": 90,
+    "midgear": 50,
+    "lowMaxCombat": 59
+  },
+  "femaleChance": 0.28,
+  "keepAwayFromDice": 4,
+  "gamble": {
+    "$comment": "Each gambling host has its own timer (hosts.dice / hosts.flowers everySeconds); when it's up and no bot is already at that host, a random GE bot or visitor walks over and plays a round in chat, then goes back. Maxed bots in boss gear (richest) bet 1b and are richWeight times as likely to be picked; only they bet platinum tokens (tokenChance). The rest bet coins by combat band. Testing: 10 s each; normal was 30-300. enabled false (here or per host) switches it off.",
+    "enabled": true,
+    "everySeconds": [
+      30,
+      180
+    ],
+    "richest": {
+      "minCombat": 120,
+      "outfitGroup": "boss",
+      "coins": 1000000000
+    },
+    "stakes": [
+      {
+        "maxCombat": 49,
+        "min": 100000,
+        "max": 2000000
+      },
+      {
+        "maxCombat": 89,
+        "min": 1000000,
+        "max": 25000000
+      },
+      {
+        "maxCombat": 109,
+        "min": 10000000,
+        "max": 150000000
+      },
+      {
+        "maxCombat": 126,
+        "min": 50000000,
+        "max": 500000000
+      }
+    ],
+    "tokenChance": 0.3,
+    "betLines": [
+      "{stake}",
+      "{stake} pls",
+      "{stake} on it",
+      "{stake} lets go",
+      "ok {stake}"
+    ],
+    "callLines": [
+      "{call}",
+      "{call}",
+      "{call} pls",
+      "{call} lets go"
+    ],
+    "winLines": [
+      "ez",
+      "gz me",
+      "lets goo",
+      "ty",
+      "EZ",
+      "finally"
+    ],
+    "loseLines": [
+      "rip",
+      "unlucky",
+      "gg",
+      "again later",
+      "scammed lol",
+      "wow"
+    ],
+    "richWeight": 4,
+    "hosts": {
+      "dice": {
+        "everySeconds": [
+          30,
+          180
+        ],
+        "standSide": [
+          -1,
+          0
+        ]
+      },
+      "flowers": {
+        "everySeconds": [
+          30,
+          180
+        ],
+        "standSide": [
+          1,
+          0
+        ]
+      }
+    },
+    "$standSide": "standSide is [dx, dy] from the host: [-1, 0] west, [1, 0] east, [0, 1] north, [0, -1] south",
+    "tradeSeconds": [
+      4,
+      8
+    ],
+    "payoutSeconds": [
+      4,
+      7
+    ]
+  }
+}

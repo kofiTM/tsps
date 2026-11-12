@@ -237,6 +237,39 @@
       }
     },
     {
+      "id": "catherby_lobster_cook_bank",
+      "$comment": "Catherby: lobsters off the beach, walk to the bank, cook on the range there (the cook step finds a range within 24 tiles), bank the lobsters, drop the burnt ones, back to fishing. Its own mode, so only sites asking for fish_cook_bank use it.",
+      "mode": "fish_cook_bank",
+      "capacity": 16,
+      "repeat": true,
+      "fields": {"level": 40},
+      "requires": [{"skill": {"id": "fishing", "min": 40}}],
+      "produces": ["fish", "fishing", "cooking"],
+      "actions": [
+        {"type": "ensureItem", "item": "lobster_pot"},
+        {"type": "fish", "tool": "LOBSTER_POT", "bait": null, "until": {"inventoryFull": true}},
+        {"type": "walkTo", "x": 2809, "y": 3436, "radius": 5},
+        {"type": "cook"},
+        {"type": "bank", "itemIds": ["lobster"], "orElse": {"type": "dropItems", "itemIds": ["lobster"]}},
+        {"type": "dropItems", "itemIds": ["burnt_lobster", "raw_lobster"]}
+      ]
+    },
+    {
+      "id": "guild_harpoon_bank",
+      "$comment": "Fishing Guild: tuna and swordfish off the docks, bank them in the guild bank, back to fishing. Its own mode, so only sites asking for fish_bank use it.",
+      "mode": "fish_bank",
+      "capacity": 16,
+      "repeat": true,
+      "fields": {"level": 60},
+      "requires": [{"skill": {"id": "fishing", "min": 60}}],
+      "produces": ["fish", "fishing"],
+      "actions": [
+        {"type": "ensureItem", "item": "harpoon"},
+        {"type": "fish", "tool": "HARPOON", "bait": null, "until": {"inventoryFull": true}},
+        {"type": "bank", "itemIds": ["raw_tuna", "raw_swordfish"], "orElse": {"type": "dropItems", "itemIds": ["raw_tuna", "raw_swordfish"]}}
+      ]
+    },
+    {
       "id": "combat_training",
       "mode": "combat_training",
       "capacity": 1000,

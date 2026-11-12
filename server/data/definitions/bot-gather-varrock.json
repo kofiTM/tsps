@@ -1,0 +1,362 @@
+{
+  "$comment": "Gathering bots (plugins/bots/skilling/Gatherers.PlayerBots.js). Each route: count bots, levels (all/skill/combat bands), outfit tier (novice/mid/advanced/elite), tools (best they can use, with its animation), bank (booths or chest found near x,y), resource (trees/rocks by id or name near x,y; items per inventory, secondsPerItem), out/back steps. ::gatherbots (owner) shows them.",
+  "id": "varrock",
+  "enabled": true,
+  "routes": [
+    {
+      "id": "essence",
+      "title": "Rune essence runners",
+      "count": 3,
+      "levels": {
+        "all": [
+          1,
+          25
+        ],
+        "mining": [
+          1,
+          30
+        ],
+        "combat": [
+          3,
+          30
+        ]
+      },
+      "outfit": "novice",
+      "toolSkill": "mining",
+      "tools": [
+        {
+          "item": "BRONZE_PICKAXE",
+          "animation": 625,
+          "minLevel": 1,
+          "animationTicks": 8,
+          "secondsPerItem": [
+            4.8,
+            5.4
+          ]
+        },
+        {
+          "item": "IRON_PICKAXE",
+          "animation": 626,
+          "minLevel": 1,
+          "animationTicks": 7,
+          "secondsPerItem": [
+            4.2,
+            4.8
+          ]
+        },
+        {
+          "item": "STEEL_PICKAXE",
+          "animation": 627,
+          "minLevel": 6,
+          "animationTicks": 6,
+          "secondsPerItem": [
+            3.6,
+            4.2
+          ]
+        },
+        {
+          "item": "MITHRIL_PICKAXE",
+          "animation": 629,
+          "minLevel": 21,
+          "animationTicks": 5,
+          "secondsPerItem": [
+            3.0,
+            3.6
+          ]
+        },
+        {
+          "item": "ADAMANT_PICKAXE",
+          "animation": 628,
+          "minLevel": 31,
+          "animationTicks": 4,
+          "secondsPerItem": [
+            2.4,
+            3.0
+          ]
+        }
+      ],
+      "bank": {
+        "x": 3253,
+        "y": 3420,
+        "radius": 6,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "out": [
+        {
+          "wizard": {
+            "npc": "Aubury",
+            "x": 3253,
+            "y": 3402,
+            "z": 0,
+            "to": {
+              "x": 2911,
+              "y": 4832,
+              "z": 0
+            }
+          }
+        }
+      ],
+      "resource": {
+        "name": "^rune essence$",
+        "x": 2911,
+        "y": 4832,
+        "radius": 30,
+        "items": 27,
+        "xp": 5,
+        "spotsPerObject": 4
+      },
+      "back": [
+        {
+          "portal": {
+            "ids": [
+              34825
+            ],
+            "radius": 40,
+            "to": {
+              "x": 3253,
+              "y": 3401,
+              "z": 0
+            }
+          }
+        }
+      ],
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ]
+    },
+    {
+      "id": "copper_tin",
+      "title": "Varrock mine copper/tin",
+      "count": 2,
+      "levels": {
+        "all": [
+          1,
+          20
+        ],
+        "mining": [
+          1,
+          14
+        ],
+        "combat": [
+          3,
+          30
+        ]
+      },
+      "outfit": "novice",
+      "toolSkill": "mining",
+      "tools": [
+        {
+          "item": "BRONZE_PICKAXE",
+          "animation": 625,
+          "minLevel": 1,
+          "animationTicks": 8
+        },
+        {
+          "item": "IRON_PICKAXE",
+          "animation": 626,
+          "minLevel": 1,
+          "animationTicks": 7
+        },
+        {
+          "item": "STEEL_PICKAXE",
+          "animation": 627,
+          "minLevel": 6,
+          "animationTicks": 6
+        }
+      ],
+      "bank": {
+        "x": 3253,
+        "y": 3420,
+        "radius": 6,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "resource": {
+        "ids": [
+          10943,
+          11161,
+          11360,
+          11361
+        ],
+        "x": 3286,
+        "y": 3365,
+        "radius": 7,
+        "items": 27,
+        "secondsPerItem": [
+          5,
+          11
+        ],
+        "xp": 17.5,
+        "spotsPerObject": 1
+      },
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ],
+      "out": [
+        {
+          "walk": {
+            "x": 3290,
+            "y": 3405,
+            "radius": 3
+          }
+        },
+        {
+          "walk": {
+            "x": 3289,
+            "y": 3383,
+            "radius": 3
+          }
+        }
+      ],
+      "back": [
+        {
+          "walk": {
+            "x": 3289,
+            "y": 3383,
+            "radius": 3
+          }
+        },
+        {
+          "walk": {
+            "x": 3290,
+            "y": 3405,
+            "radius": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "iron",
+      "title": "Varrock mine iron",
+      "count": 2,
+      "levels": {
+        "all": [
+          10,
+          30
+        ],
+        "mining": [
+          15,
+          30
+        ],
+        "combat": [
+          3,
+          40
+        ]
+      },
+      "outfit": "novice",
+      "toolSkill": "mining",
+      "tools": [
+        {
+          "item": "BRONZE_PICKAXE",
+          "animation": 625,
+          "minLevel": 1,
+          "animationTicks": 8
+        },
+        {
+          "item": "IRON_PICKAXE",
+          "animation": 626,
+          "minLevel": 1,
+          "animationTicks": 7
+        },
+        {
+          "item": "STEEL_PICKAXE",
+          "animation": 627,
+          "minLevel": 6,
+          "animationTicks": 6
+        },
+        {
+          "item": "MITHRIL_PICKAXE",
+          "animation": 629,
+          "minLevel": 21,
+          "animationTicks": 5
+        },
+        {
+          "item": "ADAMANT_PICKAXE",
+          "animation": 628,
+          "minLevel": 31,
+          "animationTicks": 4
+        }
+      ],
+      "bank": {
+        "x": 3253,
+        "y": 3420,
+        "radius": 6,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "resource": {
+        "ids": [
+          11364,
+          11365
+        ],
+        "x": 3286,
+        "y": 3368,
+        "radius": 5,
+        "items": 27,
+        "secondsPerItem": [
+          4,
+          9
+        ],
+        "xp": 35,
+        "spotsPerObject": 1
+      },
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ],
+      "out": [
+        {
+          "walk": {
+            "x": 3290,
+            "y": 3405,
+            "radius": 3
+          }
+        },
+        {
+          "walk": {
+            "x": 3289,
+            "y": 3383,
+            "radius": 3
+          }
+        }
+      ],
+      "back": [
+        {
+          "walk": {
+            "x": 3289,
+            "y": 3383,
+            "radius": 3
+          }
+        },
+        {
+          "walk": {
+            "x": 3290,
+            "y": 3405,
+            "radius": 3
+          }
+        }
+      ]
+    }
+  ]
+}

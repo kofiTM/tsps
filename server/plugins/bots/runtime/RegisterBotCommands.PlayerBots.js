@@ -379,6 +379,19 @@ function registerBotCommands(options) {
       `queue=${bot.getMovementQueue().size()} fighting=${bot.getCombat().getTarget()?.getDefinition?.()?.getName?.() ?? "none"} ` +
       `door=${door ? `${door.key} stand=${door.stand.x},${door.stand.y} routes=${door.routes}` : "none"} ` +
       `ticked=${brain?.lastTickAt ? Math.round((nowMs - brain.lastTickAt) / 100) / 10 : "-"}s ago`);
+    const pvp = runtime.botStatesByName.get(username)?.pvp ?? entry?.state?.pvp ?? null;
+    if (pvp) {
+      const combat = bot.getCombat?.();
+      const prayers = bot.getPrayerActive?.() ?? [];
+      const overhead = [[23, "smite"], [16, "magic"], [17, "range"], [18, "melee"]]
+        .filter(([id]) => prayers[id] === true).map(([, name]) => name).join("+") || "none";
+      player.sendMessage(`pvp phase=${pvp.phase ?? "-"} hotspot=${pvp.hotspotId ?? "-"} cb=${bot.getSkillManager?.()?.getCombatLevel?.() ?? "?"}` +
+        ` aim=${pvp.targetCombatLevel ?? "-"} target=${pvp.targetUsername ?? "none"} attacking=${combat?.getTarget?.()?.getUsername?.() ?? "none"}` +
+        ` attackedBy=${combat?.getAttacker?.()?.getUsername?.() ?? "none"} endsIn=${pvp.endsAt ? Math.round((pvp.endsAt - nowMs) / 1000) : "-"}s` +
+        ` retreat=${pvp.retreat ? "yes" : "no"} avoiding=${pvp.avoidingFight ? "yes" : "no"} overhead=${overhead}` +
+        ` nextDecisionIn=${entry?.state?.autonomy?.nextDecisionAt ? Math.round((entry.state.autonomy.nextDecisionAt - nowMs) / 1000) : "-"}s` +
+        ` cooldownIn=${entry?.state?.autonomy?.pvpCooldownUntil ? Math.round((entry.state.autonomy.pvpCooldownUntil - nowMs) / 1000) : "-"}s`);
+    }
     return true;
   }, PlayerRights.DEVELOPER, "Inspect a bot's brain");
 

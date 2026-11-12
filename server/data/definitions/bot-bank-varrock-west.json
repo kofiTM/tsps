@@ -1,0 +1,65 @@
+{
+  "$comment": "Varrock West bank life (plugins/bots/ge/GeHub.PlayerBots.js, the same code as the GE). Everything not set here comes from bot-ge.json (extends): outfits, levels, recipes, pets, chat. A few skillers at the booths (fletching, alching, glassblowing), one or two smithers walking between the bank and the anvils just south, and a bank-stander or two. ::varrockbots (owner) shows what it's doing. Every bot-bank-*.json in this folder is started the same way, so another bank is a copy of this file with its own id, command, approxCenter and counts.",
+  "extends": "bot-ge.json",
+  "id": "varrock_west",
+  "title": "Varrock West bank",
+  "command": "varrockbots",
+  "enabled": true,
+  "startDelaySeconds": 20,
+  "approxCenter": { "x": 3185, "y": 3440, "z": 0 },
+  "boothSearchRadius": 8,
+  "extraBooths": [],
+  "clerkFallback": false,
+  "keepAwayFromDice": 0,
+  "counts": {
+    "bankstander": [1, 2],
+    "alcher": [1, 2],
+    "glassblower": [1, 2],
+    "gemcutter": 0,
+    "fletcher": [1, 2],
+    "stringer": [0, 1],
+    "smither": [1, 2],
+    "bonfire": 0,
+    "social": 0
+  },
+  "layout": {
+    "playerSideOnly": true,
+    "bankstanderMaxShareOfBoothFronts": 0.3,
+    "keepBoothFrontsFree": 0.3,
+    "maxFromCenterBeyondBooths": 4
+  },
+  "smithing": {
+    "$comment": "Smithers stand beside an anvil near the bank (anvilSearchRadius tiles from approxCenter; or list them in anvils: [{x, y}]) and smith their best bar into these anvil products, by weight, then walk to a booth to bank. intervalTicks is per item (5, as in game).",
+    "anvilSearchRadius": 16,
+    "anvils": [],
+    "intervalTicks": 5,
+    "bars": ["BRONZE_BAR", "IRON_BAR", "STEEL_BAR", "MITHRIL_BAR", "ADAMANTITE_BAR", "RUNITE_BAR"],
+    "products": { "Platebody": 6, "Platelegs": 2, "Dart tips": 2, "Kiteshield": 1, "Full helm": 1, "2h sword": 1 }
+  },
+  "roles": {
+    "smither": {
+      "archetypes": { "main": 2, "midlevel": 3, "lowlevel": 2, "skiller": 3 },
+      "outfits": { "smithing": 4, "skilling": 2, "fashion": 2, "low": 2 }
+    }
+  },
+  "outfitGroups": {
+    "smithing": ["smith", "graceful", "skillcape_flex"]
+  },
+  "stationary": {
+    "lifetimeMinutes": [25, 70],
+    "replaceAfterSeconds": [20, 90],
+    "bankTripSeconds": [2, 4]
+  },
+  "teleporters": {
+    "enabled": false,
+    "$landingSpots": "Where a replacement bot arrives (the Varrock teleport), then walks to the bank.",
+    "landingSpots": [{ "x": 3213, "y": 3424, "z": 0, "radius": 2 }]
+  },
+  "gamble": { "enabled": false },
+  "chatter": {
+    "chancePerMinute": 0.04,
+    "roleLines": {
+      "smither": ["99 smithing soon", "rune plates for alch money", "this anvil is cursed", "anyone selling bars?", "smithing is so slow", "back to the anvil", "addy plates are actually decent xp"]
+    }
+  }
+}

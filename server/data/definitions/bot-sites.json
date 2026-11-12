@@ -1,60 +1,389 @@
 {
-  "sites": [
-    {
-      "id": "lumbridge", "enabled": false, "x": 3222, "y": 3218,
-      "switchMinutes": [15, 25],
-      "bots": {
-        "woodcutting": 5, "mining": 5, "fishing": 5,
-        "combat_training": { "novices": 5, "intermediates": 5 }
-      }
-    },
-    {
-      "id": "edge_low", "enabled": true, "x": 3073, "y": 3531, "radius": 5, "bots": 5,
-      "pvp": {
-        "style": "pure",
-        "smiteOnly": true,
-        "combat": [55, 85],
-        "profiles": ["novice", "standard", "veteran"],
-        "weights": { "seek": 0.03, "bait": 0.32, "fight": 0.02, "escape": 0.63 },
-        "roam": 4, "lingerMs": 30000, "maxFights": 2
-      }
-    },
-    {
-      "id": "edge_mid", "enabled": true, "x": 3090, "y": 3531, "radius": 5, "bots": 5,
-      "pvp": {
-        "style": "mid",
-        "smiteOnly": true,
-        "combat": [88, 100],
-        "profiles": ["standard", "veteran"],
-        "weights": { "seek": 0.03, "bait": 0.32, "fight": 0.02, "escape": 0.63 },
-        "roam": 4, "lingerMs": 30000, "maxFights": 2
-      }
-    },
-    {
-      "id": "edge_mains", "enabled": true, "x": 3108, "y": 3531, "radius": 5, "bots": 5,
-      "pvp": {
-        "style": "main",
-        "smiteOnly": true,
-        "combat": [115, 126],
-        "profiles": ["standard", "veteran", "elite"],
-        "weights": { "seek": 0.03, "bait": 0.32, "fight": 0.02, "escape": 0.63 },
-        "roam": 4, "lingerMs": 30000, "maxFights": 2
-      }
-    },
-    {
-      "id": "varrock_ditch", "enabled": true, "x": 3243, "y": 3526, "bots": 10,
-      "area": { "minX": 3228, "maxX": 3262, "minY": 3525, "maxY": 3542 },
-      "pvp": {
-        "style": "f2p",
-        "weights": { "seek": 0.35, "bait": 0.2, "fight": 0.12, "escape": 0.33 },
-        "roam": 3, "lingerMs": 12000, "maxFights": 8
-      }
+ "sites": [
+  {
+   "id": "lumbridge",
+   "enabled": true,
+   "x": 3222,
+   "y": 3218,
+   "switchMinutes": [
+    15,
+    25
+   ],
+   "bots": {
+    "woodcutting": 5,
+    "mining": 5,
+    "fishing": 5,
+    "combat_training": {
+     "novices": 5,
+     "intermediates": 5
     }
-  ],
-  "pvp": {
-    "botPool": 845,
-    "activeRegionBotsPerRegion": 16,
-    "activeRegionInset": 1,
-    "smiteOnlyRegions": ["0:47:54", "0:48:54", "0:47:55", "0:48:55"]
+   }
+  },
+  {
+   "id": "draynor_willows",
+   "enabled": true,
+   "x": 3087,
+   "y": 3234,
+   "radius": 4,
+   "bots": {
+    "woodcutting": {
+     "advanced": 3
+    },
+    "fishing": {
+     "novices": 2
+    }
+   }
+  },
+  {
+   "id": "catherby_fishers",
+   "enabled": true,
+   "x": 2840,
+   "y": 3433,
+   "radius": 3,
+   "bots": {
+    "fish_cook_bank": {
+     "advanced": 2
+    }
+   }
+  },
+  {
+   "id": "fishing_guild",
+   "enabled": true,
+   "x": 2600,
+   "y": 3420,
+   "radius": 3,
+   "bots": {
+    "fish_bank": {
+     "experts": 5
+    }
+   }
+  },
+  {
+   "id": "edge_starters",
+   "enabled": true,
+   "x": 3080,
+   "y": 3533,
+   "radius": 8,
+   "bots": 5,
+   "pvp": {
+    "style": "starter",
+    "combat": [
+     20,
+     56
+    ],
+    "profiles": [
+     "novice",
+     "standard"
+    ],
+    "weights": {
+     "seek": 0.45,
+     "bait": 0.15,
+     "fight": 0.3,
+     "escape": 0.1
+    },
+    "roam": 6,
+    "lingerMs": 6000,
+    "maxFights": 3
+   }
+  },
+  {
+   "id": "edge_low",
+   "enabled": true,
+   "x": 3088,
+   "y": 3534,
+   "radius": 8,
+   "bots": 5,
+   "pvp": {
+    "style": "pure",
+    "combat": [
+     54,
+     82
+    ],
+    "profiles": [
+     "novice",
+     "standard",
+     "veteran"
+    ],
+    "weights": {
+     "seek": 0.45,
+     "bait": 0.15,
+     "fight": 0.3,
+     "escape": 0.1
+    },
+    "roam": 6,
+    "lingerMs": 6000,
+    "maxFights": 3,
+    "smiteOnly": true
+   }
+  },
+  {
+   "id": "edge_mid",
+   "enabled": true,
+   "x": 3096,
+   "y": 3538,
+   "radius": 8,
+   "bots": 6,
+   "pvp": {
+    "style": "mid",
+    "combat": [
+     80,
+     101
+    ],
+    "profiles": [
+     "standard",
+     "veteran"
+    ],
+    "weights": {
+     "seek": 0.45,
+     "bait": 0.15,
+     "fight": 0.3,
+     "escape": 0.1
+    },
+    "roam": 6,
+    "lingerMs": 6000,
+    "maxFights": 3,
+    "smiteOnly": true
+   }
+  },
+  {
+   "id": "edge_med",
+   "enabled": true,
+   "x": 3102,
+   "y": 3534,
+   "radius": 8,
+   "bots": 6,
+   "pvp": {
+    "style": "main",
+    "combat": [
+     99,
+     116
+    ],
+    "profiles": [
+     "standard",
+     "veteran",
+     "elite"
+    ],
+    "weights": {
+     "seek": 0.45,
+     "bait": 0.15,
+     "fight": 0.3,
+     "escape": 0.1
+    },
+    "roam": 6,
+    "lingerMs": 6000,
+    "maxFights": 3
+   }
+  },
+  {
+   "id": "edge_mains",
+   "enabled": true,
+   "x": 3108,
+   "y": 3540,
+   "radius": 8,
+   "bots": 8,
+   "pvp": {
+    "style": "main",
+    "combat": [
+     114,
+     126
+    ],
+    "profiles": [
+     "standard",
+     "veteran",
+     "elite"
+    ],
+    "weights": {
+     "seek": 0.45,
+     "bait": 0.15,
+     "fight": 0.3,
+     "escape": 0.1
+    },
+    "roam": 6,
+    "lingerMs": 6000,
+    "maxFights": 4,
+    "smiteOnly": true
+   }
+  },
+  {
+   "id": "edge_high_risk",
+   "enabled": true,
+   "x": 3097,
+   "y": 3534,
+   "bots": 2,
+   "area": {
+    "minX": 3092,
+    "maxX": 3102,
+    "minY": 3528,
+    "maxY": 3540
+   },
+   "pvp": {
+    "style": "highrisk",
+    "combat": [
+     126,
+     126
+    ],
+    "profiles": [
+     "elite"
+    ],
+    "weights": {
+     "seek": 0.55,
+     "bait": 0,
+     "fight": 0.45,
+     "escape": 0
+    },
+    "roam": 4,
+    "lingerMs": 3000,
+    "maxFights": 1,
+    "pairOnly": true
+   }
+  },
+  {
+   "id": "magebank_high_risk",
+   "enabled": true,
+   "x": 3090,
+   "y": 3956,
+   "bots": 2,
+   "area": {
+    "minX": 3086,
+    "maxX": 3094,
+    "minY": 3952,
+    "maxY": 3960
+   },
+   "pvp": {
+    "style": "highrisk",
+    "combat": [
+     126,
+     126
+    ],
+    "profiles": [
+     "elite"
+    ],
+    "weights": {
+     "seek": 0.55,
+     "bait": 0,
+     "fight": 0.45,
+     "escape": 0
+    },
+    "roam": 3,
+    "lingerMs": 3000,
+    "maxFights": 1
+   }
+  },
+  {
+   "id": "varrock_ditch",
+   "enabled": true,
+   "x": 3243,
+   "y": 3526,
+   "bots": 10,
+   "area": {
+    "minX": 3228,
+    "maxX": 3262,
+    "minY": 3525,
+    "maxY": 3542
+   },
+   "pvp": {
+    "style": "f2p",
+    "weights": {
+     "seek": 0.35,
+     "bait": 0.2,
+     "fight": 0.12,
+     "escape": 0.33
+    },
+    "roam": 3,
+    "lingerMs": 12000,
+    "maxFights": 8
+   }
   }
+ ],
+ "pvp": {
+  "botPool": 845,
+  "activeRegionBotsPerRegion": 16,
+  "activeRegionInset": 1,
+  "$noBotAreas": "Wilderness bosses (kofi 2026-11-08): no PvP bot spawns in a 64x64 region touching one, and PvP bots never pick a real player standing in one.",
+  "noBotAreas": [
+   {
+    "id": "callisto",
+    "minX": 3316,
+    "maxX": 3396,
+    "minY": 10282,
+    "maxY": 10362
+   },
+   {
+    "id": "vetion",
+    "minX": 3254,
+    "maxX": 3334,
+    "minY": 10161,
+    "maxY": 10241
+   },
+   {
+    "id": "venenatis",
+    "minX": 3381,
+    "maxX": 3461,
+    "minY": 10162,
+    "maxY": 10242
+   },
+   {
+    "id": "artio",
+    "minX": 1716,
+    "maxX": 1796,
+    "minY": 11498,
+    "maxY": 11578
+   },
+   {
+    "id": "calvarion",
+    "minX": 1846,
+    "maxX": 1926,
+    "minY": 11505,
+    "maxY": 11585
+   },
+   {
+    "id": "spindel",
+    "minX": 1589,
+    "maxX": 1669,
+    "minY": 11506,
+    "maxY": 11586
+   },
+   {
+    "id": "scorpia",
+    "minX": 3205,
+    "maxX": 3260,
+    "minY": 10320,
+    "maxY": 10365
+   },
+   {
+    "id": "chaos_elemental",
+    "minX": 3231,
+    "maxX": 3291,
+    "minY": 3897,
+    "maxY": 3957
+   },
+   {
+    "id": "chaos_fanatic",
+    "minX": 2954,
+    "maxX": 3004,
+    "minY": 3821,
+    "maxY": 3871
+   },
+   {
+    "id": "crazy_archaeologist",
+    "minX": 2952,
+    "maxX": 3002,
+    "minY": 3677,
+    "maxY": 3727
+   },
+   {
+    "id": "king_black_dragon",
+    "minX": 2229,
+    "maxX": 2309,
+    "minY": 4657,
+    "maxY": 4737
+   }
+  ],
+  "smiteOnlyRegions": [
+   "0:47:54",
+   "0:48:54",
+   "0:47:55",
+   "0:48:55"
+  ]
+ }
 }

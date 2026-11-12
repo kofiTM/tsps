@@ -1,0 +1,123 @@
+{
+  "$comment": "The dicing host (plugins/bots/gamble/DiceBot.PlayerBots.js). Stand where you want it and type ::dicebot (owner) to put it there; the tile is saved to bot-dice-spot.json and it comes back there every restart. ::dicebot off removes it. Game: the host rolls 1-100 and pays multiplier x the bet when the roll is above winAbove (55x2: 56-100 wins, 45%). Bets are coins and platinum tokens only, between minBet and maxBet.",
+  "enabled": true,
+  "name": "55x2 Dicing",
+  "startDelaySeconds": 12,
+  "game": {
+    "winAbove": 55,
+    "multiplier": 2,
+    "rollSeconds": 2.4,
+    "coins": {
+      "min": 100000,
+      "max": 1000000000
+    },
+    "tokens": {
+      "min": 1,
+      "max": 1000000000
+    },
+    "playerQuietSeconds": 5
+  },
+  "trade": {
+    "settleSeconds": 1.2,
+    "timeoutSeconds": 90,
+    "payoutRetrySeconds": 20
+  },
+  "outfit": {
+    "head": [
+      "BLUE_PARTYHAT"
+    ],
+    "cape": [
+      "MAX_CAPE"
+    ],
+    "amulet": [
+      "_3RD_AGE_AMULET"
+    ],
+    "weapon": [
+      "_3RD_AGE_PICKAXE"
+    ],
+    "body": [
+      "_3RD_AGE_PLATEBODY"
+    ],
+    "shield": [
+      "ELYSIAN_SPIRIT_SHIELD"
+    ],
+    "legs": [
+      "_3RD_AGE_PLATELEGS"
+    ],
+    "hands": [
+      "BARROWS_GLOVES"
+    ],
+    "feet": [
+      "AVERNIC_TREADS_MAX_"
+    ],
+    "ring": [
+      "RING_OF_WEALTH"
+    ]
+  },
+  "chat": {
+    "adSeconds": [
+      14,
+      28
+    ],
+    "ads": [
+      "55x2 | trade me to play | 100k - 1b",
+      "55x2 dicing | 56+ wins x2 | trade me",
+      "55x2 open | coins or plat tokens | 100k min",
+      "hosting 55x2 | instant payouts | trade to bet",
+      "55x2 | 1b max | legit host, paid instantly",
+      "coins 100k - 1b or plat tokens up to 1b | paid in kind"
+    ],
+    "accepted": [
+      "{bet} on 55x2, rolling for {name}",
+      "got {bet} from {name}, rolling",
+      "rolling for {name} - {bet}"
+    ],
+    "win": [
+      "rolled {roll} - {name} wins {payout}!",
+      "{roll} on the dice! gz {name}, paying {payout}",
+      "{roll}! {name} wins - trade me for {payout}"
+    ],
+    "lose": [
+      "rolled {roll} - house wins, gl next time {name}",
+      "{roll} on the dice, unlucky {name}",
+      "{roll} - house. gl {name}"
+    ],
+    "paid": [
+      "paid {name} {payout}, gz",
+      "{name} paid {payout}, ty for playing",
+      "paid. gz {name}"
+    ],
+    "busy": [
+      "one at a time pls, rolling for someone",
+      "busy rolling, trade me in a sec",
+      "1 sec, paying someone out"
+    ],
+    "coinsOnly": [
+      "coins or plat tokens only pls",
+      "only coins/plat tokens"
+    ],
+    "tooLow": [
+      "min bet is {min} coins",
+      "{min} minimum on coins"
+    ],
+    "tooHigh": [
+      "max bet is {max} coins or {maxTokens} plat",
+      "{max} coins / {maxTokens} plat max sorry"
+    ],
+    "roomFirst": [
+      "{name} your stack is too big for the payout, bank some and trade me",
+      "bank some gp first {name}, then trade me for your payout"
+    ],
+    "queued": [
+      "{name} you're #{position}, 1 sec",
+      "in line {name} (#{position}), trade coming after this one",
+      "1 sec {name}, you're next up"
+    ],
+    "next": [
+      "{name} your turn, accept the trade",
+      "ok {name}, sending trade",
+      "{name} you're up"
+    ]
+  },
+  "$bankroll": "The host keeps 2,147m coins and 2,147m platinum tokens in its inventory, topped back up after every game. Bets: coins 100k-1b and/or platinum tokens 1-1b; a win pays multiplier x each, in the same kind (tokens back as tokens)."
+}

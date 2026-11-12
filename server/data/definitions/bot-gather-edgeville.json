@@ -1,0 +1,86 @@
+{
+  "$comment": "Gathering bots (plugins/bots/skilling/Gatherers.PlayerBots.js). Each route: count bots, levels (all/skill/combat bands), outfit tier (novice/mid/advanced/elite), tools (best they can use, with its animation), bank (booths or chest found near x,y), resource (trees/rocks by id or name near x,y; items per inventory, secondsPerItem), out/back steps. ::gatherbots (owner) shows them.",
+  "id": "edgeville",
+  "enabled": true,
+  "routes": [
+    {
+      "id": "yews",
+      "title": "Edgeville yews",
+      "count": 3,
+      "levels": {
+        "all": [
+          40,
+          70
+        ],
+        "woodcutting": [
+          60,
+          80
+        ],
+        "combat": [
+          40,
+          100
+        ]
+      },
+      "outfit": "advanced",
+      "toolSkill": "woodcutting",
+      "tools": [
+        {
+          "item": "MITHRIL_AXE",
+          "animation": 871,
+          "minLevel": 21,
+          "animationTicks": 4
+        },
+        {
+          "item": "ADAMANT_AXE",
+          "animation": 869,
+          "minLevel": 31,
+          "animationTicks": 4
+        },
+        {
+          "item": "RUNE_AXE",
+          "animation": 867,
+          "minLevel": 41,
+          "animationTicks": 4
+        },
+        {
+          "item": "DRAGON_AXE",
+          "animation": 2846,
+          "minLevel": 61,
+          "animationTicks": 4
+        }
+      ],
+      "bank": {
+        "x": 3094,
+        "y": 3491,
+        "radius": 6,
+        "seconds": [
+          2,
+          5
+        ]
+      },
+      "resource": {
+        "ids": [
+          10822
+        ],
+        "x": 3085,
+        "y": 3474,
+        "radius": 9,
+        "items": 27,
+        "secondsPerItem": [
+          14,
+          24
+        ],
+        "xp": 175,
+        "spotsPerObject": 3
+      },
+      "lifetimeMinutes": [
+        30,
+        90
+      ],
+      "replaceAfterSeconds": [
+        30,
+        120
+      ]
+    }
+  ]
+}
