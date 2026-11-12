@@ -45,6 +45,8 @@ export type NpcUpdateBlock = {
     baseAnimations?: Array<{ slot: number; seqId: number }>;
     /** A fade of its model: transparency `from` (-1: its current) to `to` (0 opaque, 255 invisible). */
     transparency?: { startCycle: number; endCycle: number; from: number; to: number };
+    /** Its new type, changed in place (OSRS npc transformation): it keeps its tile, path and facing. */
+    transformTypeId?: number;
     say?: string;
     colorOverride?: {
         startCycle: number;
@@ -72,7 +74,7 @@ export type NpcInfoFrame = {
  * - Only decodes the subset of update blocks that our server currently emits:
  *   FACE_ENTITY (0x8), HIT_MASK (0x20), COLOR_OVERRIDE (0x100), SPOTANIM2 (0x20000), SEQUENCE (0x10),
  *   HEAD_ICONS (0x200), EXACT_MOVE (0x400), FACE_TILE (0x800), MODEL_CUSTOMISATION (0x1000),
- *   BASE_ANIMATIONS (0x2000), TRANSPARENCY (0x8000).
+ *   BASE_ANIMATIONS (0x2000), TRANSPARENCY (0x8000), TRANSFORMATION (0x2).
  */
 export class NpcUpdateDecoder {
     private npcIndices: number[] = [];
@@ -413,7 +415,10 @@ export class NpcUpdateDecoder {
                 const entries: Array<{ slot: number; modelId: number }> = [];
                 for (let i = 0; i < count; i++) {
                     const slot = stream.readUnsignedByte() | 0;
-                    const modelId = stream.readUnsignedShortLE() | 0;
+                    // 32-bit id as two little-endian shorts (low, high): custom models are >= 1,000,000.
+                    const low = stream.readUnsignedShortLE() | 0;
+                    const high = stream.readUnsignedShortLE() | 0;
+                    const modelId = (low | (high << 16)) | 0;
                     entries.push({ slot, modelId });
                 }
                 block.modelCustomisation = entries;
@@ -443,6 +448,13 @@ export class NpcUpdateDecoder {
                     from: from === 0xffff ? -1 : from & 0xff,
                     to,
                 };
+            }
+
+            // TRANSFORMATION (0x2): a new type id (rev 241: big-endian, low byte +128).
+            if ((mask & 0x2) !== 0) {
+                const typeId = stream.readUnsignedShortAdd() | 0;
+                block.transformTypeId = typeId;
+                this.typeIds.set(npcId | 0, typeId);
             }
 
             if (Object.keys(block).length > 0) {

@@ -86,6 +86,9 @@ export class LocUpdates {
             if ((id | 0) <= 0) continue;
             const type = loader.load(id | 0);
             if (!type) return "full";
+            // An animated loc is drawn outside the loc group a loc-only build replaces: changing
+            // one that way left the old model standing (the ToB vault's chests stayed shut).
+            if (type.seqId !== -1 || type.transforms) return "full";
             if (isDoorLoc(type, this.r.osrsClient.varManager, loader)) doors++;
             else locs++;
         }

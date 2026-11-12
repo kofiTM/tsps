@@ -544,7 +544,7 @@ export function onLocAddChange(host: WebGLOsrsRendererHost,
                     host.scheduleWorldEntityLocRebuild(deckView.id);
                 } else {
                     const locType = host.osrsClient.locTypeLoader.load(locId | 0);
-                    const group = locType && isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc";
+                    const group = locType && (locType.seqId !== -1 || locType.transforms) ? "full" : locType && isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc";
                     // An instance builds the new loc from extraLocs.
                     if (host.instanceActive) host.scheduleInstanceLocUpdate(group);
                     else host.scheduleLocGeometryUpdate(mapX, mapY, group);

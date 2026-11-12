@@ -5,6 +5,10 @@ struct Material {
     int frameCount;
     int animSpeed;
     int flags;
+    // How much slower it flows on a worn model (wornFlow.ts: the Fire and Infernal capes); 0 or 1 for none.
+    int wornFlowSlowdown;
+    // How much slower it scrolls in the world (wornFlow.ts WORLD_FLOW_SLOWDOWN: magic tree sparkle); 0 or 1 for none.
+    int worldFlowSlowdown;
     vec3 waterSurfaceColor;
     vec3 waterFoamColor;
     vec3 waterDepthColor;
@@ -38,6 +42,8 @@ Material getMaterial(uint textureId) {
     material.frameCount = data.a & 0xFF;
     material.animSpeed = data1.r & 0xFF;
     material.flags = data1.g & 0xFF;
+    material.wornFlowSlowdown = data1.a & 0xFF;
+    material.worldFlowSlowdown = data5.a & 0xFF;
     int waterFlags = data1.b & 0xFF;
     material.waterHasFoam = float(waterFlags & WATER_FLAG_HAS_FOAM);
     material.waterUseNormalMap2 = (waterFlags & WATER_FLAG_NORMAL_MAP_2) != 0;

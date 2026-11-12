@@ -95,6 +95,7 @@ import type { PluginLoginExtension, PluginLoginPending } from "../plugins/Plugin
 import {
   LOGIN_FLAG_REMEMBER,
   LOGIN_FLAG_TOKEN,
+  LOGIN_FLAG_NPC_TRANSFORM,
   LOGIN_TOKENS_ATTRIBUTE,
   checkLoginToken,
   issueLoginToken,
@@ -313,7 +314,10 @@ const NON_INPUT_PACKETS = new Set([
   "local_trigger",
 ]);
 
-type PendingLogin = PluginLoginPending;
+type PendingLogin = PluginLoginPending & {
+  /** The client reads the npc transformation block (LOGIN_FLAG_NPC_TRANSFORM). */
+  npcTransform?: boolean;
+};
 
 class LoginRejection extends Error {
   constructor(public readonly code: number, message: string) { super(message); }
@@ -1586,7 +1590,10 @@ export class ClientConnection {
       const altSaved = String(characterSave?.getDisplayName?.() ?? "");
       if (altSaved && Accounts.key(altSaved) === Accounts.key(username)) username = altSaved;
     }
-    const pending: PendingLogin = { username, credentialName: primaryName, profile, passwordHash, save: characterSave, loginTokens };
+    const pending: PendingLogin = {
+      username, credentialName: primaryName, profile, passwordHash, save: characterSave, loginTokens,
+      npcTransform: (flags & LOGIN_FLAG_NPC_TRANSFORM) !== 0,
+    };
     const savedName = String((save ?? credentials)?.getDisplayName?.() ?? "");
     let responseName = savedName && Accounts.key(savedName) === Accounts.key(primaryName) ? savedName : primaryName;
     if (Accounts.key(pending.username) === Accounts.key(primaryName)) pending.username = responseName;
@@ -1638,6 +1645,7 @@ export class ClientConnection {
     }
     const session = new PlayerSession(this.channel);
     session.setTurnPacketProcessor(() => this.processTurnPackets());
+    session.setNpcTransformSupported(pending.npcTransform === true);
     const player = new Player(session, GameConstants.DEFAULT_LOCATION.clone());
     session.setPlayer(player);
     player.setUsername(pending.username);

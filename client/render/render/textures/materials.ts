@@ -1,6 +1,7 @@
 import Denque from "denque";
 import { mat4, vec2, vec3, vec4 } from "gl-matrix";
 import { button, folder } from "leva";
+import { WORLD_FLOW_SLOWDOWN, WORN_FLOW_SLOWDOWN } from "./wornFlow";
 import { Schema } from "leva/dist/declarations/src/types";
 import {
     DrawCall,
@@ -200,7 +201,7 @@ export function initMaterialsTexture(host: WebGLOsrsRendererHost, ): void {
         const waterTextureIds = host.collectWaterTextureIds();
 
         // Row 0: animU, animV, alphaCutOff, frameCount
-        // Row 1: animSpeed, material flags, water flags, (unused)
+        // Row 1: animSpeed, material flags, water flags, worn flow slowdown (wornFlow.ts)
         // Row 2: water surface RGB, base opacity
         // Row 3: water depth RGB, fresnel amount
         // Row 4: normal strength, specular strength, specular gloss, duration
@@ -236,6 +237,8 @@ export function initMaterialsTexture(host: WebGLOsrsRendererHost, ): void {
 
                     data[row1] = material.animSpeed;
                     data[row1 + 1] = isWater ? 1 : 0;
+                    data[row1 + 3] = WORN_FLOW_SLOWDOWN.get(id) ?? 0;
+                    data[row5 + 3] = WORLD_FLOW_SLOWDOWN.get(id) ?? 0;
 
                     if (isWater) {
                         const water = host.getWaterMaterialParams(id);

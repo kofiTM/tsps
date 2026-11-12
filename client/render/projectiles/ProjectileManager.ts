@@ -413,8 +413,19 @@ export class ProjectileManager implements IProjectileManager {
     private updateContinuousFrame(delta: number, absoluteTime: number): void {
         const stepStartTime = absoluteTime - delta;
         for (const [id, projectile] of this.projectiles) {
-            // Wait until start time; clamp partial-step that crosses spawn.
-            if (absoluteTime <= projectile.startCycle) continue;
+            // Wait until start time; clamp partial-step that crosses spawn. One launched too far
+            // ahead of this clock (over a minute) will never fly: drop it.
+            if (absoluteTime <= projectile.startCycle) {
+                if (projectile.startCycle - absoluteTime > 3000) this.removeProjectile(id);
+                continue;
+            }
+            // A frame that skipped cycles (lag, a background tab) skips their per-cycle solves too:
+            // aim any projectile that started in the gap before moving it.
+            if (!projectile.isAimed()) {
+                const targetMeta = this.dynamicTargets.get(id);
+                if (targetMeta) this.applyTargetActorToProjectile(projectile, targetMeta);
+                projectile.trackTarget(Math.max(projectile.startCycle, Math.floor(stepStartTime)));
+            }
             const effectiveDelta =
                 stepStartTime < projectile.startCycle
                     ? absoluteTime - projectile.startCycle

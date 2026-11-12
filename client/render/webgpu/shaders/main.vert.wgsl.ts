@@ -44,7 +44,8 @@ fn vs_main_depth(
     out.v_color = vertex.color;
 
     let material = getMaterial(vertex.textureId);
-    let textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV));
+    var textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV)) / f32(max(material.worldFlowSlowdown, 1));
+    if (material.worldFlowSlowdown > 1) { textureAnimation = -textureAnimation; }
     if (scene.u_isNewTextureAnim > 0.5) {
         out.v_texCoord = vertex.texCoord
             + glslModVec2(glslMod(scene.u_currentTime, 128.0) * textureAnimation / 64.0, vec2<f32>(1.0));
@@ -286,6 +287,8 @@ struct Material {
     frameCount: i32,
     animSpeed: i32,
     flags: i32,
+    // How much slower it scrolls in the world (wornFlow.ts WORLD_FLOW_SLOWDOWN); 0 or 1 for none.
+    worldFlowSlowdown: i32,
     waterSurfaceColor: vec3<f32>,
     waterFoamColor: vec3<f32>,
     waterDepthColor: vec3<f32>,
@@ -315,6 +318,7 @@ fn getMaterial(textureId: u32) -> Material {
     material.frameCount = i32(data.a & 0xFFu);
     material.animSpeed = i32(data1.r & 0xFFu);
     material.flags = i32(data1.g & 0xFFu);
+    material.worldFlowSlowdown = i32(data5.a & 0xFFu);
     let waterFlags = data1.b & 0xFFu;
     material.waterHasFoam = f32(waterFlags & WATER_FLAG_HAS_FOAM);
     material.waterUseNormalMap2 = (waterFlags & WATER_FLAG_NORMAL_MAP_2) != 0u;
@@ -533,7 +537,8 @@ fn vs_main(
     out.v_color = vertex.color;
 
     let material = getMaterial(vertex.textureId);
-    let textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV));
+    var textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV)) / f32(max(material.worldFlowSlowdown, 1));
+    if (material.worldFlowSlowdown > 1) { textureAnimation = -textureAnimation; }
 
     if (scene.u_isNewTextureAnim > 0.5) {
         out.v_texCoord = vertex.texCoord

@@ -241,7 +241,7 @@ export function onLocDel(host: WebGLOsrsRendererHost, tile: { x: number; y: numb
                     : deletedLoc && (deletedLoc.id | 0) >= 0
                       ? host.osrsClient.locTypeLoader.load(deletedLoc.id | 0)
                       : undefined;
-            const group = locType ? (isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc") : "full";
+            const group = locType && locType.seqId === -1 && !locType.transforms ? (isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc") : "full";
             if (host.instanceActive) host.scheduleInstanceLocUpdate(group);
             else host.scheduleLocGeometryUpdate(mapX, mapY, group);
         } catch (err) {
@@ -381,7 +381,7 @@ export function reloadLocAnimationTile(host: WebGLOsrsRendererHost, tile: { x: n
         const mapX = Math.floor((tile.x | 0) / 64);
         const mapY = Math.floor((tile.y | 0) / 64);
         const locType = host.osrsClient.locTypeLoader.load(locId | 0);
-        const group = locType && isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc";
+        const group = locType && (locType.seqId !== -1 || locType.transforms) ? "full" : locType && isDoorLoc(locType, host.osrsClient.varManager, host.osrsClient.locTypeLoader) ? "door" : "loc";
         // In an instance this rebuilds only the scene's locs, as a loc change does: rebuilding
         // the whole scene for every animation (Tempoross' cannons fire every 2 ticks) kept
         // superseding the build in flight, so new fires and the electrified cannon took

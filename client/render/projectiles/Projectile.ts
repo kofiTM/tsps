@@ -288,6 +288,11 @@ export class Projectile {
         this.lastSolveTick = NaN;
     }
 
+    /** Whether its flight has been aimed: an unaimed projectile hangs at its source facing north. */
+    isAimed(): boolean {
+        return this.velocitiesInitialized;
+    }
+
     hasStarted(): boolean {
         return this.moving;
     }

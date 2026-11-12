@@ -18,6 +18,12 @@ export const LOGIN_FLAG_REMEMBER = 1;
 export const LOGIN_FLAG_TOKEN = 2;
 /** The client handles the character list and picks a character after login. */
 export const LOGIN_FLAG_CHARACTER_SELECT = 4;
+/**
+ * The client reads the npc transformation block (an npc changing type in place). Without it an
+ * npc that changes type is removed and added again, which a client from before the block reads.
+ * (kofi's; was 4 before the upstream merge, moved to 8 because upstream took 4 for character select.)
+ */
+export const LOGIN_FLAG_NPC_TRANSFORM = 8;
 
 export interface LoginTokenEntry {
     hash: string;

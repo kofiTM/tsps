@@ -133,7 +133,10 @@ void main() {
     v_color = vertex.color;
 
     Material material = getMaterial(vertex.textureId);
-    vec2 textureAnimation = vec2(material.animU, material.animV);
+    // Worn Fire and Infernal capes flow slower than their world lava (wornFlow.ts).
+    vec2 textureAnimation = vec2(material.animU, material.animV) / float(max(material.wornFlowSlowdown, 1));
+    // ...and the other way round (kofi).
+    if (material.wornFlowSlowdown > 1) textureAnimation = -textureAnimation;
 
     if (u_isNewTextureAnim > 0.5) {
         v_texCoord = vertex.texCoord + mod(mod(u_currentTime, 128.0) * textureAnimation / 64.0, 1.0);

@@ -669,6 +669,14 @@ export class NpcEcs {
     getNpcTypeId(id: number): number {
         return this.npcTypeId[id] | 0;
     }
+    /**
+     * A transformation's new footprint and turn speed. Like the game's client it leaves the
+     * position alone; the next step places it by the new size.
+     */
+    setSizeAndTurnSpeed(id: number, size: number, rotationSpeed: number): void {
+        this.size[id] = size | 0;
+        this.rotSpeed[id] = (rotationSpeed | 0) & 0xffff;
+    }
     /** Re-points the render type (server transform, or a model customisation's synthetic id). */
     setNpcTypeId(id: number, typeId: number): void {
         const oldId = this.npcTypeId[id] | 0;

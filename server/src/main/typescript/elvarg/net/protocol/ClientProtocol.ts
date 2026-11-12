@@ -197,6 +197,11 @@ export type PlayerSyncState = {
 export type NpcView = Tile & ActorUpdateView & {
   index: number;
   typeId: number;
+  /**
+   * The type it was spawned as, which a transformation leaves alone: another value at the same
+   * index is a different NPC (a reused index), removed and added again.
+   */
+  spawnTypeId?: number;
   /** The overhead prayer icon (an index in headicons_prayer: 0 melee, 1 ranged, 2 magic), -1 none. */
   headIcon?: number;
   /** A glide from the tile it left to where it stands (OSRS npc exact_move), relative to its tile. */
@@ -224,6 +229,7 @@ export type NpcSyncState = {
   indices: number[];
   lastTiles: Map<number, Tile>;
   typeIds: Map<number, number>;
+  spawnTypeIds: Map<number, number>;
   headIcons: Map<number, number>;
   interactionIndices: Map<number, number>;
   worldViews: Map<number, number>;
@@ -2962,7 +2968,7 @@ export function createPlayerSyncState(
 
 export function createNpcSyncState(): NpcSyncState {
   return {
-    indices: [], lastTiles: new Map(), typeIds: new Map(), headIcons: new Map(),
+    indices: [], lastTiles: new Map(), typeIds: new Map(), spawnTypeIds: new Map(), headIcons: new Map(),
     interactionIndices: new Map(), worldViews: new Map(),
   };
 }
@@ -3062,6 +3068,7 @@ const PLAYER_MASK = {
 } as const;
 
 const NPC_MASK = {
+  TRANSFORMATION: 0x02,
   FACE_ENTITY: 0x08,
   ANIMATION: 0x10,
   HIT: 0x20,
@@ -3194,8 +3201,9 @@ function playerUpdateMask(
     (view.graphics?.length ? PLAYER_MASK.SPOT_ANIM : 0);
 }
 
-function npcUpdateMask(view: NpcView, writeInteraction: boolean, writeHeadIcon = false): number {
-  return (writeInteraction ? NPC_MASK.FACE_ENTITY : 0) |
+function npcUpdateMask(view: NpcView, writeInteraction: boolean, writeHeadIcon = false, writeTransform = false): number {
+  return (writeTransform ? NPC_MASK.TRANSFORMATION : 0) |
+    (writeInteraction ? NPC_MASK.FACE_ENTITY : 0) |
     (writeHeadIcon ? NPC_MASK.HEAD_ICONS : 0) |
     (view.animation ? NPC_MASK.ANIMATION : 0) |
     (view.hits || view.bars?.length ? NPC_MASK.HIT : 0) |
@@ -3268,9 +3276,14 @@ function writePlayerUpdateBlock(
   return Buffer.from(bytes);
 }
 
-function writeNpcUpdateBlock(view: NpcView, writeInteraction: boolean, writeHeadIcon = false): Buffer {
+function writeNpcUpdateBlock(
+  view: NpcView,
+  writeInteraction: boolean,
+  writeHeadIcon = false,
+  writeTransform = false
+): Buffer {
   const bytes: number[] = [];
-  const mask = npcUpdateMask(view, writeInteraction, writeHeadIcon);
+  const mask = npcUpdateMask(view, writeInteraction, writeHeadIcon, writeTransform);
   writeMask(bytes, mask);
   if (writeInteraction) {
     const target = (view.interactionIndex ?? -1) < 0 ? 0xffffff : view.interactionIndex! & 0xffffff;
@@ -3318,7 +3331,9 @@ function writeNpcUpdateBlock(view: NpcView, writeInteraction: boolean, writeHead
     bytes.push(view.modelCustomisation.length & 0xff);
     for (const entry of view.modelCustomisation) {
       bytes.push(entry.slot & 0xff);
+      // 32-bit model id as two little-endian shorts (low, high): custom models are >= 1,000,000.
       shortLE(bytes, entry.modelId & 0xffff);
+      shortLE(bytes, (entry.modelId >>> 16) & 0xffff);
     }
   }
   if (view.baseAnimations) {
@@ -3336,6 +3351,9 @@ function writeNpcUpdateBlock(view: NpcView, writeInteraction: boolean, writeHead
     shortBE(bytes, view.transparency.from < 0 ? 0xffff : view.transparency.from & 0xff);
     bytes.push(view.transparency.to & 0xff);
   }
+  // Its new type, changed in place (OSRS rev 241 npc transformation, mask 0x2: the id as a
+  // big-endian short whose low byte is +128).
+  if (writeTransform) shortBEA(bytes, view.typeId & 0xffff);
   return Buffer.from(bytes);
 }
 
@@ -3599,6 +3617,8 @@ export function encodeNpcSync(
   deckLocal?: Tile,
   deckBase?: (worldView: number) => Tile | undefined,
   crossFloor = false,
+  /** The client reads the transformation block (LOGIN_FLAG_NPC_TRANSFORM); older ones get a re-add. */
+  transformInPlace = false,
 ): Buffer {
   const writer = new BitWriter();
   const desired = new Map<number, NpcView>();
@@ -3613,7 +3633,11 @@ export function encodeNpcSync(
   for (const index of state.indices.slice(0, 255)) {
     const view = desired.get(index);
     const last = state.lastTiles.get(index);
-    if (!view || !last || (crossFloor ? view.level !== last.level : view.level !== local.level) || state.typeIds.get(index) !== view.typeId
+    if (!view || !last || (crossFloor ? view.level !== last.level : view.level !== local.level)
+      || (state.spawnTypeIds.get(index) ?? -1) !== (view.spawnTypeId ?? -1)
+      // A new type is re-added for now: the in-place transformation (mask 0x2) left the Maiden invisible after her
+      // form change at 70% (kofi, 2026-11-03) - back on once that's found.
+      || (!transformInPlace && state.typeIds.get(index) !== view.typeId)
       || (state.worldViews.get(index) ?? -1) !== (view.worldView ?? -1)) {
       writer.writeBits(1, 1);
       writer.writeBits(2, 3);
@@ -3622,7 +3646,10 @@ export function encodeNpcSync(
     }
     const writeInteraction = state.interactionIndices.get(index) !== (view.interactionIndex ?? -1);
     const writeHeadIcon = (state.headIcons.get(index) ?? -1) !== (view.headIcon ?? -1);
-    const block = npcUpdateMask(view, writeInteraction, writeHeadIcon) !== 0;
+    // A new type (a transformation) is changed in place, keeping its tile, path and facing; a
+    // client without the block got a re-add above.
+    const writeTransform = state.typeIds.get(index) !== view.typeId;
+    const block = npcUpdateMask(view, writeInteraction, writeHeadIcon, writeTransform) !== 0;
     if (view.runDirection >= 0 && view.walkDirection >= 0) {
       writer.writeBits(1, 1);
       writer.writeBits(2, 2);
@@ -3659,7 +3686,7 @@ export function encodeNpcSync(
       readd.add(index);
     }
     if (block && nextIndices[nextIndices.length - 1] === index) {
-      updateBlocks.push(writeNpcUpdateBlock(view, writeInteraction, writeHeadIcon));
+      updateBlocks.push(writeNpcUpdateBlock(view, writeInteraction, writeHeadIcon, writeTransform));
     }
   }
 
@@ -3704,6 +3731,7 @@ export function encodeNpcSync(
   state.indices = nextIndices;
   state.lastTiles.clear();
   state.typeIds.clear();
+  state.spawnTypeIds.clear();
   state.headIcons.clear();
   state.interactionIndices.clear();
   state.worldViews.clear();
@@ -3712,6 +3740,7 @@ export function encodeNpcSync(
     if (view) {
       state.lastTiles.set(index, { x: view.x, y: view.y, level: view.level });
       state.typeIds.set(index, view.typeId);
+      state.spawnTypeIds.set(index, view.spawnTypeId ?? -1);
       state.headIcons.set(index, view.headIcon ?? -1);
       state.interactionIndices.set(index, view.interactionIndex ?? -1);
       state.worldViews.set(index, view.worldView ?? -1);

@@ -29,7 +29,7 @@ function install(api, request) {
 }
 
 function send(api, { player }) {
-  if (!player.getSession()) return;
+  if (!player.getSession() || player.isPlayerBot?.()) return;   // bots render nothing
   player.getPacketSender().sendContentData("server", [{
     key: DATASET,
     rows: [...api.core.CacheDefinitions.getDefinitionArchiveBundles()],

@@ -5,6 +5,7 @@
  * All encoding methods match OSRS buffer patterns.
  */
 import { encodePluginMessagePayload } from "../../common/network/PluginMessage";
+import { LOGIN_FLAG_NPC_TRANSFORM } from "../serverConnection/constants";
 import { CLIENT_PACKET_LENGTHS, ClientPacketId } from "../../common/packets/ClientPacketId";
 import {
     FriendsChatActionCode,
@@ -647,7 +648,7 @@ export function encodeClientMessage(msg: { type: string; payload: any }): Uint8A
                 payload.username,
                 payload.password,
                 payload.revision,
-                payload.flags,
+                (payload.flags | 0) | LOGIN_FLAG_NPC_TRANSFORM,
             );
 
         case "login_forget":

@@ -76,6 +76,16 @@ const WS_CLOSE_BACKPRESSURE = 1013;
 const WS_CLOSE_SEND_FAILURE = 1011;
 
 /**
+ * A weapon's own turning animation (item-gameplay.json standTurnAnim / turn180Anim / turn90...),
+ * or the human one: weapons that only list the generic turns (820-823) keep the standard set, so
+ * only weapons with turns of their own (the Obligator, Zorya's tome) change how they turn.
+ */
+const GENERIC_TURNS = new Set([820, 821, 822, 823]);
+function weaponTurn(value: number | undefined, fallback: number): number {
+  return Number.isInteger(value) && (value as number) > 0 && !GENERIC_TURNS.has(value as number) ? (value as number) : fallback;
+}
+
+/**
  * The map rebuild a changed scene needs: `region` draws a templated instance from its palette,
  * `normal` the cache map. A plain private area is drawn from the cache map without one, unless
  * the client is leaving a templated instance: it stays in instance mode until a `normal`
@@ -123,6 +133,8 @@ export class PlayerSession {
   private hasReplayedScene = false;
   private playerSyncState?: PlayerSyncState;
   private npcSyncState: NpcSyncState = createNpcSyncState();
+  /** The client reads the npc transformation block; otherwise a type change is a re-add. */
+  private npcTransformSupported = false;
   private readonly npcSpecificEffects = new NpcSpecificEffects();
 
   public queueNpcSpecificEffect(npc: NPC, packet: Buffer): void {
@@ -211,6 +223,11 @@ export class PlayerSession {
 
   /** Set by the client connection: acts on the packets received since the player's last turn. */
   private turnPacketProcessor?: () => void;
+
+  public setNpcTransformSupported(supported: boolean): void {
+    // Off for every client until the Maiden's form change is tested with it (kofi saw her vanish, 2026-11-03).
+    this.npcTransformSupported = supported;
+  }
 
   constructor(channel: SessionChannel) {
     this.channel = channel;
@@ -555,6 +572,7 @@ export class PlayerSession {
           interactionIndex: this.interactionIndex(npc.getInteractingMobile()),
           index: npc.getIndex(),
           typeId: npc.getId(),
+          spawnTypeId: npc.getRealId(),
           worldView: npcBoat?.entityIndex,
           headIcon: npc.getHeadIcon(),
           x: location.getX(),
@@ -607,6 +625,7 @@ export class PlayerSession {
           return boat ? { x: boat.deckBaseX, y: boat.deckBaseY, level: 0 } : undefined;
         },
         CrossFloor.enabled(),
+        this.npcTransformSupported,
       )
     );
 
@@ -690,11 +709,11 @@ export class PlayerSession {
             ]
         : [
             weapon?.getStandAnim?.() ?? 808,
-            823,
+            weaponTurn(weapon?.getStandTurnAnim?.(), 823),
             weapon?.getWalkAnim?.() ?? 819,
-            820,
-            821,
-            822,
+            weaponTurn(weapon?.getTurn180Anim?.(), 820),
+            weaponTurn(weapon?.getTurn90CWAnim?.(), 821),
+            weaponTurn(weapon?.getTurn90CCWAnim?.(), 822),
             weapon?.getRunAnim?.() ?? 824,
           ];
       payload = encodePlayerAppearance(

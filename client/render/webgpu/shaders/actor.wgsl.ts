@@ -169,6 +169,8 @@ struct Material {
     alphaCutOff: f32,
     frameCount: i32,
     animSpeed: i32,
+    // How much slower it flows on a worn model (wornFlow.ts: the Fire and Infernal capes); 0 or 1 for none.
+    wornFlowSlowdown: i32,
 };
 
 fn getMaterial(textureId: u32) -> Material {
@@ -182,6 +184,7 @@ fn getMaterial(textureId: u32) -> Material {
     material.alphaCutOff = f32(data.b & 0xFFu) / 255.0;
     material.frameCount = i32(data.a & 0xFFu);
     material.animSpeed = i32(data1.r & 0xFFu);
+    material.wornFlowSlowdown = i32(data1.a & 0xFFu);
     if (material.frameCount == 0) {
         material.frameCount = 1;
     }
@@ -477,7 +480,9 @@ fn actorFloorViewPos(viewPos: vec4<f32>, localPos: vec4<f32>, plane: u32, ground
 
 fn actorTextureAnimation(vertex: Vertex) -> vec2<f32> {
     let material = getMaterial(vertex.textureId);
-    let textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV));
+    var textureAnimation = vec2<f32>(f32(material.animU), f32(material.animV)) / f32(max(material.wornFlowSlowdown, 1));
+    // ...and the other way round (kofi).
+    if (material.wornFlowSlowdown > 1) { textureAnimation = -textureAnimation; }
     if (scene.u_isNewTextureAnim > 0.5) {
         return vertex.texCoord
             + glslModVec2(glslMod(scene.u_currentTime, 128.0) * textureAnimation / 64.0, vec2<f32>(1.0));

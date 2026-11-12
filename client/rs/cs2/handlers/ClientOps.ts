@@ -49,6 +49,19 @@ const TRANSLATIONS = new Map<string, string>();
 /** ^gameoption_chat_timestamps: the mode of setting 119 "Chat timestamps" (0 off, 1 server time, 2 local time). */
 const GAMEOPTION_CHAT_TIMESTAMPS = 10;
 
+/**
+ * A count dialog's text as OSRS reads it: digits, optionally with k (thousand), m (million) or
+ * b (billion), decimals allowed ("1.5m"). Anything else is 0; the result is clamped to an int.
+ */
+function parseCountInput(input: string): number {
+    const match = /^(-?\d+(?:\.\d+)?)\s*([kmb]?)$/i.exec(String(input ?? "").trim());
+    if (!match) return 0;
+    const scale = { "": 1, k: 1e3, m: 1e6, b: 1e9 }[match[2].toLowerCase() as "" | "k" | "m" | "b"];
+    const value = Math.floor(Number(match[1]) * scale);
+    if (!Number.isFinite(value)) return 0;
+    return Math.max(-2147483648, Math.min(2147483647, value));
+}
+
 export function registerClientOps(handlers: HandlerMap): void {
     // === Clock ===
     // clientclock returns Client.cycleCntr (20ms cycles)
@@ -1540,12 +1553,7 @@ export function registerClientOps(handlers: HandlerMap): void {
     // resume_longdialog(string) (rev 241): a count dialog for values past the int range. This
     // server takes counts as ints, so the value is clamped like resume_countdialog's.
     handlers.set(Opcodes.RESUME_LONGDIALOG, (ctx) => {
-        const text = String(ctx.stringStack[--ctx.stringStackSize] ?? "").trim();
-        let value = 0;
-        if (/^-?\d+$/.test(text)) {
-            const parsed = BigInt(text);
-            value = Number(parsed > 2147483647n ? 2147483647n : parsed < -2147483648n ? -2147483648n : parsed);
-        }
+        const value = parseCountInput(String(ctx.stringStack[--ctx.stringStackSize] ?? ""));
         ctx.cs2Vm.onInputDialogComplete?.("count", value);
         ctx.cs2Vm.inputDialogType = 0;
         ctx.cs2Vm.inputDialogWidgetId = -1;
@@ -1571,16 +1579,8 @@ export function registerClientOps(handlers: HandlerMap): void {
 
     handlers.set(Opcodes.RESUME_COUNTDIALOG, (ctx) => {
         const inputString = ctx.stringStack[--ctx.stringStackSize] ?? "";
-        const trimmed = inputString.trim();
-        let value = 0;
-
-        // Only parse if string is a valid number
-        if (/^-?\d+$/.test(trimmed)) {
-            value = parseInt(trimmed, 10);
-            if (!Number.isFinite(value)) value = 0;
-            // Clamp to signed 32-bit int range
-            value = Math.max(-2147483648, Math.min(2147483647, value));
-        }
+        // 10k, 1.5m, 1b as OSRS takes them; plain numbers as before. Clamped to the int range.
+        const value = parseCountInput(inputString);
 
         // Send to server via callback
         if (ctx.cs2Vm.onInputDialogComplete) {

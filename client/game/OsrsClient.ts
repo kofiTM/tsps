@@ -8188,6 +8188,11 @@ export class OsrsClient {
             applyGlobalNpcHeadIcons(this.npcHeadIcons, serverId, block.headIcons);
         }
 
+        // First, so model customisation in the same block applies to the new type.
+        if (typeof block.transformTypeId === "number" && ecsId !== undefined) {
+            this.transformNpcBinary(serverId, ecsId, block.transformTypeId | 0);
+        }
+
         if (ecsId !== undefined) {
             if (block.exactMove) {
                 applyNpcExactMove(this.npcEcs, ecsId, block.exactMove, getClientCycle() | 0);
@@ -8291,6 +8296,41 @@ export class OsrsClient {
      * type id and re-point the NPC's render instance at it (or back at the cache type on a
      * reset). The square reload rebuilds the geometry with the new models.
      */
+    /**
+     * An NPC changing type in place (OSRS npc transformation): its model, size, turn speed and
+     * animations come from the new type, while its tile, path and facing are kept.
+     */
+    private transformNpcBinary(serverId: number, ecsId: number, typeId: number): void {
+        let npcType: any;
+        try {
+            npcType = this.npcTypeLoader?.load(typeId | 0);
+        } catch {}
+        if (npcType) {
+            this.npcEcs.setSizeAndTurnSpeed(
+                ecsId,
+                Math.max(1, npcType.size | 0),
+                Math.max(0, npcType.rotationSpeed | 0),
+            );
+        }
+        const instance = this.npcInstances.instanceMap.get(`sid:${serverId | 0}`);
+        const state = this.npcEcs.getServerState(ecsId);
+        const tileX = state ? state.tileX | 0 : instance?.x;
+        const tileY = state ? state.tileY | 0 : instance?.y;
+        const level = state ? state.plane | 0 : instance?.level;
+        if (tileX === undefined || tileY === undefined || level === undefined) {
+            this.npcEcs.setNpcTypeId(ecsId, typeId | 0);
+            return;
+        }
+        this.upsertNpcInstanceFromBinary(
+            serverId,
+            typeId | 0,
+            tileX,
+            tileY,
+            level,
+            this.npcEcs.getWorldViewId(ecsId) | 0,
+        );
+    }
+
     private applyNpcModelCustomisation(
         serverId: number,
         entries: Array<{ slot: number; modelId: number }>,

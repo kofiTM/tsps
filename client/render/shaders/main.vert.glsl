@@ -88,7 +88,9 @@ void main() {
     v_color = vertex.color;
 
     Material material = getMaterial(vertex.textureId);
-    vec2 textureAnimation = vec2(material.animU, material.animV);
+    vec2 textureAnimation = vec2(material.animU, material.animV) / float(max(material.worldFlowSlowdown, 1));
+    // Slowed, it flows the cache's way again (kofi: the magic tree sparkle ran upwards slowed).
+    if (material.worldFlowSlowdown > 1) textureAnimation = -textureAnimation;
 
     if (u_isNewTextureAnim > 0.5) {
         v_texCoord = vertex.texCoord + mod(mod(u_currentTime, 128.0) * textureAnimation / 64.0, 1.0);

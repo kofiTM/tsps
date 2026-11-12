@@ -14,6 +14,7 @@ import {
     type WaterMaterialParams,
 } from "../render/constants";
 import { KNOWN_WATER_TEXTURE_IDS } from "../water/WaterTextureIds";
+import { WORLD_FLOW_SLOWDOWN, WORN_FLOW_SLOWDOWN } from "../render/textures/wornFlow";
 import {
     GPU_BUFFER_USAGE,
     GPU_SHADER_STAGE,
@@ -124,6 +125,8 @@ function buildMaterialTextureData(
 
             data[row1] = material.animSpeed;
             data[row1 + 1] = isWater ? 1 : 0;
+            data[row1 + 3] = WORN_FLOW_SLOWDOWN.get(id) ?? 0;
+            data[row5 + 3] = WORLD_FLOW_SLOWDOWN.get(id) ?? 0;
 
             if (isWater) {
                 const water = getWaterMaterialParams(id, waterOverlayColors);

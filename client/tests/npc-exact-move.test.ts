@@ -55,8 +55,8 @@ function roundTrip(): void {
         startCycle: 130, endCycle: 160, direction: 768,
     });
 
-    // Turning into another NPC is still a removal and a new NPC.
-    const other = { ...view(3200, 3200), typeId: 14707 };
+    // Another NPC taking its index is still a removal and a new NPC.
+    const other = { ...view(3200, 3200), typeId: 14707, spawnTypeId: 14707 };
     decoded = decodeNpcs(encodeNpcSync(3, local, [other as any], state), decoder, 160);
     assert.ok(decoded.removals.includes(7), "a different NPC at the same index");
     assert.equal(decoded.spawns.find((entry) => entry.npcId === 7)?.typeId, 14707);
@@ -152,7 +152,10 @@ function currentCacheNpcTypesRoundTrip(): void {
         for (const npc of views) assert.equal(decoded.updateBlocks.get(npc.index)?.say, npc.forcedChat,
             "the spawn sentinel and following update blocks stay aligned");
 
-        const changed = views.map((npc, offset) => ({ ...npc, typeId: types[(offset + 1) % types.length] }));
+        // Other NPCs taking the same indices (a new spawn type, not a transformation).
+        const changed = views.map((npc, offset) => ({
+            ...npc, typeId: types[(offset + 1) % types.length], spawnTypeId: types[(offset + 1) % types.length],
+        }));
         decoded = decodeNpcs(encodeNpcSync(2, local, changed, state), decoder, 30);
         assert.deepEqual(decoded.removals, [7, 8, 9, 10]);
         assert.deepEqual(decoded.spawns.map(npc => npc.typeId), changed.map(npc => npc.typeId));
