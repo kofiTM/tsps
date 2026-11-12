@@ -164,7 +164,9 @@ export class MagicCombatMethod extends CombatMethod {
             if (character.isPlayer() && target.isPlayer()) {
                 it = (character as Player).getLocalPlayers().values();
             } else if (character.isPlayer() && target.isNpc()) {
-                it = (character as Player).getLocalNpcs().values();
+                // Round the target, from the world (a bot's local NPC list is empty, so its barrages
+                // froze one crab, never the ones beside it - as the chinchompa splash found).
+                it = World.getNpcsNear(target.getLocation(), spellRadius + 1, target.getPrivateArea?.() ?? null).values();
             } else if (character.isNpc() && target.isNpc()) {
                 let npcs = Object.values(World.getNpcs());
             } else if (character.isNpc() && target.isPlayer()) {
@@ -172,13 +174,26 @@ export class MagicCombatMethod extends CombatMethod {
             }
 
             for (let next of it) {
-                if (!CombatFactory.canAttackSecondaryTarget(character, target, next, spellRadius)) {
+                if (!CombatFactory.canAttackSecondaryTarget(character, target, next, spellRadius, true)) {
                     continue;
                 }
+                // Landing with the main target's hit, not by its own distance (kofi: the crabs round it were hit late).
                 let pendingHit: PendingHit = new PendingHit(character, next, this,
-                    { delay: MagicCombatMethod.hitDelay(character, next, spell), handleAfterHitEffects: false, ordinary: true }, undefined, context).setSpell(spell);
+                    { delay: MagicCombatMethod.hitDelay(character, target, spell), handleAfterHitEffects: false, ordinary: true }, undefined, context).setSpell(spell);
                 multiCombatHits.push(pendingHit);
                 spell.onHitCalc(pendingHit);
+                // Each target the splash catches shows the spell as its own hit lands (the barrage's ice on a hit, the
+                // splash on a miss), as the main target does; these hits skip handleAfterHitEffects, which plays it there.
+                const caught = next;
+                const shown = pendingHit;
+                const impact = () => {
+                    if (caught.getHitpoints() <= 0) return;
+                    const graphic = shown.isAccurate() ? spell.endGraphic() : MagicCombatMethod.SPLASH_GRAPHIC;
+                    if (graphic) caught.performGraphic(graphic);
+                };
+                const landing = pendingHit.getHits?.()[0];
+                if (landing) landing.onApplied(impact);
+                else impact();
             }
         }
         MagicCombatMethod.payBaseExperience(character, spell, hits[0].isAccurate());
@@ -302,9 +317,13 @@ export class MagicCombatMethod extends CombatMethod {
     }
 
     public attackSpeed(character: Mobile): number {
-
-        if (character.getCombat().getPreviousCast() != null) {
-            return character.getCombat().getPreviousCast().getAttackSpeed();
+        // Wiki: a spell's own speed (5 ticks for the spellbooks), whatever the staff - the spell being
+        // cast, else the one autocast, else the last cast. Only the last cast was read, so a barrage
+        // straight after a bow or melee attack took the wand's speed instead.
+        const combat = character.getCombat();
+        const spell = combat.getCastSpell() ?? combat.getAutocastSpell() ?? combat.getPreviousCast();
+        if (spell != null) {
+            return spell.getAttackSpeed();
         }
 
         return super.attackSpeed(character);

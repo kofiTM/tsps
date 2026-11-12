@@ -46,6 +46,11 @@ const OVERLOAD_REFRESH_MS = 15 * 1000;
 const OVERLOAD_DAMAGE_INTERVAL_MS = 600;
 
 const ATTR_STAMINA_END = "potions:stamina:end";
+/** When the surge potion's cooldown ends (Date.now ms). */
+const ATTR_SURGE_UNTIL = "potions:surge:until";
+/** Wiki (Surge potion): 25% special attack energy a dose, once every five minutes. */
+const SURGE_ENERGY = 25;
+const SURGE_COOLDOWN_MS = 5 * 60 * 1000;
 const ATTR_STAMINA_ACC = "potions:stamina:acc";
 const ATTR_DIVINE_STATE = "potions:divine:state";
 const ATTR_OVERLOAD_STATE = "potions:overload:state";
@@ -666,6 +671,9 @@ function drinkPermissionRefusal(player, entry) {
 }
 
 function drinkCanUseRefusal(player, entry) {
+  // A message when it can't be drunk now (the surge potion's cooldown, kofi), or null to drink it.
+  const refusal = entry.potion.refuse?.(player);
+  if (refusal) return refusal;
   if (entry.potion.canUse && !entry.potion.canUse(player)) {
     return entry.potion.canUseMessage ?? "You need more than 50 Hitpoints to drink this potion.";
   }
@@ -696,6 +704,8 @@ function registerPotion(definition) {
     name: definition.name,
     effect: definition.effect,
     canUse: typeof definition.canUse === "function" ? definition.canUse : null,
+    // A message when it can't be drunk now (the surge potion's cooldown), or null to drink it.
+    refuse: typeof definition.refuse === "function" ? definition.refuse : null,
     canUseMessage: definition.canUseMessage ?? null,
     area: definition.area ?? null,
     requiresFoodPermission: Boolean(definition.requiresFoodPermission),
@@ -951,6 +961,46 @@ registerPotion({ name: "Slayer's respite(m)", chains: [[Items.SLAYERS_RESPITE_M_
     for (const skill of [Skill.ATTACK, Skill.STRENGTH]) lowerSkillByCurrent(player, skill, 3, 0.02);
   } });
 
+// Wiki (Surge potion): 25% special attack energy a dose, drunk once every five minutes; none at
+// full energy. Messages as the Wiki gives them; the cooldown ends with its own line (processSurge)
+// and with death.
+function surgeRefusal(player) {
+  if (player.getSpecialPercentage() >= 100) return "Drinking this would have no effect.";
+  const left = Number(player.getAttribute(ATTR_SURGE_UNTIL) ?? 0) - Date.now();
+  if (left <= 0) return null;
+  const seconds = Math.ceil(left / 1000);
+  const time = seconds >= 60 ? `${Math.ceil(seconds / 60)} minute${Math.ceil(seconds / 60) === 1 ? "" : "s"}` : `${seconds} second${seconds === 1 ? "" : "s"}`;
+  return `You are still full of adrenaline. You'll be able to drink in ${time}.`;
+}
+
+function drinkSurge(player) {
+  player.setSpecialPercentage(Math.min(100, player.getSpecialPercentage() + SURGE_ENERGY));
+  pluginApi.core.CombatSpecial.updateBar(player);
+  player.setAttribute(ATTR_SURGE_UNTIL, Date.now() + SURGE_COOLDOWN_MS);
+}
+
+function processSurge(player) {
+  const until = Number(player.getAttribute(ATTR_SURGE_UNTIL) ?? 0);
+  if (!until || Date.now() < until) return;
+  player.setAttribute(ATTR_SURGE_UNTIL, null);
+  player.sendMessage("You now feel capable of drinking another dose of surge potion.");
+}
+
+function clearSurge({ player }) {
+  player?.setAttribute?.(ATTR_SURGE_UNTIL, null);
+}
+
+registerPotion({
+  name: "Surge potion",
+  chains: [
+    doseChain("SURGE_POTION_4_", "SURGE_POTION_3_", "SURGE_POTION_2_", "SURGE_POTION_1_"),
+    doseChain("SURGE_POTION_4__2", "SURGE_POTION_3__2", "SURGE_POTION_2__2", "SURGE_POTION_1__2"),
+    doseChain("SURGE_POTION_4__3", "SURGE_POTION_3__3", "SURGE_POTION_2__3", "SURGE_POTION_1__3"),
+  ],
+  refuse: surgeRefusal,
+  effect: drinkSurge,
+});
+
 // Core combat/stat potions.
 registerPotion({
   name: "Attack potion",
@@ -1180,6 +1230,13 @@ registerPotion({
   name: "Extended stamina potion",
   chains: [doseChain("EXTENDED_STAMINA_POTION_4_", "EXTENDED_STAMINA_POTION_3_", "EXTENDED_STAMINA_POTION_2_", "EXTENDED_STAMINA_POTION_1_")],
   effect: applyExtendedStamina,
+});
+
+registerPotion({
+  name: "Extended stamina potion",
+  chains: [doseChain("EXTENDED_STAMINA_POTION_4_", "EXTENDED_STAMINA_POTION_3_", "EXTENDED_STAMINA_POTION_2_", "EXTENDED_STAMINA_POTION_1_")],
+  // Wiki: each dose restores 40% run energy and stamina for 4 minutes (a new dose resets it, no stacking).
+  effect: (player) => applyStaminaRequest({ player, energy: 40, durationMs: 4 * 60 * 1000 }),
 });
 
 registerPotion({
@@ -2139,6 +2196,7 @@ module.exports = {
     api.onPlayerLogin(resumeTimedEffects);
     api.onPlayerLogin(resumePrayerRegenerationTimer);
     api.onPlayerDeath(clearPrayerRegeneration);
+    api.onPlayerDeath(clearSurge);
     api.onPlayerDeath(clearDivineOnDeath);
     api.onItemOnItem(pourPotion, { noted: false });
     api.onItemAction(drinkFromLaterOp);
@@ -2162,6 +2220,7 @@ module.exports = {
       processPrayerEnhance(player);
       processBoostDecay(player);
       processDragonfireProtection(player);
+      processSurge(player);
     });
 
     api.log("registered", {

@@ -244,6 +244,11 @@ export class CombatAncientSpellExtend extends CombatSpell {
         return MagicSpellbook.ANCIENT;
     }
 
+    /** The freeze, heal, poison or drain lands with the hit (CombatSpell.onHitCalc). */
+    public effectOnLanding(): boolean {
+        return true;
+    }
+
     public equipmentRequired(player: Player): Item[] {
         return null;
     }

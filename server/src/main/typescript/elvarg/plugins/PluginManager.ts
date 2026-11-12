@@ -2733,6 +2733,8 @@ export class PluginManager {
       GroundItemOperationType: require("../game/entity/impl/grounditem/ItemOnGroundManager").OperationType,
       ItemOnGround: require("../game/entity/impl/grounditem/ItemOnGround").ItemOnGround,
       GroundItemState: require("../game/entity/impl/grounditem/ItemOnGround").State,
+      /** Older name for GroundItemState, still used by kofi's plugins. */
+      ItemOnGroundState: require("../game/entity/impl/grounditem/ItemOnGround").State,
       ItemDefinition: require("../game/definition/ItemDefinition").ItemDefinition,
       EquipPacketListener: require("../net/packet/impl/EquipPacketListener").EquipPacketListener,
       PlayerDeathTask: require("../game/task/impl/PlayerDeath").PlayerDeathTask,
@@ -4432,6 +4434,11 @@ export class PluginManager {
         }
       },
       getRegisteredCommands: (player) => PluginManager.getRegisteredCommands(player),
+      runCommand: (player, text) => {
+        // Loaded here: the command listener imports this module.
+        const { CommandPacketListener } = require("../net/packet/impl/CommandPacketListener");
+        CommandPacketListener.execute(player, String(text ?? ""));
+      },
       registerCommand: (command, handler, minimumRights, description) => {
         if (typeof command !== "string" || typeof handler !== "function") {
           return;

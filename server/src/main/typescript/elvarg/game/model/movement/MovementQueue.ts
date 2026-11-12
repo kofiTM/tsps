@@ -953,6 +953,14 @@ export class MovementQueue {
             return;
         }
 
+        // A pet waits out its owner's teleport (still following) and snaps to them once they land, as
+        // above; ending the follow here left every pet behind after a teleport (kofi, 2026-11-12).
+        if (following.isTeleportingReturn() && this.character.isNpc() && this.character.getAsNpc().isPet()
+            && this.character.getAsNpc().getOwner() === following) {
+            this.reset();
+            return;
+        }
+
         if (!playerFollowingPlayer && (following.isTeleportingReturn() || tooFarAway)) {
             this.character.setFollowing(null);
             this.character.setMobileInteraction(null);

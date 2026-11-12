@@ -8,6 +8,8 @@ import { Graphic } from "../../../model/Graphic";
 import { Sound } from "../../../Sound";
 import { Projectile } from "../../../model/Projectile";
 import { PendingHit } from "../hit/PendingHit";
+import { Task } from "../../../task/Task";
+import { TaskManager } from "../../../task/TaskManager";
 import { MagicSpellbook } from "../../../model/MagicSpellbook";
 
 const PROJECTILE_VISUAL_CONTEXT = "magic:projectile-visual";
@@ -130,8 +132,35 @@ export abstract class CombatSpell extends Spell {
     const effect = { attacker: hit.getAttacker(), target: hit.getTarget(), spell: this, hit, allowed: true, effectMultiplier: 1 };
     PluginManager.emitCustomEvent("magic:hit-effects", effect);
     if (!effect.allowed) return;
-    this.spellEffectOnHitCalc(effect.attacker, effect.target, hit.getTotalDamage(), effect.effectMultiplier);
-    PluginManager.emitCustomEvent("magic:hit-effects-applied", effect);
+    const apply = () => {
+      this.spellEffectOnHitCalc(effect.attacker, effect.target, hit.getTotalDamage(), effect.effectMultiplier);
+      PluginManager.emitCustomEvent("magic:hit-effects-applied", effect);
+    };
+    // Decided at the cast, applied as the hit lands (Wiki: an Ancient spell's freeze or heal comes with
+    // its hit, after the spell's flight) - applied at the cast it froze a target 4 tiles off as soon as
+    // one 13 tiles off.
+    const landing = this.effectOnLanding() ? hit.getHits?.()[0] : null;
+    // On an NPC it takes hold a tick before the hit shows (kofi: frozen crabs took one more step as the ice
+    // landed): tasks run before NPCs move, so it stops on the tile it was on.
+    // (An NPC's hit lands a tick after its delay - CombatFactory.hitProcessingDelay - so its delay is that tick.)
+    const early = landing && hit.getTarget().isNpc() ? hit.getDelay() : 0;
+    if (early >= 1) {
+      let left = early;
+      TaskManager.submit(new class extends Task {
+        constructor() { super(1, false); }
+        execute(): void {
+          if (--left > 0) return;
+          this.stop();
+          apply();
+        }
+      }());
+    } else if (landing) landing.onApplied(apply);
+    else apply();
+  }
+
+  /** Whether this spell's effect waits for its hit to land (the Ancient spells') rather than the cast. */
+  public effectOnLanding(): boolean {
+    return false;
   }
 
   public spellEffectOnHitCalc(cast: Mobile, castOn: Mobile, damage: number, effectMultiplier = 1): void { }

@@ -85,7 +85,14 @@ export class Autocasting {
     }
 
     /** What varp 664 is set to when the selector opens, for this spellbook and weapon. */
+    /**
+     * Custom staves (data/definitions/custom-items.json) the client has no autocast list for: shown the list of a
+     * staff it knows (kofi 01:49 - the Fractured staff of Armadyl's ancients autocast box was empty).
+     */
+    public static readonly CUSTOM_AUTOCAST_AS = new Map<number, number>([[50005, ItemIdentifiers.ANCIENT_STAFF]]);
+
     public static selectorList(spellbook: MagicSpellbook, weaponId: number): number {
+        weaponId = this.CUSTOM_AUTOCAST_AS.get(weaponId) ?? weaponId;
         if (spellbook === MagicSpellbook.ANCIENT) return ItemIdentifiers.ANCIENT_STAFF;
         if (spellbook === MagicSpellbook.ARCEUUS) return this.SELECTOR_ARCEUUS;
         if (weaponId === ItemIdentifiers.SLAYERS_STAFF || weaponId === ItemIdentifiers.SLAYERS_STAFF_E_) {

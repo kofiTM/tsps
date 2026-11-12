@@ -145,9 +145,10 @@ const THRALL_COOLDOWN = { attribute: "arceuus:thrall-until", duration: 10_000 };
  * since revision 237 (no capture has a zombie rising since then).
  */
 const RESURRECT = 8973;
-const GHOST = { cast: 1873, impact: 1903, rise: 13683 };
-const SKELETON = { cast: 1874, impact: 1904, rise: 13684 };
-const ZOMBIE = { cast: 1875, impact: 1905, rise: 13685 };
+// attack: the thrall's attack seq (gameval *_ATTACK_THRALL); travel/hit: the attack's projectile and impact (gameval THRALL_MAGIC_TRAVEL/IMPACT, THRALL_RANGED_TRAVEL).
+const GHOST = { cast: 1873, impact: 1903, rise: 13683, travel: 1907, hit: 1908, attack: 11101 };
+const SKELETON = { cast: 1874, impact: 1904, rise: 13684, travel: 1906, attack: 13672 };
+const ZOMBIE = { cast: 1875, impact: 1905, rise: 13685, attack: 13681 };
 
 /** Self-cast Arceuus spells. Targeted spells remain in their respective packet handlers. */
 export class ArceuusSpells {
@@ -293,8 +294,10 @@ export class ArceuusSpells {
             player.sendMessage("You cannot summon a Thrall during PvP combat.");
             return true;
         }
+        // Wiki (Thralls): the Book of the dead wielded or in the inventory.
+        const hasBook = player.getEquipment().contains(25818) || player.getInventory().contains(25818);
         if (thrallPrayerCost > 0 && key.startsWith("resurrect ") &&
-            (!player.getEquipment().contains(25818) || player.getSkillManager().getCurrentLevel(Skill.PRAYER) < thrallPrayerCost)) {
+            (!hasBook || player.getSkillManager().getCurrentLevel(Skill.PRAYER) < thrallPrayerCost)) {
             player.sendMessage("You need the Book of the dead and enough Prayer points to summon that Thrall.");
             return true;
         }

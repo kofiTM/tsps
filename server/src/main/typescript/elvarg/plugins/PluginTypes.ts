@@ -1255,6 +1255,8 @@ export interface PluginApi {
   ): void;
   /** Registered commands this player can run, including world/plugin rank overrides. */
   getRegisteredCommands(player: any): Array<{ command: string; description: string }>;
+  /** Runs `text` ("::item 4151" or "item 4151") as if the player had typed it: same rank checks. */
+  runCommand(player: any, text: string): void;
   /**
    * Overrides the rank a command requires, whoever registered it. `PlayerRights.NONE`
    * opens the command to every player - e.g. a spawn-mode plugin granting ::items.
@@ -1667,6 +1669,7 @@ export interface PluginCoreApi {
   GroundItemOperationType: any;
   ItemOnGround: any;
   GroundItemState: any;
+  ItemOnGroundState: any;
   ItemDefinition: any;
   EquipPacketListener: any;
   /** The death task; `getItemsToKeep(player)` is what a death would let the player keep. */

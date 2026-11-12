@@ -7,6 +7,7 @@ import { PendingHit } from "../../hit/PendingHit";
 import { Mobile } from "../../../../entity/impl/Mobile";
 import { Animation } from "../../../../model/Animation";
 import { Graphic } from "../../../../model/Graphic";
+import { World } from "../../../../World";
 import { GraphicHeight } from "../../../../model/GraphicHeight";
 import { Projectile } from "../../../../model/Projectile";
 import { CrossFloor } from "../../../../CrossFloor";
@@ -53,8 +54,71 @@ export class RangedCombatMethod extends CombatMethod {
         const delays = character.isPlayer()
             ? RangedCombatMethod.landingDelays(character, target)
             : [RangedCombatMethod.npcHitDelay(character, target)];
-        return delays.map((delay) => new PendingHit(character, target, this, delay));
+        const hits = delays.map((delay) => new PendingHit(character, target, this, delay));
+        return RangedCombatMethod.isChinchompa(character) ? hits.concat(RangedCombatMethod.chinchompaSplash(this, character, target, hits[0])) : hits;
     }
+
+    /** A chinchompa in hand (RangedData's three). */
+    private static isChinchompa(character: Mobile): boolean {
+        if (!character.isPlayer()) return false;
+        const weapon = character.getCombat().getRangedWeapon();
+        return weapon === RangedWeapon.CHINCHOMPA || weapon === RangedWeapon.RED_CHINCHOMPA || weapon === RangedWeapon.BLACK_CHINCHOMPA;
+    }
+
+    /**
+     * Wiki (Chinchompa (weapon), Black chinchompa): it explodes on its target, hitting everything in
+     * the 3x3 round it - in a multi-combat area, up to 12 targets in all for a black chinchompa and 11
+     * for the others (10 and 9 against players). One accuracy roll, the main target's: if it hits,
+     * every other target is hit too (each its own damage); if it misses, they all miss.
+     */
+    private static chinchompaSplash(method: RangedCombatMethod, character: Mobile, target: Mobile, primary: PendingHit): PendingHit[] {
+        if (!primary || !primary.isAccurate()) return [];
+        const black = character.getCombat().getRangedWeapon() === RangedWeapon.BLACK_CHINCHOMPA;
+        const pvp = target.isPlayer();
+        const most = (black ? 12 : 11) - (pvp ? 2 : 0) - 1;
+        // From the world, not the thrower's local lists: those are a client's view, and empty for a bot.
+        const reach = Math.max(1, target.getSize?.() ?? 1) + 2;
+        const nearby: Iterable<Mobile> = pvp
+            ? [...World.getPlayers()].filter((other) => other && other.getPrivateArea() === target.getPrivateArea()
+                && other.getLocation().isWithinDistance(target.getLocation(), reach))
+            : World.getNpcsNear(target.getLocation(), reach, target.getPrivateArea());
+        const splash: PendingHit[] = [];
+        for (const next of nearby) {
+            if (splash.length >= most) break;
+            if (RangedCombatMethod.footprintGap(target, next) > 1) continue;
+            if (!CombatFactory.canAttackSecondaryTarget(character, target, next)) continue;
+            const hit = new PendingHit(character, next, method, { delay: primary.getDelay(), rollAccuracy: false });
+            // Damage only: the explosion shows on the target thrown at (handleAfterHitEffects).
+            (hit as any).__chinSplash = true;
+            splash.push(hit);
+        }
+        return splash;
+    }
+
+    /** Tiles between two actors' footprints (0 touching or overlapping): "the 3x3 round" a big target is its edge plus one. */
+    private static footprintGap(a: Mobile, b: Mobile): number {
+        const at = a.getLocation();
+        const bt = b.getLocation();
+        const aSize = Math.max(1, a.getSize?.() ?? 1);
+        const bSize = Math.max(1, b.getSize?.() ?? 1);
+        const dx = Math.max(0, bt.getX() - (at.getX() + aSize - 1), at.getX() - (bt.getX() + bSize - 1));
+        const dy = Math.max(0, bt.getY() - (at.getY() + aSize - 1), at.getY() - (bt.getY() + bSize - 1));
+        return Math.max(dx, dy);
+    }
+
+    /**
+     * The chinchompa's explosion on the target it was thrown at (kofi: none showed; then on every one it
+     * reached - in OSRS only the target shows it, the rest just take their hits). Spotanim 157
+     * (FIREWAVE_IMPACT), the burst players know as the chinchompa explosion - not checked against a
+     * capture.
+     */
+    public handleAfterHitEffects(hit: PendingHit): void {
+        if (RangedCombatMethod.isChinchompa(hit.getAttacker()) && !(hit as any).__chinSplash) {
+            hit.getTarget().performGraphic(new Graphic(RangedCombatMethod.CHINCHOMPA_EXPLOSION, GraphicHeight.MIDDLE));
+        }
+    }
+
+    private static readonly CHINCHOMPA_EXPLOSION = 157;
 
     /** On another floor, keep the splat from resolving before its slower cross-floor shot lands. */
     public static playerHitDelays(character: Mobile, target: Mobile, distance: number): number[] {

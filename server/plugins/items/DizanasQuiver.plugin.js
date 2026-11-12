@@ -100,7 +100,15 @@ function stageOf(itemId) {
   if (itemId === I.DIZANAS_QUIVER_UNCHARGED_ || itemId === I.DIZANAS_QUIVER_L_UNCHARGED_) return "uncharged";
   if (itemId === I.DIZANAS_QUIVER || itemId === I.DIZANAS_QUIVER_L_) return "charged";
   if (itemId === I.BLESSED_DIZANAS_QUIVER || itemId === I.BLESSED_DIZANAS_QUIVER_L_) return "blessed";
+  // The max cape holds a blessed quiver: it saves ammo the same way.
+  if (itemId === I.DIZANAS_MAX_CAPE || itemId === I.DIZANAS_MAX_CAPE_2 || itemId === I.DIZANAS_MAX_CAPE_L_) return "blessed";
   return null;
+}
+
+/** The max cape keeps its own Wilderness rules (the capes plugin), only its ammo saving is the quiver's. */
+function isMaxCape(itemId) {
+  const I = itemIdentifiers();
+  return itemId === I.DIZANAS_MAX_CAPE || itemId === I.DIZANAS_MAX_CAPE_2 || itemId === I.DIZANAS_MAX_CAPE_L_;
 }
 
 /**
@@ -605,7 +613,7 @@ function wildernessLevel(player) {
 }
 
 function shouldKeepQuiver({ player, item }) {
-  if (!stageOf(item?.getId?.())) return null;
+  if (!stageOf(item?.getId?.()) || isMaxCape(item.getId())) return null;
   const level = wildernessLevel(player);
   if (level <= 0) return null;
   if (level <= 20 || isLocked(item.getId())) return true;
@@ -628,7 +636,7 @@ function clearQuiverState(player, item) {
 
 function deathItemDrop(event) {
   const { player, item } = event;
-  if (!stageOf(item?.getId?.())) return;
+  if (!stageOf(item?.getId?.()) || isMaxCape(item.getId())) return;
   const level = wildernessLevel(player);
   if (level <= 0) return;
   const ammo = stored(player);

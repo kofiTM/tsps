@@ -6,6 +6,7 @@ import { HitDamage } from "../hit/HitDamage";
 import { HitMask } from "../hit/HitMask";
 import { Animation } from "../../../model/Animation";
 import { Graphic } from "../../../model/Graphic";
+import { GraphicHeight } from "../../../model/GraphicHeight";
 import { CombatRange } from "../CombatRange";
 import { PathFinder } from "../../../model/movement/path/PathFinder";
 import { Task } from "../../../task/Task";
@@ -13,13 +14,37 @@ import { TaskManager } from "../../../task/TaskManager";
 import { Location } from "../../../model/Location";
 import { Misc } from "../../../../util/Misc";
 import { PluginManager } from "../../../../plugins/PluginManager";
+import { Projectile } from "../../../model/Projectile";
+import { RegionManager } from "../../../collision/RegionManager";
 
 const THRALL_KEY = "arceuus:thrall";
 const THRALL_PURSUIT_KEY = "arceuus:thrall-pursuit";
 
 export class ArceuusThralls {
+    /** The nearest tile to the thrall that is free and within `range` of the target. */
+    private static freeTileInRange(thrall: NPC, target: any, range: number): Location | null {
+        const from = thrall.getLocation();
+        const at = target.getLocation();
+        const size = Math.max(1, target.getSize?.() ?? 1);
+        let best: Location | null = null;
+        let bestDistance = Number.MAX_SAFE_INTEGER;
+        for (let dx = -range; dx < size + range; dx++) {
+            for (let dy = -range; dy < size + range; dy++) {
+                const tile = at.transform(dx, dy);
+                if (dx >= 0 && dx < size && dy >= 0 && dy < size) continue;
+                if (RegionManager.blocked(tile, thrall.getPrivateArea())) continue;
+                const distance = tile.getDistance(from);
+                if (distance < bestDistance) {
+                    best = tile;
+                    bestDistance = distance;
+                }
+            }
+        }
+        return best;
+    }
+
     /** `spawn` is the thrall's rising animation and the graphic it appears with. */
-    public static summon(player: Player, npcId: number, prayerCost: number, maxHit: number, attackDistance: number, spawn?: { rise: number; impact: number }): void {
+    public static summon(player: Player, npcId: number, prayerCost: number, maxHit: number, attackDistance: number, spawn?: { rise: number; impact: number; travel?: number; hit?: number; attack?: number }): void {
         const previous = player.getAttribute(THRALL_KEY) as NPC | null;
         if (previous?.isRegistered()) World.getRemoveNPCQueue().push(previous);
 
@@ -32,6 +57,9 @@ export class ArceuusThralls {
         thrall.setOwner(player);
         thrall.setPet(true);
         thrall.setUntargetable(true);
+        // Its attacks are its own (not the engine's combat), so the engine would stop it facing a
+        // target a few tiles away between hits: it keeps facing what it attacks at any range.
+        thrall.setFlag("interaction:keep");
         thrall.setFollowing(player);
         (thrall as any).__skipDefaultRespawn = true;
         player.setAttribute(THRALL_KEY, thrall);
@@ -45,6 +73,13 @@ export class ArceuusThralls {
         PluginManager.emitCustomEvent("magic:thrall-duration", duration);
         let ticks = duration.ticks;
         let attackTicks = 0;
+        // Ticks spent out of range without getting closer: it re-paths, and if still boxed in
+        // (players and NPCs block its way) it steps straight to a free tile in range.
+        let stuckTicks = 0;
+        let bestDistance = Number.MAX_SAFE_INTEGER;
+        // What its owner last attacked: a moment off the target (a dodge, a gear swap) keeps it on it.
+        let lastTarget: any = null;
+        let farTicks = 0;
         TaskManager.submit(new class extends Task {
             constructor() { super(1); }
             execute(): void {
@@ -55,15 +90,28 @@ export class ArceuusThralls {
                     return;
                 }
                 if (!thrall.isRegistered()) return;
-                const target = player.getCombat().getTarget();
-                if (!target?.isNpc() || !target.isRegistered() || target.isUntargetable() || target.getHitpoints() <= 0) {
+                const fighting = (mobile: any) => mobile?.isNpc() && mobile.isRegistered() && !mobile.isUntargetable() && mobile.getHitpoints() > 0;
+                const current = player.getCombat().getTarget();
+                if (fighting(current)) lastTarget = current;
+                else if (!fighting(lastTarget)) lastTarget = null;
+                const target = lastTarget;
+                if (!target) {
                     if (thrall.getFollowing() !== player) {
                         thrall.getMovementQueue().reset();
                         thrall.setAttribute(THRALL_PURSUIT_KEY, null);
                         thrall.setFollowing(player);
                     }
+                    // Left behind (a wall, water or people in the way): back beside its owner.
+                    if (thrall.calculateDistance(player) > 6) {
+                        if (++farTicks >= 4) {
+                            const beside = ArceuusThralls.freeTileInRange(thrall, player, 1);
+                            if (beside) thrall.moveTo(beside);
+                            farTicks = 0;
+                        }
+                    } else farTicks = 0;
                     return;
                 }
+                farTicks = 0;
                 if (thrall.getInteractingMobile() !== target) thrall.setMobileInteraction(target);
 
                 const overlappingTarget = CombatRange.overlapsEntities(thrall, target);
@@ -74,7 +122,27 @@ export class ArceuusThralls {
                     return;
                 }
 
-                if (thrall.calculateDistance(target) > attackDistance) {
+                const distance = thrall.calculateDistance(target);
+                if (distance > attackDistance) {
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        stuckTicks = 0;
+                    } else {
+                        stuckTicks++;
+                        // Re-path around whoever is in the way; boxed in for good, step out.
+                        if (stuckTicks % 2 === 0) thrall.setAttribute(THRALL_PURSUIT_KEY, null);
+                        if (stuckTicks >= 3) {
+                            const free = ArceuusThralls.freeTileInRange(thrall, target, attackDistance);
+                            if (free) {
+                                thrall.getMovementQueue().reset();
+                                thrall.moveTo(free);
+                                thrall.setAttribute(THRALL_PURSUIT_KEY, null);
+                                stuckTicks = 0;
+                                bestDistance = Number.MAX_SAFE_INTEGER;
+                                return;
+                            }
+                        }
+                    }
                     thrall.setFollowing(null);
                     const destination = CombatRange.rangedDestination(thrall, target, attackDistance);
                     const previousDestination = thrall.getAttribute(THRALL_PURSUIT_KEY) as Location | null;
@@ -84,6 +152,8 @@ export class ArceuusThralls {
                     }
                     return;
                 }
+                stuckTicks = 0;
+                bestDistance = Number.MAX_SAFE_INTEGER;
                 if (thrall.getFollowing() != null || thrall.getAttribute(THRALL_PURSUIT_KEY) != null) {
                     thrall.setFollowing(null);
                     thrall.getMovementQueue().reset();
@@ -91,7 +161,12 @@ export class ArceuusThralls {
                 }
 
                 if (++attackTicks % 4 === 0) {
-                    thrall.performAnimation(new Animation(thrall.getAttackAnim()));
+                    // Turned to the target with every attack: following its owner or stepping round
+                    // someone leaves it facing elsewhere.
+                    thrall.setMobileInteraction(target);
+                    thrall.performAnimation(new Animation(spawn?.attack ?? thrall.getAttackAnim()));
+                    // The ghost's and the skeleton's attacks fly to the target; the zombie's is melee.
+                    if (spawn?.travel) Projectile.createProjectile(thrall, target, spawn.travel, 30, 30 + thrall.calculateDistance(target) * 5, 40, 31).sendProjectile();
                     // Content may cancel the attack's damage (a monster thralls can't hurt): the thrall still attacks,
                     // but no hit is queued. Its hit skips the hit-modify hooks, so this is where such immunity goes.
                     const attack = { player, thrall, target, cancelled: false };
@@ -100,8 +175,14 @@ export class ArceuusThralls {
                     // Content may raise each attack's max hit (a league fragment), as for the duration.
                     const max = { player, thrall, target, maxHit };
                     PluginManager.emitCustomEvent("magic:thrall-max-hit", max);
+                    // A thrall's hit is damage of its own, not a PendingHit: content that judges hits
+                    // (a boss's phase floors, kill shares) hears it as "magic:thrall-hit".
                     const hit = new HitDamage(Misc.getRandom(Math.max(0, Math.floor(Number(max.maxHit) || 0))), HitMask.RED).setSource(player)
-                        .onApplied(damage => target.getCombat().addDamage(player, damage));
+                        .onApplied(damage => {
+                            target.getCombat().addDamage(player, damage);
+                            if (spawn?.hit) target.performGraphic(new Graphic(spawn.hit, GraphicHeight.HIGH));
+                            PluginManager.emitCustomEvent("magic:thrall-hit", { player, thrall, target, damage });
+                        });
                     target.getCombat().getHitQueue().addPendingDamage([hit]);
                 }
             }

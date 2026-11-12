@@ -144,7 +144,9 @@ export class ItemDefinition {
         this.name = cached.name;
         this.examine = cached.examine ?? this.examine;
         this.stackable = cached.stackability === ObjStackability.ALWAYS;
-        this.tradeable = cached.isTradable || id === ItemIdentifiers.COINS;
+        // The cache flag means Grand Exchange tradeable: coins and platinum tokens aren't on the
+        // exchange but trade between players as in OSRS.
+        this.tradeable = cached.isTradable || id === ItemIdentifiers.COINS || id === ItemIdentifiers.PLATINUM_TOKEN;
         this.dropable = cached.inventoryActions[4]?.toLowerCase() === "drop";
         this.noted = cached.noteTemplate !== -1;
         this.noteId = cached.note;

@@ -173,6 +173,13 @@ export class HitQueue {
         return this.pendingHits.length > 0 || this.pendingDamage.length > 0;
     }
 
+    /** Drops every hit still on its way from `attacker` (content whose attacker is gone, a boss that just died). */
+    cancelFrom(attacker: Mobile): void {
+        for (let i = this.pendingHits.length - 1; i >= 0; i--) {
+            if (this.pendingHits[i].hit.getAttacker() === attacker) this.pendingHits.splice(i, 1);
+        }
+    }
+
     /** Whether this exact hit is still queued, independent of other hits from its attacker. */
     hasPendingHit(hit: PendingHit): boolean {
         return this.pendingHits.some((entry) => entry.hit === hit);

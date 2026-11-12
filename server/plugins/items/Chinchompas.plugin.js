@@ -40,9 +40,12 @@ function createMethod() {
         return hits;
       }
       for (const candidate of nearbyMobiles(character.getAsPlayer())) {
-        if (CombatFactory.canAttackSecondaryTarget(character, target, candidate, BLAST_RADIUS)) {
+        if (CombatFactory.canAttackSecondaryTarget(character, target, candidate, BLAST_RADIUS, true)) {
           // The first target's roll decides the blast (Wiki), so the rest are not rolled again.
-          hits.push(new PendingHit(character, candidate, this, { delay: first.getDelay(), rollAccuracy: false }));
+          const splash = new PendingHit(character, candidate, this, { delay: first.getDelay(), rollAccuracy: false });
+          // Damage only: the explosion shows on the target thrown at (RangedCombatMethod.handleAfterHitEffects).
+          splash.__chinSplash = true;
+          hits.push(splash);
         }
       }
       return hits;

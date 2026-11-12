@@ -868,7 +868,9 @@ export class CombatFactory {
         primaryTarget: Mobile,
         candidate: Mobile,
         /** Max distance from the primary target; omit when the caller already shaped the area. */
-        spellRadius?: number
+        spellRadius?: number,
+        /** Count any tile the candidate occupies, as burst/barrage spells and chinchompas do (Wiki). */
+        footprint = false
     ): boolean {
         if (!candidate || candidate === attacker || candidate === primaryTarget) {
             return false;
@@ -886,8 +888,22 @@ export class CombatFactory {
         if (candidate.getHitpoints() <= 0) {
             return false;
         }
-        if (spellRadius !== undefined && !candidate.getLocation().isWithinDistance(primaryTarget.getLocation(), spellRadius)) {
+        if (spellRadius !== undefined && !footprint && !candidate.getLocation().isWithinDistance(primaryTarget.getLocation(), spellRadius)) {
             return false;
+        }
+        // Burst/barrage spells and chinchompas (Wiki, Multicombat area, "Enemies larger than 1 tile"): the area
+        // is centred on the primary target's true (south-west) tile, and a candidate is hit when any tile it
+        // occupies is inside it - not only its own true tile (2x2 Matomenos west or south of the target were
+        // missed). Opt-in, so the other area attacks keep their own rule.
+        if (spellRadius !== undefined && footprint) {
+            const centre = primaryTarget.getLocation();
+            const at = candidate.getLocation();
+            const size = Math.max(1, candidate.getSize?.() ?? 1);
+            const overlapsX = at.getX() <= centre.getX() + spellRadius && at.getX() + size - 1 >= centre.getX() - spellRadius;
+            const overlapsY = at.getY() <= centre.getY() + spellRadius && at.getY() + size - 1 >= centre.getY() - spellRadius;
+            if (at.getZ() !== centre.getZ() || !overlapsX || !overlapsY) {
+                return false;
+            }
         }
         if (!AreaManager.inMulti(candidate)) {
             return false;
@@ -1775,6 +1791,13 @@ export class CombatFactory {
             rangedWeapon === RangedWeapon.CRAWS_BOW
         ) {
             // The bows spend their revenant ether through the plugin ammo handlers above; no ammunition here.
+            return;
+        }
+
+        // The Bow of Faerdhinen makes its own arrows (it is listed as its own ammunition, so
+        // falling through would fire the bow itself). Its shard charges aren't modelled; the
+        // (c) variants never use any (Wiki: Bow of Faerdhinen).
+        if (RangedWeapon.BOW_OF_FAERDHINEN.includes(rangedWeapon)) {
             return;
         }
 
