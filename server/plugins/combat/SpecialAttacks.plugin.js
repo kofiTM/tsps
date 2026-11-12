@@ -49,11 +49,13 @@ module.exports = {
     require("./specials/DragonWarhammer.SpecialAttack")(api);
     require("./specials/DualMacuahuitl.SpecialAttack")(api);
     require("./specials/EclipseAtlatl.SpecialAttack")(api);
+    require("./specials/EkZekKil.SpecialAttack")(api);
     require("./specials/ElderMaul.SpecialAttack")(api);
     require("./specials/EldritchNightmareStaff.SpecialAttack")(api);
     require("./specials/Emberlight.SpecialAttack")(api);
     require("./specials/Excalibur.SpecialAttack")(api);
     require("./specials/EyeOfAyak.SpecialAttack")(api);
+    require("./specials/FracturedStaffOfArmadyl.SpecialAttack")(api);
     require("./specials/GraniteHammer.SpecialAttack")(api);
     require("./specials/GraniteMaul.SpecialAttack")(api);
     require("./specials/KerisPartisanOfCorruption.SpecialAttack")(api);
@@ -64,6 +66,7 @@ module.exports = {
     require("./specials/MorrigansThrowingAxeBh.SpecialAttack")(api);
     require("./specials/NoxiousHalberd.SpecialAttack")(api);
     require("./specials/OsmumtensFang.SpecialAttack")(api);
+    require("./specials/PowerZone.SpecialAttack")(api);
     require("./specials/PurgingStaff.SpecialAttack")(api);
     require("./specials/Rondache.SpecialAttack")(api);
     require("./specials/RosewoodBlowpipe.SpecialAttack")(api);
@@ -92,8 +95,10 @@ module.exports = {
     require("./specials/VestasSpearDeadman.SpecialAttack")(api);
     require("./specials/Voidwaker.SpecialAttack")(api);
     require("./specials/VolatileNightmareStaff.SpecialAttack")(api);
+    require("./specials/WandOfThePraesul.SpecialAttack")(api);
     require("./specials/WebweaverBow.SpecialAttack")(api);
     require("./specials/ZamorakGodsword.SpecialAttack")(api);
+    require("./specials/ZarosGodsword.SpecialAttack")(api);
     require("./specials/ZaryteCrossbow.SpecialAttack")(api);
   },
 };
