@@ -14,6 +14,7 @@
  */
 
 const OrderedRewards = require("./OrderedRewards.NpcDrops");
+const DropNews = require("./DropNews.NpcDrops");
 const fs = require("fs");
 const path = require("path");
 
@@ -33,6 +34,8 @@ const SUBTABLES_FILE = "npc-drop-subtables.json";
 const OVERRIDES_FILE = "npc-drop-overrides.json";
 const CUSTOM_FILE = "npc-drops-custom.json";
 const MAX_STACK = 2147483647;
+/** Drops rarer than this count as rares: boss rares are world news (DropNews, kofi; upstream removed the constant). */
+const RARE_CHANCE = 1 / 100;
 const CURRENCY_IDS = new Set([995, 6529, 21555]);
 /** loottracker_add_loot (npc, key, obj, count); cache script 7192. */
 const LOOT_TRACKER_SCRIPT = 7192;
@@ -777,7 +780,10 @@ function resolveEntry(entry, player, context = null) {
   if (!Number.isInteger(entry.item_id)) {
     return [];
   }
-  const drops = [{ itemId: entry.item_id, amount: rollQuantity(entry, context), noted: entry.noted === true }];
+  // Rarer than RARE_CHANCE: a boss's is world news (DropNews, kofi).
+  const weight = Number.isInteger(entry.weight) ? entry.weight : 1;
+  const rare = Number(entry.out_of) > 0 && weight / Number(entry.out_of) < RARE_CHANCE;
+  const drops = [{ itemId: entry.item_id, amount: rollQuantity(entry, context), noted: entry.noted === true, ...(rare ? { rare: true } : {}) }];
   for (const bonus of entry.bonus_drops || []) {
     if (Number.isInteger(bonus.item_id)) {
       drops.push({ itemId: bonus.item_id, amount: rollQuantity(bonus, context), noted: bonus.noted === true });
@@ -1027,6 +1033,43 @@ function extraRolls(event) {
 }
 
 /**
+ * Server custom (boss bots' drop log, kofi 2026-11-08): one kill of `table` with nobody there - no
+ * player, no plugin's kill rules or context, no reward chain - for a boss bot's kill that only goes in
+ * its drop log (plugins/bosses/BossBotKills.plugin.js). Otherwise the same roller: always, pre-roll,
+ * main, separate and tertiary drops, the world's boss rare multiplier included.
+ */
+function rollUnattended(table) {
+  const drops = [];
+  const entries = Array.isArray(table.entries) ? table.entries : [];
+  for (const entry of entries) {
+    if (entry.always) drops.push(...resolveEntry(entry, null, null));
+  }
+  const rolls = Number.isInteger(table.rolls) && table.rolls > 1 ? table.rolls : 1;
+  for (let roll = 0; roll < rolls; roll++) {
+    drops.push(...rollOnce(table, entries, null, roll === 0, null, []));
+  }
+  for (const entry of table.tertiary || []) {
+    if (Number(entry.out_of) <= 1 || entry.name === LOOTING_BAG) continue;
+    if (hits(entry, rareMultiplier(table, entry))) drops.push(...resolveEntry(entry, null, null));
+  }
+  return drops;
+}
+
+/** Every boss with a drop table, one per table (a boss's forms share theirs): [{ npcId, name }]. */
+function bossTables() {
+  const seen = new Set();
+  const list = [];
+  for (const [npcId, tables] of tablesByNpc) {
+    const table = tables[0];
+    if (!table || !table.boss || seen.has(table)) continue;
+    seen.add(table);
+    const cached = pluginApi?.core?.CacheDefinitions?.getNpc?.(npcId)?.name;
+    list.push({ npcId, name: String(table.wiki_page || cached || npcId) });
+  }
+  return list;
+}
+
+/**
  * Answers npc-drops:roll-shared { player, table, drops, ringOfWealth }: one roll of a shared table
  * by name ("gem", "rareSeed", "usefulHerb" ...), pushed onto `drops`; an empty slot pushes nothing.
  * For content outside NPC kills that rolls the same tables (sorting salvage). `ringOfWealth: false`
@@ -1061,6 +1104,45 @@ function tableForNpc(npcId, player = null, npc = null) {
   return tables[0];
 }
 
+/** Kofi's developer dagger (custom item 50006): every kill it makes also drops the table's rarest item (kofi 01:27). */
+const DEVELOPER_DAGGER = 50006;
+
+function wieldingDeveloperDagger(player) {
+  try {
+    const { Equipment } = pluginApi.core;
+    const weapon = player?.getEquipment?.()?.getItems?.()[Equipment.WEAPON_SLOT]?.getId?.();
+    return weapon === DEVELOPER_DAGGER || weapon === 50008; // the developer's shortbow too (kofi 02:36)
+  } catch (error) {
+    return false;
+  }
+}
+
+/** The table's rarest item row (the lowest weight / out_of that names an item), resolved as a roll would. */
+function rarestDrop(table, player, npc) {
+  let rarest = null;
+  let chance = Infinity;
+  const rares = [];
+  for (const entry of [...(table.entries || []), ...(table.tertiary || [])]) {
+    if (entry.always || entry.nothing || entry.shared_table || !Number.isInteger(entry.item_id ?? entry.itemId)) continue;
+    const outOf = Number(entry.out_of ?? entry.outOf);
+    const weight = Number.isInteger(entry.weight) ? entry.weight : 1;
+    const odds = outOf > 0 ? weight / outOf : 1;
+    if (odds < RARE_CHANCE) rares.push(entry);
+    if (odds < chance) {
+      chance = odds;
+      rarest = entry;
+    }
+  }
+  // One of its rares at random (kofi 02:36: not always the same drop); the rarest when it has none that rare.
+  if (rares.length) rarest = rares[Math.floor(Math.random() * rares.length)];
+  if (!rarest) return [];
+  try {
+    return resolveEntry(rarest, player, killContext(player, npc));
+  } catch (error) {
+    return [];
+  }
+}
+
 function dropFor(player, npc, npcId, location, damagers = []) {
   const table = tableForNpc(npcId, player, npc);
   if (!itemOnGroundManager) {
@@ -1069,6 +1151,7 @@ function dropFor(player, npc, npcId, location, damagers = []) {
 
   // A kill with no base table can still receive contextual drops from plugins.
   const drops = table ? rollTable(table, player, npc) : [];
+  if (table && wieldingDeveloperDagger(player)) drops.push(...rarestDrop(table, player, npc));
   // Loot that depends on where or what the NPC was rather than its table (the Catacombs of
   // Kourend's totem pieces and shards), added before anything below reads the drops.
   pluginApi?.emitCustomEvent("npc-drops:add", { player, npc, npcId, drops });
@@ -1084,6 +1167,16 @@ function dropFor(player, npc, npcId, location, damagers = []) {
   pluginApi.emitCustomEvent("npc-drops:location", where);
   placeDrops(player, drops, where.location, where.public === true ? { public: true } : {});
   reportLoot(player, npcId, drops);
+  // A boss's rare drop is news to everyone online (kofi: as RuneScape 3 does).
+  if (isBoss(npcId)) {
+    const source = sourceName(npc, npcId);
+    for (const drop of drops) {
+      const item = ItemDefinition.forId(drop.itemId)?.getName?.();
+      // Not clue scrolls (every boss's tertiary): news for the uniques, pets and jars.
+      if (!drop.rare || !item || /clue scroll|clue box/i.test(item)) continue;
+      DropNews.announce(pluginApi.core, { player, item, amount: drop.amount, source });
+    }
+  }
   return drops.length;
 }
 
@@ -1165,6 +1258,17 @@ module.exports = {
     };
     ensureDropsLoaded = ensureDrops;
     api.onCustomEvent("npc-drops:extra-rolls", extraRolls);
+    // Server custom (boss bots' drop log): "npc-drops:bosses" { list } lists every boss with a drop
+    // table; "npc-drops:roll-unattended" { npcId, drops } rolls one of its kills with nobody there.
+    api.onCustomEvent("npc-drops:bosses", (request) => {
+      ensureDrops();
+      if (Array.isArray(request?.list)) request.list.push(...bossTables());
+    });
+    api.onCustomEvent("npc-drops:roll-unattended", (request) => {
+      ensureDrops();
+      const table = tableForNpc(request?.npcId);
+      if (table && Array.isArray(request?.drops)) request.drops.push(...rollUnattended(table));
+    });
     api.onCustomEvent("npc-drops:roll-shared", rollSharedRequest);
 
     // "npc-drops:roll-table" { player, table, drops }: a table outside an NPC's own (a boss's

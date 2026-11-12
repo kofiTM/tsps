@@ -5,8 +5,9 @@
  * mode); the server sets those, the bar's colours, and runs its open and fade scripts.
  *
  * Bosses drive it per player through custom events (each sends only what changed):
- * - "boss-hud:show" { player, npcId, current, maximum, colours? } - the values, the bar's colours,
- *   the open script and a fade in.
+ * - "boss-hud:show" { player, npcId, current, maximum, colours?, name? } - the values, the bar's colours,
+ *   the open script and a fade in. `name` is the title over the bar; send it with npcId -1, since with an npc
+ *   the client (script 2103) writes that npc's name over it (the Nylocas' waves, whose bar is its pillars).
  * - "boss-hud:update" { player, npcId?, current?, maximum?, colours?, force? } - any of them; new
  *   colours are redrawn (the Doom's shield turns the bar blue).
  * - "boss-hud:fade" { player, fadeIn } - fades it in or out and leaves it there.
@@ -40,6 +41,8 @@ const FADE_IN_SCRIPT = 2887;
 const FADE_OUT_SCRIPT = 2889;
 const CLEAR_SCRIPT = 2249;
 const HP = uid(5);
+/** creature_name: the name over the bar, from the npc in varp 1683 unless a `name` is sent. */
+const NAME = uid(9);
 const CONTAINER = uid(1);
 const OPEN_COMPONENTS = [0, 2, 4, 5, 8, 10, 21, 14, 15, 16, 9, 6, 7, 12, 19, 20, 17, 18, 3].map(uid);
 const REDRAW_COMPONENTS = [5, 21, 14, 15, 16, 8, 9, 19, 20, 17, 18].map(uid);
@@ -102,7 +105,14 @@ function sendValues(player, state, { npcId, current, maximum }, force) {
   if (maximum != null && (force || maximum !== state.maximum)) sender.sendVarbit(MAXIMUM_VARBIT, (state.maximum = maximum));
 }
 
-function showHud({ player, npcId, current, maximum, colours = COLOURS }) {
+/** A name of its own over the bar, sent after the client's scripts have drawn the npc's. */
+function sendName(player, state, name, force) {
+  if (name == null || (!force && name === state.name)) return;
+  state.name = name;
+  player.getPacketSender().sendString(name, NAME);
+}
+
+function showHud({ player, npcId, current, maximum, colours = COLOURS, name }) {
   if (!player) return;
   if (npcId != null) bossNpcIds.add(npcId);
   const state = stateOf(player);
@@ -116,13 +126,20 @@ function showHud({ player, npcId, current, maximum, colours = COLOURS }) {
   state.colours = colours;
   sender.sendInterfaceScript(OPEN_SCRIPT, OPEN_COMPONENTS);
   sender.sendInterfaceScript(FADE_IN_SCRIPT, [...FADE_COMPONENTS, SHOW_FADE_FROM]);
+  // A bar without a name of its own keeps the npc's (none left from an earlier boss).
+  state.name = null;
+  sendName(player, state, name, true);
 }
 
-function updateHud({ player, npcId, current, maximum, colours, force = false }) {
+function updateHud({ player, npcId, current, maximum, colours, force = false, name }) {
   if (!player) return;
   if (npcId != null) bossNpcIds.add(npcId);
   const state = stateOf(player);
+  const npcChanged = npcId != null && npcId !== state.npcId;
   sendValues(player, state, { npcId, current, maximum }, force);
+  // A new npc redraws the client's name: ours again after it (or its own, if it comes without one).
+  if (npcChanged && name == null) state.name = null;
+  sendName(player, state, name, force || npcChanged);
   if (colours && (force || colours.join() !== state.colours?.join())) {
     sendColours(player, colours);
     state.colours = colours;
@@ -138,7 +155,7 @@ function fadeHud({ player, fadeIn }) {
 function clear(player, hideHp = true) {
   const state = stateOf(player);
   unwatch(player, state);
-  Object.assign(state, { npcId: -1, current: -1, maximum: -1, colours: null, mode: null });
+  Object.assign(state, { npcId: -1, current: -1, maximum: -1, colours: null, name: null, mode: null });
   const sender = player.getPacketSender()
     .sendConfig(NPC_VARP, -1)
     .sendVarbit(CURRENT_VARBIT, 0)
