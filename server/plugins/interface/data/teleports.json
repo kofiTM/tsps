@@ -1073,12 +1073,12 @@
       "tab": "bosses",
       "group": "God Wars Dungeon",
       "tile": [
-        2883,
-        5280,
-        2
+        2905,
+        5203,
+        0
       ],
       "icon": "zaryte_vambraces",
-      "description": "The God Wars side of the frozen door to Nex's prison.",
+      "description": "Nex's safe room, beside Ashuelot Reis's bank and the Ancient Barrier.",
       "kc": "Nex",
       "terms": "gwd ancient zaros"
     },

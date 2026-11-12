@@ -16,7 +16,8 @@ const RECENT_ATTRIBUTE = "teleports:recent";
 const SKIP_WILDERNESS_WARNING_ATTRIBUTE = "teleports:skip-wilderness-warning";
 const RECENT_LIMIT = 5;
 const DATA_PART_BYTES = 40000;
-const OP = { SELECT: 1, TELEPORT: 2, FAVOURITE: 3 };
+// In ROW_ACTIONS order (Layout.TeleportInterface.js): left-click is Teleport.
+const OP = { TELEPORT: 1, SELECT: 2, FAVOURITE: 3 };
 const SEARCH_MAX_LENGTH = 40;
 const TAB_UIDS = TAB_ORDER.map((_, index) => uid(COMPONENT.TAB_START + index));
 const ROW_UIDS = Array.from({ length: Layout.ROW_SLOTS }, (_, slot) => uid(COMPONENT.ROW_LABEL_START + slot));
@@ -239,6 +240,13 @@ function clickTeleportButton({ player }) {
   return true;
 }
 
+/** teleport-interface:open { player } - another plugin (the Lumbridge Home Teleport) opens the menu. */
+function openFromEvent(request) {
+  if (!request?.player) return;
+  open(request.player);
+  request.opened = true;
+}
+
 function clickFavouriteButton({ player }) {
   const entry = selected(player);
   if (entry) toggleFavourite(player, entry);
@@ -256,7 +264,11 @@ module.exports = {
     api.persistAttribute(FAVOURITES_ATTRIBUTE, []);
     api.persistAttribute(RECENT_ATTRIBUTE, []);
     api.persistAttribute(SKIP_WILDERNESS_WARNING_ATTRIBUTE, false);
-    api.registerCommand("teleports", openTeleports, undefined, "Browse teleport destinations (Ctrl+;, optional search text, or 'last')");
+    // The client's build reads this plugin with a bare api (no core): the rank is only there in-game.
+    const staff = api.core?.PlayerRights?.MODERATOR;
+    api.registerCommand("teleports", openTeleports, staff, "Browse teleport destinations (Ctrl+;, optional search text, or 'last')");
+    api.registerCommand("t", openTeleports, staff, "Shortcut for ::teleports");
+    api.onCustomEvent("teleport-interface:open", openFromEvent);
     api.onCustomEvent("teleports:open", openTeleports);
     api.onInterfaceActionButton(TAB_UIDS, clickTab);
     api.onInterfaceActionButton(ROW_UIDS, clickRow);

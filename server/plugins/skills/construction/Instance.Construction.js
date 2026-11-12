@@ -446,6 +446,7 @@ class PlayerHouseInstance extends PrivateArea {
 
   process(mobile) {
     if (mobile.isPlayer()) House.processOccupant(mobile.getAsPlayer(), this);
+    else if (mobile.isNpc()) Menagerie.roamPet(this, mobile);
   }
 
   postLeave(mobile, logout) {

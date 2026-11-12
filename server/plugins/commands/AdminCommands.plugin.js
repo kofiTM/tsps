@@ -41,12 +41,19 @@ const {
 
 /** Read by Mobile.ts and PlayerDeath.ts: a developer with it set takes damage and loses items on death. */
 const MORTAL_DEVELOPER_ATTRIBUTE = "dev:mortal";
+/** Click-to-teleport (::tele on its own): a click on the ground moves you straight there. Not saved. */
+const CLICK_TELEPORT_ATTRIBUTE = "admin:click-teleport";
 
 const ATTACK_RANGE_DEBUG_GRAPHIC = new Graphic(332, 0);
 const MAX_NPC_COMMAND_SPAWNS = 20;
 const MAX_NPC_TYPE_ID = 0xffff; // NPC updates encode the definition id in 16 bits.
 const INFINITE_HEALTH_ATTRIBUTE = "admin:infinite-health";
 const INFINITE_RUN_ENERGY_ATTRIBUTE = "admin:infinite-run-energy";
+/** Developers keep full prayer unless they've turned it off with ::infpray (saved). */
+const INFINITE_PRAYER_OFF_ATTRIBUTE = "admin:infinite-prayer-off";
+const INVISIBLE_ATTRIBUTE = "admin:invisible";
+/** Cache: a size-1 NPC with no models (isVisible false) - wearing it, a player draws as nothing. */
+const INVISIBLE_NPC = 11858;
 const RUNE_IDS = [554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 9075, 21880, 28929];
 const FULL_RUN_ENERGY = 100;
 // Short forms ::setlevel takes that aren't the start of the skill's name (att, str, pray are).
@@ -529,6 +536,52 @@ function infiniteRunEnergyCommand({ player }) {
   return true;
 }
 
+function infinitePrayerCommand({ player }) {
+  const off = player.getAttribute(INFINITE_PRAYER_OFF_ATTRIBUTE) !== true;
+  player.setAttribute(INFINITE_PRAYER_OFF_ATTRIBUTE, off ? true : null);
+  keepPrayerFull({ player });
+  player.sendMessage(off
+    ? "Your prayer drains as normal again. ::infpray to make it infinite."
+    : "Your prayer points now stay full. ::infpray again to stop.");
+  return true;
+}
+
+/** A developer's prayer stays full (unless ::infpray turned it off). */
+/**
+ * ::invis - nobody sees you (you're drawn as a model-less NPC), no NPC can attack you (onCanAttack), and
+ * bosses that ask ("admin:is-invisible", Nex for one) leave you out entirely: no targeting, no specials.
+ * For filming. Toggles; not saved.
+ */
+function invisibleCommand({ player }) {
+  const on = player.getAttribute(INVISIBLE_ATTRIBUTE) !== true;
+  player.setAttribute(INVISIBLE_ATTRIBUTE, on ? true : null);
+  player.setNpcTransformationId(on ? INVISIBLE_NPC : -1);
+  player.sendMessage(on
+    ? "You're invisible: no one can see you and everything ignores you. ::invis again to reappear."
+    : "You're visible again.");
+  return true;
+}
+
+/** No NPC attacks an invisible player. */
+function ignoreInvisible(event) {
+  // Neither NPCs nor bots attack an invisible player.
+  if (!(event?.attacker?.isNpc?.() || event?.attacker?.isPlayerBot?.()) || !event.target?.isPlayer?.()) return;
+  if (event.target.getAttribute?.(INVISIBLE_ATTRIBUTE) === true) event.allow = false;
+}
+
+function answerInvisible(query) {
+  if (query?.player?.getAttribute?.(INVISIBLE_ATTRIBUTE) === true) query.invisible = true;
+}
+
+function keepPrayerFull({ player }) {
+  // Developer is rank 4 (PlayerRights.DEVELOPER).
+  if (player.getRights?.()?.getId?.() !== 4 || player.getAttribute(INFINITE_PRAYER_OFF_ATTRIBUTE) === true) return;
+  const { Skill } = require("../../src/main/typescript/elvarg/game/model/Skill");
+  const skills = player.getSkillManager();
+  const max = skills.getMaxLevel(Skill.PRAYER);
+  if (skills.getCurrentLevel(Skill.PRAYER) < max) skills.setCurrentLevel(Skill.PRAYER, max, true);
+}
+
 // Plugins process after the player's movement each tick, so this tops up what that step
 // drained before the tick's packets go out.
 function keepRunEnergyFull({ player }) {
@@ -536,6 +589,33 @@ function keepRunEnergyFull({ player }) {
     player.setRunEnergy(FULL_RUN_ENERGY);
     player.getPacketSender().sendRunEnergy();
   }
+}
+
+/** With click-to-teleport on, a walk click moves you straight to the tile clicked (for filming). */
+function clickTeleport(event) {
+  const { player, destination } = event;
+  if (player.getAttribute(CLICK_TELEPORT_ATTRIBUTE) !== true) return;
+  event.handled = true;
+  player.moveTo(new Location(destination.x, destination.y, destination.z));
+}
+
+/** What ::cash puts in your inventory. */
+const CASH_AMOUNT = 100_000_000;
+
+/** ::cash - 100m coins straight into your inventory (only what fits on the stack). */
+function cashCommand(core, { player }) {
+  const inventory = player.getInventory();
+  const coins = core.ItemIdentifiers.COINS;
+  const before = inventory.getAmount(coins);
+  const room = inventory.getAddableAmount(new core.Item(coins, CASH_AMOUNT));
+  if (room > 0) inventory.adds(coins, room);
+  const given = inventory.getAmount(coins) - before;
+  if (given <= 0) {
+    player.sendMessage(before > 0 ? "Your coin stack is already full." : "You need a free inventory slot for the coins.");
+    return true;
+  }
+  player.sendMessage(`You spawned ${given.toLocaleString("en-US")} coins!`);
+  return true;
 }
 
 /** ::give id [amount] player - puts items in an online player's inventory, as ::item does in yours. */
@@ -977,8 +1057,15 @@ module.exports = {
     RegionManager = api.getRegionManager();
     PlayerPunishment = api.getPlayerPunishment();
     api.registerCommand("tele", ({ player, parts }) => {
+      // On its own: click-to-teleport on or off.
+      if (parts.length === 1) {
+        const on = player.getAttribute(CLICK_TELEPORT_ATTRIBUTE) !== true;
+        player.setAttribute(CLICK_TELEPORT_ATTRIBUTE, on ? true : null);
+        player.sendMessage(on ? "Click teleport on: click anywhere to teleport there. ::tele again to stop." : "Click teleport off.");
+        return true;
+      }
       if (parts.length < 3 || parts.length > 4) {
-        player.sendMessage("Usage: ::tele x y [z]");
+        player.sendMessage("Usage: ::tele x y [z], or ::tele to toggle click teleport");
         return true;
       }
       const x = parseIntArg(parts[1]);
@@ -990,17 +1077,18 @@ module.exports = {
       }
       player.moveTo(new Location(x, y, z));
       return true;
-    }, PlayerRights.ADMINISTRATOR, "Teleport to coordinates");
+    }, PlayerRights.ADMINISTRATOR, "Teleport to coordinates (::tele x y [z]), or ::tele alone to toggle click teleport");
+    api.onWalkRoute(clickTeleport);
 
     // Developers take no damage; this turns it on (and off again) to test fights for real.
     api.registerCommand("mortal", ({ player }) => {
       const mortal = player.getAttribute(MORTAL_DEVELOPER_ATTRIBUTE) !== true;
       player.setAttribute(MORTAL_DEVELOPER_ATTRIBUTE, mortal ? true : null);
       player.sendMessage(mortal
-        ? "You now take damage and lose items on death, like any player. ::mortal again to stop."
-        : "You no longer take damage, and keep everything on death.");
+        ? "You now take damage, like any player (you still keep everything on death). ::mortal again to stop."
+        : "You no longer take damage.");
       return true;
-    }, PlayerRights.DEVELOPER, "Toggle taking damage and losing items on death as a developer (this session)");
+    }, PlayerRights.DEVELOPER, "Toggle taking damage as a developer (this session); developers always keep everything on death");
 
     api.registerCommand("coords", ({ player }) => {
       const location = player.getLocation();
@@ -1428,6 +1516,12 @@ module.exports = {
 
     api.registerCommand("infrun", infiniteRunEnergyCommand, PlayerRights.OWNER, "Toggle infinite run energy");
     api.onPlayerProcess(keepRunEnergyFull);
+    api.registerCommand("infpray", infinitePrayerCommand, PlayerRights.DEVELOPER, "Toggle infinite prayer (on by default for developers)");
+    api.persistAttribute?.(INFINITE_PRAYER_OFF_ATTRIBUTE, false);
+    api.onPlayerProcess(keepPrayerFull);
+    api.registerCommand("invis", invisibleCommand, PlayerRights.DEVELOPER, "Toggle invisibility: unseen by everyone, ignored by everything");
+    api.onCustomEvent("admin:is-invisible", answerInvisible);
+    api.onCanAttack(ignoreInvisible);
 
     api.registerCommand("poisonme", ({ player, parts }) => {
       const typeToken = String(parts?.[1] ?? "super").trim().toLowerCase();
@@ -1634,6 +1728,7 @@ module.exports = {
     }, PlayerRights.ADMINISTRATOR, "Spawn an item");
 
     api.registerCommand("give", giveItemCommand.bind(null, api.core), PlayerRights.ADMINISTRATOR, "Give a player an item (id [amount] player)");
+    api.registerCommand("cash", cashCommand.bind(null, api.core), PlayerRights.DEVELOPER, "Put 100m coins in your inventory");
 
     api.registerCommand("clearinv", ({ player }) => {
       player.getInventory().resetItems().refreshItems();
@@ -1808,7 +1903,7 @@ module.exports = {
     api.registerCommand("unipban", ipPunishmentCommand, PlayerRights.OWNER, "Remove IP ban (player or IP address)");
 
     if (!Server.PRODUCTION) {
-      api.registerCommand("t", ({ player }) => {
+      api.registerCommand("walltest", ({ player }) => {
         console.log(RegionManager.wallsExist(player.getLocation().clone(), player.getPrivateArea()));
         return true;
       }, PlayerRights.DEVELOPER, "Test wall collision");

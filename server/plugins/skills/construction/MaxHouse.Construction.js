@@ -7,6 +7,7 @@ const Instance = require("./Instance.Construction");
 const Portals = require("./Portals.Construction");
 const Nexus = require("./Nexus.Construction");
 const Trophies = require("./Trophies.Construction");
+const StorageState = require("./StorageState.Construction");
 
 // ::maxhouse (developer): replaces the house with one of every room, each with the best piece on
 // every space, for testing. The old house is kept for ::restorehouse. Levels, room counts and the
@@ -147,6 +148,45 @@ function maxHouse({ player }) {
   player.sendMessage(`Your house now has ${count} rooms, all furnished. ::restorehouse brings the old one back.`);
 }
 
+// ::furnish (developer): keeps the house's own rooms where they are and puts the best piece on
+// every space in each, set up as ::maxhouse does. The house before it is kept for ::restorehouse.
+function furnish({ player }) {
+  const current = House.houseStateFor(player);
+  if (current.owned === false) return player.sendMessage("You do not own a house. Speak to an Estate agent to buy one.");
+  player.setAttribute(BACKUP_ATTRIBUTE, JSON.parse(JSON.stringify(current)));
+  House.releaseHouse(player, false);
+  const save = JSON.parse(JSON.stringify(current));
+  let count = 0;
+  for (const plane of save.rooms) for (const column of plane) for (const room of column) {
+    if (!room || !Data.ROOM_BY_KEY.has(room.roomKey)) continue;
+    room.furniture = furnished(room.roomKey);
+    count++;
+  }
+  player.setAttribute(HOUSE_ATTRIBUTE, save);
+  if (!House.enterHouse(player, false)) return player.sendMessage("Couldn't load the furnished house.");
+  const house = House.houseFor(player);
+  if (house) {
+    setUp(player, house);
+    House.rebuildHouse(player, house);
+  }
+  player.sendMessage(`Furnished all ${count} of your rooms with the best pieces. ::restorehouse undoes it.`);
+}
+
+// ::resethouse (developer): every room removed, back to the house an Estate agent sells (the garden
+// with its exit portal and an empty parlour). Location and style stay; ::restorehouse undoes it.
+function resetHouse({ player }) {
+  const current = House.houseStateFor(player);
+  if (current.owned === false) return player.sendMessage("You do not own a house. Speak to an Estate agent to buy one.");
+  player.setAttribute(BACKUP_ATTRIBUTE, JSON.parse(JSON.stringify(current)));
+  House.releaseHouse(player, false);
+  const save = { ...JSON.parse(JSON.stringify(current)), rooms: StorageState.createDefaultHouseSave().rooms };
+  delete save.prize;
+  delete save.treasure;
+  player.setAttribute(HOUSE_ATTRIBUTE, save);
+  if (!House.enterHouse(player, false)) return player.sendMessage("Couldn't load the reset house.");
+  player.sendMessage("Your house is back to a garden and an empty parlour. ::restorehouse undoes it.");
+}
+
 function restoreHouse({ player }) {
   const backup = player.getAttribute(BACKUP_ATTRIBUTE);
   if (!backup) return player.sendMessage("There is no saved house to restore.");
@@ -157,4 +197,4 @@ function restoreHouse({ player }) {
   player.sendMessage("Your old house is back. Enter it at your house portal.");
 }
 
-Object.assign(module.exports, { maxHouse, restoreHouse, BACKUP_ATTRIBUTE });
+Object.assign(module.exports, { maxHouse, furnish, resetHouse, restoreHouse, BACKUP_ATTRIBUTE });

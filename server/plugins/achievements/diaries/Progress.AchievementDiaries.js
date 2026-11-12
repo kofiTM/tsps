@@ -152,8 +152,12 @@ function notifyTaskProgress(player, diary, taskKey) {
   return true;
 }
 
-/** Returns false for unknown or completed tasks; emits `diary:task-completed` after normal updates. */
-function completeTask(player, diary, taskKey) {
+/**
+ * Returns false for unknown or completed tasks; emits `diary:task-completed` after normal updates.
+ * `silent` (bulk completion, kofi) skips the chat message and the tier-complete dialogue, setting the
+ * tier's complete varbit at once.
+ */
+function completeTask(player, diary, taskKey, { silent = false } = {}) {
   const tier = tierOfTask(diary, taskKey);
   if (!tier) return false;
   const done = doneTasks(player, diary);
@@ -162,10 +166,13 @@ function completeTask(player, diary, taskKey) {
   done.add(taskKey);
   store(player, TASKS_ATTRIBUTE, diary, [...done]);
   const sender = player.getPacketSender();
-  player.sendMessage(`<col=dc143c>Well done! You have completed ${tier === "easy" || tier === "elite" ? "an" : "a"} ${tier} task in the ${diary.name} area. Your Achievement Diary has been updated.</col>`);
+  if (!silent) player.sendMessage(`<col=dc143c>Well done! You have completed ${tier === "easy" || tier === "elite" ? "an" : "a"} ${tier} task in the ${diary.name} area. Your Achievement Diary has been updated.</col>`);
   sender.sendVarbit(diary.tiers[tier].countVarbit, tierCount(player, diary, tier));
   if (!wasStarted) sender.sendVarbit(diary.startedVarbit, 1);
-  if (isTierComplete(player, diary, tier)) {
+  if (silent && isTierComplete(player, diary, tier)) {
+    const data = diary.tiers[tier];
+    sender.sendVarbit(data.completeVarbit, data.completeValue ?? 1);
+  } else if (isTierComplete(player, diary, tier)) {
     api.emitCustomEvent("persistence:save", { player, reason: "diary-tier-completion" });
     const generation = advanceTierGeneration(player, diary, tier);
     api.getTaskManager().submit(new (class extends core.Task {

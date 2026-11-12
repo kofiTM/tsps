@@ -1,5 +1,4 @@
 import { GameConstants } from "../../GameConstants";
-import { MORTAL_DEVELOPER_ATTRIBUTE } from "../../entity/impl/Mobile";
 import { CombatFactory } from "../../content/combat/CombatFactory";
 import { ItemOnGroundManager } from "../../entity/impl/grounditem/ItemOnGroundManager";
 import { Player } from "../../entity/impl/player/Player";
@@ -116,7 +115,11 @@ export class PlayerDeathTask extends Task {
                         itemsLost: this.loseItems,
                     });
 
-                    if (!handledDeath) {
+                    if (PlayerDeathTask.keepsEverything(this.player)) {
+                        // Owners and developers always wake at the world spawn (Edgeville), whatever
+                        // the area's own respawn would be.
+                        this.player.moveTo(GameConstants.DEFAULT_LOCATION);
+                    } else if (!handledDeath) {
                         // Respawn policies run after every dangerous-death observer, including Hardcore.
                         const respawn = { player: this.player, killer: this.killer ?? null, handled: false };
                         PluginManager.emitCustomEvent("player:respawn", respawn);
@@ -329,11 +332,13 @@ export class PlayerDeathTask extends Task {
         };
     }
 
-    /** Owners and developers keep everything, unless they made themselves mortal (::mortal). */
+    /**
+     * Owners and developers keep everything on death, mortal (::mortal, taking damage) or not: no
+     * drop, no gravestone, nothing sent to a reclaim chest.
+     */
     private static keepsEverything(player: Player): boolean {
         const rights = player.getRights();
-        return (rights === PlayerRights.OWNER || rights === PlayerRights.DEVELOPER)
-            && player.getAttribute(MORTAL_DEVELOPER_ATTRIBUTE) !== true;
+        return rights === PlayerRights.OWNER || rights === PlayerRights.DEVELOPER;
     }
 
     private static splitIntoComponents(player: Player, killer: Player | null | undefined, kept: Item[], items: Item[]): Item[] {

@@ -1,6 +1,8 @@
 const WELCOME_SCREEN_GROUP_ID = 378;
 const PLAY_BUTTON_UID = (WELCOME_SCREEN_GROUP_ID << 16) | 72;
 const FIRST_OPTION_FLAG = 1 << 1;
+// Server custom: logins go straight into the game; ::welcome turns the screen back on for a player.
+const SHOW_ATTRIBUTE = "welcome-screen:show";
 // welcome_screen:motw (378:6) is empty in the cache; live sends its text every login (226/01637).
 const MOTW_UID = (WELCOME_SCREEN_GROUP_ID << 16) | 6;
 /** world.json pluginConfig: the scroll's text; league worlds replace it with their own. */
@@ -32,6 +34,7 @@ function login({ player, isNewAccount }) {
   // Mobile, new accounts and Wilderness logins enter the world directly.
   if (isNewAccount || player.isPlayerBot?.() === true || inWilderness(player)
       || player.getAttribute(api.core.MOBILE_CLIENT_ATTRIBUTE) === true) return;
+  if (player.getAttribute(SHOW_ATTRIBUTE) !== true) return;
   pending.add(player);
   // The synchronous login bootstrap initializes camera, chat and account varcs first.
   queueMicrotask(() => showWelcomeScreen(player));
@@ -60,6 +63,13 @@ function play({ player }) {
   return false;
 }
 
+function toggle({ player }) {
+  const show = player.getAttribute(SHOW_ATTRIBUTE) !== true;
+  player.setAttribute(SHOW_ATTRIBUTE, show);
+  player.sendMessage(show ? "The welcome screen will show when you log in." : "You'll go straight into the game when you log in.");
+  return true;
+}
+
 function clear({ player }) {
   pending.delete(player);
   visible.delete(player);
@@ -77,6 +87,8 @@ module.exports = {
   dependsOn: ["Wilderness"],
   register(pluginApi) {
     api = pluginApi;
+    api.persistAttribute(SHOW_ATTRIBUTE, false);
+    api.registerCommand("welcome", toggle, api.core.PlayerRights.NONE, "Toggle the welcome screen at login (off by default)");
     api.onPlayerLogin(login);
     api.onInterfaceActionButton(PLAY_BUTTON_UID, play);
     api.onPlayerDisconnect(clear);

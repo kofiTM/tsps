@@ -25,7 +25,8 @@ const ROW_SLOTS = 10;
 const ROW_HEIGHT = 26;
 const LIST = { x: 18, y: 96, width: 258, height: 204 };
 const PANEL = { x: 298, y: 56, width: 178, height: 244 };
-const ROW_ACTIONS = ["Select", "Teleport", "Favourite"];
+// Teleport first: a left-click on a row teleports straight away (server custom; Select is on the right-click menu).
+const ROW_ACTIONS = ["Teleport", "Select", "Favourite"];
 const uid = (component) => (GROUP_ID << 16) | component;
 
 const text = (x, y, width, height, overrides = {}) => ({

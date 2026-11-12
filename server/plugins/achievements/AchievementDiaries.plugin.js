@@ -84,6 +84,30 @@ function onAllComplete(request) {
   }
 }
 
+/**
+ * diary:complete-all { player } - every task in every diary, quietly, and every tier's reward
+ * claimed. Comes back with `tasks` (newly done) and `items` (reward ids, for the caller to place).
+ */
+function onCompleteAll(request) {
+  const { player } = request;
+  if (!player) return;
+  request.tasks = 0;
+  request.items = [];
+  for (const diary of DIARIES) {
+    for (const tier of TIERS) {
+      for (const task of diary.tiers[tier].tasks) {
+        if (Progress.completeTask(player, diary, task.key, { silent: true })) request.tasks++;
+      }
+    }
+    const claimed = Progress.claimedTiers(player, diary);
+    for (const tier of TIERS) {
+      if (claimed.has(tier)) continue;
+      request.items.push(...diary.tiers[tier].rewardItems);
+      Progress.claimTier(player, diary, tier);
+    }
+  }
+}
+
 function describe(player, diary) {
   const tiers = TIERS.map((tier) => `${tier} ${Progress.tierCount(player, diary, tier)}/${diary.tiers[tier].tasks.length}`);
   return `${diary.name}: ${tiers.join(", ")}.`;
@@ -198,6 +222,7 @@ module.exports = {
     api.onCustomEvent("diary:is-reward-claimed", onIsRewardClaimed);
     api.onCustomEvent("diary:all-complete", onAllComplete);
     api.onCustomEvent("diary:tokkul", onTokkul);
+    api.onCustomEvent("diary:complete-all", onCompleteAll);
     api.registerCommand("diary", diaryCommand, api.core.PlayerRights.ADMINISTRATOR, "Show or set achievement diary progress: ::diary <name> [tier|all] [complete|reset]");
   },
   _test: { diaryCommand, findDiaries, onTask, onIsComplete, onIsStarted, onHasTask, onAllComplete, onTokkul },

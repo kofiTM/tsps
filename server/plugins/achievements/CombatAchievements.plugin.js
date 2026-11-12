@@ -84,6 +84,24 @@ function onSummary(request) {
     .map((monster) => monster.name);
 }
 
+/**
+ * combat-achievements:complete-all { player } - every task, quietly, and every tier's reward
+ * claimed. Comes back with `tasks` (newly done) and `items` (reward ids, for the caller to place).
+ */
+function onCompleteAll(request) {
+  const { player } = request;
+  if (!player) return;
+  request.tasks = 0;
+  request.items = [];
+  for (const task of Data.tasks().values()) {
+    if (Progress.complete(player, task, { silent: true })) request.tasks++;
+  }
+  for (const tier of Progress.claimableTiers(player)) {
+    request.items.push(...Rewards.rewardItems(tier));
+    Progress.setClaimed(player, tier);
+  }
+}
+
 function onOpen({ player, collectionLogCategory }) {
   if (!player) return;
   if (collectionLogCategory) Interface.openForCollectionLog(player, collectionLogCategory);
@@ -148,6 +166,7 @@ module.exports = {
     api.onCustomEvent("combat-achievements:failed", onFailed);
     api.onCustomEvent("combat-achievements:open", onOpen);
     api.onCustomEvent("combat-achievements:tier", onTier);
+    api.onCustomEvent("combat-achievements:complete-all", onCompleteAll);
     api.onCustomEvent("combat-achievements:summary", onSummary);
     api.registerCommand("ca", caCommand, api.core.PlayerRights.ADMINISTRATOR, "Combat Achievements: ::ca complete <task> | kc <monster> <n> | reset");
   },

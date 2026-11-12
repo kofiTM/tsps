@@ -1495,7 +1495,9 @@ function attach(api) {
   api.registerCommand("housemats", Commands.houseMaterials, PlayerRights.DEVELOPER, "Spawn the materials to build a piece of furniture or a room");
   api.registerCommand("deletehouse", Commands.deleteHouse, PlayerRights.DEVELOPER, "Delete your house, so you have to buy a new one");
   api.registerCommand("maxhouse", MaxHouse.maxHouse, PlayerRights.DEVELOPER, "Replace your house with one of every room, fully furnished (::restorehouse undoes it)");
-  api.registerCommand("restorehouse", MaxHouse.restoreHouse, PlayerRights.DEVELOPER, "Bring back the house ::maxhouse replaced");
+  api.registerCommand("furnish", MaxHouse.furnish, PlayerRights.DEVELOPER, "Put the best piece on every space in your house's own rooms (::restorehouse undoes it)");
+  api.registerCommand("resethouse", MaxHouse.resetHouse, PlayerRights.DEVELOPER, "Remove every room, back to a new house's garden and parlour (::restorehouse undoes it)");
+  api.registerCommand("restorehouse", MaxHouse.restoreHouse, PlayerRights.DEVELOPER, "Bring back the house ::maxhouse, ::furnish or ::resethouse replaced");
   api.persistAttribute(MaxHouse.BACKUP_ATTRIBUTE, null);
   api.onObjectFirstClick(ROOM_DOOR_HOTSPOT_IDS, openRoomDoor);
   api.onObjectFifthClick(ROOM_DOOR_HOTSPOT_IDS, openRoomDoor);

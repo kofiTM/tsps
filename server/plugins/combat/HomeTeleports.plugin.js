@@ -39,13 +39,36 @@ const SCROLLS = [
 
 /** Destinations (Wiki): a tile, or a random tile in an area. */
 const HOMES = new Map([
-  ["lumbridge home teleport", { x: 3222, y: 3218, members: false }],
+  // Server custom: for staff, casting it opens the ::teleports menu (which has Lumbridge) instead.
+  ["lumbridge home teleport", { x: 3222, y: 3218, members: false, opensTeleportMenu: true }],
   ["edgeville home teleport", { x: 3087, y: 3501, width: 4, height: 4 }],
   ["lunar home teleport", { x: 2094, y: 3913 }],
   ["arceuus home teleport", { x: 1698, y: 3880, width: 5, height: 5 }],
 ]);
 
+// Server custom: staff, whose Lumbridge Home Teleport opens the teleport menu, see it named for that
+// menu. The spellbook's scripts name and describe each spell from its spell item's params 601 and
+// 602 (oc_param), so the client is sent those (GamemodeContentStore objParamOverrides).
+const SPELL_NAME_PARAM = 601;
+const SPELL_DESCRIPTION_PARAM = 602;
+const TELEPORT_MENU_SPELL_NAME = "Developers Teleports";
+const TELEPORT_MENU_SPELL_DESCRIPTION = "Developer teleports - opens the teleport menu: every boss, minigame, skilling spot and city. No runes, no cooldown.";
+const OBJ_PARAM_OVERRIDES_DATASET = "objParamOverrides";
+
 let core;
+let pluginApi;
+
+/** Moderator and up; everyone else casts the spell as normal. */
+function isStaff(player) {
+  return (player.getRights?.()?.getId?.() ?? 0) >= core.PlayerRights.MODERATOR.getId();
+}
+
+/** Asks TeleportInterface to open its menu; false when nothing opened it (plugin disabled). */
+function openTeleportMenu(player) {
+  const request = { player, opened: false };
+  pluginApi.emitCustomEvent("teleport-interface:open", request);
+  return request.opened;
+}
 
 function spellName(event) {
   const itemId = event.itemId ?? -1;
@@ -85,6 +108,7 @@ function castHomeTeleport(event) {
     return;
   }
   if (op !== 1) return;
+  if (home.opensTeleportMenu && isStaff(player) && openTeleportMenu(player)) return;
   const left = minutesLeft(Number(player.getAttribute(LAST_HOME_TELEPORT_ATTRIBUTE)), COOLDOWN_MINUTES);
   if (left > 0) {
     player.sendMessage(`You need to wait another ${left} minutes to cast this spell.`);
@@ -169,11 +193,25 @@ function sendLastHomeTeleport({ player }) {
   }
 }
 
+/** Staff get the menu's name and description; everyone else an empty set, clearing any a staff login left in the client. */
+function nameTeleportMenuSpell({ player }) {
+  if (!player.getSession?.()) return;
+  const spell = isStaff(player) ? CacheDefinitions.getSpellByName("Lumbridge Home Teleport") : null;
+  player.getPacketSender().sendContentData("server", [{
+    key: OBJ_PARAM_OVERRIDES_DATASET,
+    rows: !spell ? [] : [{
+      objId: spell.itemId,
+      params: { [SPELL_NAME_PARAM]: TELEPORT_MENU_SPELL_NAME, [SPELL_DESCRIPTION_PARAM]: TELEPORT_MENU_SPELL_DESCRIPTION },
+    }],
+  }]);
+}
+
 module.exports = {
   name: "HomeTeleports",
   description: "The free home teleport of the standard, Ancient, Lunar and Arceuus spellbooks, with the long cast and one shared 30-minute cooldown.",
   register(api) {
     core = api.core;
+    pluginApi = api;
     api.persistAttribute(LAST_HOME_TELEPORT_ATTRIBUTE);
     api.persistAttribute(UNLOCKED_ATTRIBUTE, 0);
     api.persistAttribute(TOGGLES_ATTRIBUTE, 1);
@@ -183,6 +221,7 @@ module.exports = {
     api.onItemAction("Trailblazer teleport scroll", { Read: readScroll });
     api.onItemAction("Shattered teleport scroll", { Read: readScroll });
     api.onPlayerLogin(sendLastHomeTeleport);
+    api.onPlayerLogin(nameTeleportMenuSpell);
   },
 };
 

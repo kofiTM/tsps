@@ -93,6 +93,9 @@ const PETS = [
   { enumName: "ORION_ROBED", petId: NpcIdentifiers.ORION_2, houseNpcId: NpcIdentifiers.ORION_4, morphId: NpcIdentifiers.ORION, itemId: ItemIdentifiers.ORION_3, familyItemId: ItemIdentifiers.ORION, dialogue: -1 },
   { enumName: "SMOL_HEREDIT", petId: NpcIdentifiers.SMOL_HEREDIT_2, morphId: 0, itemId: 28960, dialogue: -1, mainDrop: true },
   { enumName: "NEXLING", petId: NpcIdentifiers.NEXLING_2, houseNpcId: NpcIdentifiers.NEXLING, morphId: 0, itemId: 26348, dialogue: -1 },
+  // Nex: Angel of Death's pet (npc 17005 / item 50331: plugins/bosses/NexAod.plugin.js, custom-items.json).
+  { enumName: "LIL_ANGEL", petId: 17005, morphId: 0, itemId: 50331, dialogue: -1 },
+  { enumName: "REEVES", petId: 17006, morphId: 0, itemId: 50332, dialogue: -1 },
   { enumName: "VORKI", petId: NpcIdentifiers.VORKI_2, houseNpcId: NpcIdentifiers.VORKI, morphId: 0, itemId: 21992, dialogue: -1 },
   // Phantom Muspah: each form change uses charged ice (Wiki, Metamorphosis).
   { enumName: "MUPHIN", petId: 12014, morphId: 12015, itemId: 27590, dialogue: -1,
@@ -743,6 +746,15 @@ function holdsPetItem(player, itemId) {
  * "pets:current" { player, pet }: answers with the player's follower in the world, if any
  * (Temple Trekking's followers won't leave while one wanders).
  */
+/**
+ * "pets:summon" { player, itemId, summoned }: the pet that item is follows the player now, as if dropped
+ * from their bag (a raid's own bot keeps its pet out: King of TOB's Lil' Zik). Nothing if one already follows.
+ */
+function summonPet(request) {
+  if (!request?.player) return;
+  request.summoned = drop(request.player, request.itemId, true, { silent: true });
+}
+
 function answerCurrentPet(request) {
   const pet = request?.player?.getAttribute?.(CURRENT_PET_ATTRIBUTE);
   if (pet?.isRegistered?.()) request.pet = pet;
@@ -2268,6 +2280,7 @@ module.exports = {
     api.onCustomEvent("pets:skilling-roll", rollSkillingPet);
     api.onCustomEvent("npc-dialogue:action", reclaimPets);
     api.onCustomEvent("pets:current", answerCurrentPet);
+    api.onCustomEvent("pets:summon", summonPet);
     api.onCustomEvent("pets:owns", answerOwnsPet);
     api.onCustomEvent("pets:definitions", answerPetDefinitions);
     api.onCustomEvent("pets:eligible", answerPetEligibility);

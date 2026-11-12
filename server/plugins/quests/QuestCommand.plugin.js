@@ -47,6 +47,39 @@ function describe(player, quest) {
   return `${quest.name}: stage ${quest.getStage(player)} (${state}; completes at ${quest.completionValue ?? 2}).`;
 }
 
+/** Item id -> amount held in the inventory. */
+function inventoryCounts(player) {
+  const counts = new Map();
+  for (const item of player.getInventory().getItems()) {
+    if (item?.isValid?.()) counts.set(item.getId(), (counts.get(item.getId()) ?? 0) + item.getAmount());
+  }
+  return counts;
+}
+
+/**
+ * quest:complete-all { player } - completes every quest as `::quest <name> complete` does, without
+ * the scrolls. Reward items each quest put in the inventory are taken back out after it, so the
+ * inventory never fills. Comes back with `quests` (newly done) and `items` ({ id, amount }, for
+ * the caller to place).
+ */
+function onCompleteAll(request) {
+  const { player } = request;
+  if (!player) return;
+  request.quests = 0;
+  request.items = [];
+  for (const quest of QuestRuntime.getRegisteredQuests()) {
+    const before = inventoryCounts(player);
+    if (!quest.complete(player, { scroll: false })) continue;
+    request.quests++;
+    for (const [id, amount] of inventoryCounts(player)) {
+      const gained = amount - (before.get(id) ?? 0);
+      if (gained <= 0) continue;
+      player.getInventory().delete(id, gained);
+      request.items.push({ id, amount: gained });
+    }
+  }
+}
+
 function questCommand({ player, parts }) {
   const args = parts.slice(1);
   const last = String(args.at(-1) ?? "").toLowerCase();
@@ -80,6 +113,7 @@ module.exports = {
   description: "Adds the admin ::quest command to show, set, complete or reset a player's quest stage, for testing quest-gated content.",
   register(api) {
     api.registerCommand("quest", questCommand, PlayerRights.ADMINISTRATOR, "Show or set a quest's progress: ::quest <name> [complete|reset|<stage>]");
+    api.onCustomEvent("quest:complete-all", onCompleteAll);
   },
   _test: { questCommand, findQuests },
 };
